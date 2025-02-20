@@ -1,74 +1,855 @@
 1:
-    description: Fonds propres
+    description: Comptes de capitaux
     subcategories:
         10:
             description: Capital et réserves
             subcategories:
                 101:
-                    description: Capital social
+                    description: Capital
+                    subcategories:
+                        1011:
+                            description: Capital souscrit - non appelé
+                        1012:
+                            description: Capital souscrit - appelé, non versé
+                        1013:
+                            description: Capital souscrit - appelé, versé
+                            subcategories:
+                                10131:
+                                    description: Capital non amorti
+                                10132:
+                                    description: Capital amorti
+                        1018:
+                            description: Capital souscrit soumis à des réglementations particulières
                 102:
-                    description: Primes d'émission
-                103:
-                    description: Réserves légales
+                    description: Fonds fiduciaires
                 104:
-                    description: Réserves statutaires ou contractuelles
+                    description: Primes liées au capital social
+                    subcategories:
+                        1041:
+                            description: Primes d'émission
+                        1042:
+                            description: Primes de fusion
+                        1043:
+                            description: Primes d'apport
+                        1044:
+                            description: Primes de conversion d'obligations en actions
+                        1045:
+                            description: Bons de souscription d'actions
                 105:
-                    description: Réserves réglementées
+                    description: Écarts de réévaluation
+                    subcategories:
+                        1051:
+                            description: Réserve spéciale de réévaluation
+                        1052:
+                            description: Écart de réévaluation libre
+                        1053:
+                            description: Réserve de réévaluation
+                        1055:
+                            description: Écarts de réévaluation (autres opérations légales)
+                        1057:
+                            description: Autres écarts de réévaluation en France
+                        1058:
+                            description: Autres écarts de réévaluation à l'étranger
                 106:
-                    description: Autres réserves indisponibles
+                    description: Réserves
+                    subcategories:
+                        1061:
+                            description: Réserve légale
+                            subcategories:
+                                10611:
+                                    description: Réserve légale proprement dite
+                                10612:
+                                    description: Plus-values nettes à long terme
+                        1062:
+                            description: Réserves indisponibles
+                        1063:
+                            description: Réserves statutaires ou contractuelles
+                        1064:
+                            description: Réserves réglementées
+                            subcategories:
+                                10641:
+                                    description: Plus-values nettes à long terme
+                                10643:
+                                    description: Réserves consécutives à l'octroi de subventions d'investissement
+                                10648:
+                                    description: Autres réserves réglementées
+                        1068:
+                            description: Autres réserves
+                            subcategories:
+                                10681:
+                                    description: Réserve de propre assureur
+                                10688:
+                                    description: Réserves diverses
                 107:
-                    description: Réserve de réévaluation
+                    description: Écart d'équivalence
                 108:
-                    description: Réserves disponibles
+                    description: Compte de l'exploitant
+                109:
+                    description: Actionnaires Capital souscrit - non appelé
         11:
-            description: Résultat de l'exercice
+            description: Report à nouveau (solde créditeur ou débiteur)
             subcategories:
                 110:
-                    description: Résultat de l'exercice
-                111:
-                    description: Résultat en instance d'affectation
-                112:
-                    description: Résultat reporté
-                113:
-                    description: Résultat de liquidation
-                114:
-                    description: Résultat de fusion
-                115:
-                    description: Résultat de scission
+                    description: Report à nouveau (solde créditeur)
+                119:
+                    description: Report à nouveau (solde débiteur)
+        12:
+            description: Résultat de l'exercice (bénéfice ou perte)
+            subcategories:
+                120:
+                    description: Résultat de l'exercice (bénéfice)
+                129:
+                    description: Résultat de l'exercice (perte)
+        13:
+            description: Subventions d'investissement
+            subcategories:
+                131:
+                    description: Subventions d'équipement
+                    subcategories:
+                        1311:
+                            description: État
+                        1312:
+                            description: Régions
+                        1313:
+                            description: Départements
+                        1314:
+                            description: Communes
+                        1315:
+                            description: Collectivités publiques
+                        1316:
+                            description: Entreprises publiques
+                        1317:
+                            description: Entreprises et organismes privés
+                        1318:
+                            description: Autres
+                138:
+                    description: Autres subventions d'investissement (même ventilation que celle du compte 131)
+                139:
+                    description: Subventions d'investissement inscrites au compte de résultat
+                    subcategories:
+                        1391:
+                            description: Subventions d'équipement
+                            subcategories:
+                                13911:
+                                    description: État
+                                13912:
+                                    description: Régions
+                                13913:
+                                    description: Départements
+                                13914:
+                                    description: Communes
+                                13915:
+                                    description: Collectivités publiques
+                                13916:
+                                    description: Entreprises publiques
+                                13917:
+                                    description: Entreprises et organismes privés
+                                13918:
+                                    description: Autres
+                        1398:
+                            description: Autres subventions d'investissement (même ventilation que celle du compte 1391)
+        14:
+            description: Provisions réglementées
+            subcategories:
+                142:
+                    description: Provisions réglementées relatives aux immobilisations
+                    subcategories:
+                        1423:
+                            description: Provisions pour reconstitution des gisements miniers et pétroliers
+                        1424:
+                            description: Provisions pour investissement (participation des salariés)
+                143:
+                    description: Provisions réglementées relatives aux stocks
+                    subcategories:
+                        1431:
+                            description: Hausse des prix
+                        1432:
+                            description: Fluctuation des cours
+                144:
+                    description: Provisions réglementées relatives aux autres éléments de l'actif
+                145:
+                    description: Amortissements dérogatoires
+                146:
+                    description: Provision spéciale de réévaluation
+                147:
+                    description: Plus-values réinvesties
+                148:
+                    description: Autres provisions réglementées
+        15:
+            description: Provisions
+            subcategories:
+                151:
+                    description: Provisions pour risques
+                    subcategories:
+                        1511:
+                            description: Provisions pour litiges
+                        1512:
+                            description: Provisions pour garanties données aux clients
+                        1513:
+                            description: Provisions pour pertes sur marchés à terme
+                        1514:
+                            description: Provisions pour amendes et pénalités
+                        1515:
+                            description: Provisions pour pertes de change
+                        1516:
+                            description: Provisions pour pertes sur contrats
+                        1518:
+                            description: Autres provisions pour risques
+                153:
+                    description: Provisions pour pensions et obligations similaires
+                154:
+                    description: Provisions pour restructurations
+                155:
+                    description: Provisions pour impôts
+                156:
+                    description: Provisions pour renouvellement des immobilisations (entreprises concessionnaires)
+                157:
+                    description: Provisions pour charges à répartir sur plusieurs exercices
+                    subcategories:
+                        1572:
+                            description: Provisions pour gros entretien ou grandes révisions
+                158:
+                    description: Autres provisions pour charges
+                    subcategories:
+                        1581:
+                            description: Provisions pour remises en état
+        16:
+            description: Emprunts et dettes assimilées
+            subcategories:
+                161:
+                    description: Emprunts obligataires convertibles
+                162:
+                    description: Obligations représentatives de passifs nets remis en fiducie
+                163:
+                    description: Autres emprunts obligataires
+                164:
+                    description: Emprunts auprès des établissements de crédit
+                165:
+                    description: Dépôts et cautionnements reçus
+                    subcategories:
+                        1651:
+                            description: Dépôts
+                        1655:
+                            description: Cautionnements
+                166:
+                    description: Participation des salariés aux résultats
+                    subcategories:
+                        1661:
+                            description: Comptes bloqués
+                        1662:
+                            description: Fonds de participation
+                167:
+                    description: Emprunts et dettes assortis de conditions particulières
+                    subcategories:
+                        1671:
+                            description: Émissions de titres participatifs
+                        1674:
+                            description: Avances conditionnées de l'État
+                        1675:
+                            description: Emprunts participatifs
+                168:
+                    description: Autres emprunts et dettes assimilées
+                    subcategories:
+                        1681:
+                            description: Autres emprunts
+                        1685:
+                            description: Rentes viagères capitalisées
+                        1687:
+                            description: Autres dettes
+                        1688:
+                            description: Intérêts courus
+                            subcategories:
+                                16881:
+                                    description: sur emprunts obligataires convertibles
+                                16883:
+                                    description: sur autres emprunts obligataires
+                                16884:
+                                    description: sur emprunts auprès des établissements de crédit
+                                16885:
+                                    description: sur dépôts et cautionnements reçus
+                                16886:
+                                    description: sur participation des salariés aux résultats
+                                16887:
+                                    description: sur emprunts et dettes assortis de conditions particulières
+                                16888:
+                                    description: sur autres emprunts et dettes assimilées
+                169:
+                    description: Primes de remboursement des obligations
+        17:
+            description: Dettes rattachées à des participations
+            subcategories:
+                171:
+                    description: Dettes rattachées à des participations (groupe)
+                174:
+                    description: Dettes rattachées à des participations (hors groupe)
+                178:
+                    description: Dettes rattachées à des sociétés en participation
+                    subcategories:
+                        1781:
+                            description: Principal
+                        1788:
+                            description: Intérêts courus
+        18:
+            description: Comptes de liaison des établissements et sociétés en participation
+            subcategories:
+                181:
+                    description: Comptes de liaison des établissements
+                186:
+                    description: Biens et prestations de services échangés entre établissements (charges)
+                187:
+                    description: Biens et prestations de services échangés entre établissements (produits)
+                188:
+                    description: Comptes de liaison des sociétés en participation
 
 2:
-    description: Dettes financières à plus d'un an
+    description: Comptes d'immobilisations
     subcategories:
         20:
-            description: Emprunts et dettes financières
+            description: Immobilisations incorporelles
             subcategories:
                 201:
-                    description: Emprunts obligataires convertibles
-                202:
-                    description: Emprunts obligataires non convertibles
-                203:
-                    description: Emprunts auprès des établissements de crédit
-                204:
-                    description: Avances et acomptes reçus sur commandes en cours
-                205:
-                    description: Autres emprunts et dettes assimilées
+                    description: Frais d'établissement
+                    subcategories:
+                        2011:
+                            description: Frais de constitution
+                        2012:
+                            description: Frais de premier établissement
+                            subcategories:
+                                20121:
+                                    description: Frais de prospection
+                                20122:
+                                    description: Frais de publicité
+                        2013:
+                            description: Frais d'augmentation de capital et d'opérations diverses (fusions, scissions, transformations)
+                        203:
+                            description: Frais de recherche et de développement
+                        205:
+                            description: Concessions et droits similaires, brevets, licences, marques, procédés, solutions informatiques, droits et valeurs similaires
+                206:
+                    description: Droit au bail
+                207:
+                    description: Fonds commercial
+                208:
+                    description: Autres immobilisations incorporelles
+                    subcategories:
+                        2081:
+                            description: Mali de fusion sur actifs incorporels
+        21:
+            description: Immobilisations corporelles
+            subcategories:
+                211:
+                    description: Terrains
+                    subcategories:
+                        2111:
+                            description: Terrains nus
+                        2112:
+                            description: Terrains aménagés
+                        2113:
+                            description: Sous-sols et sursols
+                        2114:
+                            description: Terrains de carrières (Tréfonds)
+                        2115:
+                            description: Terrains bâtis
+                            subcategories:
+                                21151:
+                                    description: Ensembles immobiliers industriels (A, B)
+                                21155:
+                                    description: Ensembles immobiliers administratifs et commerciaux (A, B)
+                                21158:
+                                    description: Autres ensembles immobiliers
+                                    subcategories:
+                                        211581:
+                                            description: affectés aux opérations professionnelles (A, B)
+                                        211588:
+                                            description: affectés aux opérations non professionnelles (A, B)
+                        2116:
+                            description: Compte d'ordre sur immobilisations
+                212:
+                    description: Agencements et aménagements de terrains (même ventilation que celle du compte 211)
+                213:
+                    description: Constructions
+                    subcategories:
+                        2131:
+                            description: Bâtiments
+                            subcategories:
+                                21311:
+                                    description: Ensembles immobiliers industriels (A, B)
+                                21315:
+                                    description: Ensembles immobiliers administratifs et commerciaux (A, B)
+                                21318:
+                                    description: Autres ensembles immobiliers
+                                    subcategories:
+                                        213181:
+                                            description: affectés aux opérations professionnelles (A, B)
+                                        213188:
+                                            description: affectés aux opérations non professionnelles (A, B)
+                        2135:
+                            description: Installations générales - agencements - aménagements des constructions
+                            subcategories:
+                                21351:
+                                    description: Ensembles immobiliers industriels (A, B)
+                                21355:
+                                    description: Ensembles immobiliers administratifs et commerciaux (A, B)
+                                21358:
+                                    description: Autres ensembles immobiliers
+                                    subcategories:
+                                        213581:
+                                            description: affectés aux opérations professionnelles (A, B)
+                                        213588:
+                                            description: affectés aux opérations non professionnelles (A, B)
+                        2138:
+                            description: Ouvrages d'infrastructure
+                            subcategories:
+                                21381:
+                                    description: Voies de terre
+                                21382:
+                                    description: Voies de fer
+                                21383:
+                                    description: Voies d'eau
+                                21384:
+                                    description: Barrages
+                                21385:
+                                    description: Pistes d'aérodromes
+                214:
+                    description: Constructions sur sol d'autrui (même ventilation que celle du compte 213)
+                215:
+                    description: Installations techniques, matériels et outillage industriels
+                    subcategories:
+                        2151:
+                            description: Installations complexes spécialisées
+                            subcategories:
+                                21511:
+                                    description: sur sol propre
+                                21514:
+                                    description: sur sol d'autrui
+                        2153:
+                            description: Installations à caractère spécifique
+                            subcategories:
+                                21531:
+                                    description: sur sol propre
+                                21534:
+                                    description: sur sol d'autrui
+                        2154:
+                            description: Matériel industriel
+                        2155:
+                            description: Outillage industriel
+                        2157:
+                            description: Agencements et aménagements du matériel et outillage industriels
+                218:
+                    description: Autres immobilisations corporelles
+                    subcategories:
+                        2181:
+                            description: Installations générales, agencements, aménagements divers
+                        2182:
+                            description: Matériel de transport
+                        2183:
+                            description: Matériel de bureau et matériel informatique
+                        2184:
+                            description: Mobilier
+                        2185:
+                            description: Cheptel
+                        2186:
+                            description: Emballages récupérables
+                        2187:
+                            description: Mali de fusions sur actifs corporels
+        22:
+            description: Immobilisations mises en concession
+        23:
+            description: Immobilisations en cours
+            subcategories:
+                231:
+                    description: Immobilisations corporelles en cours
+                    subcategories:
+                        2312:
+                            description: Terrains
+                        2313:
+                            description: Constructions
+                        2315:
+                            description: Installations techniques, matériel et outillage industriels
+                        2318:
+                            description: Autres immobilisations corporelles
+                232:
+                    description: Immobilisations incorporelles en cours
+                237:
+                    description: Avances et acomptes versés sur immobilisations incorporelles
+                238:
+                    description: Avances et acomptes versés sur commandes d'immobilisations corporelles
+                    subcategories:
+                        2382:
+                            description: Terrains
+                        2383:
+                            description: Constructions
+                        2385:
+                            description: Installations techniques, matériel et outillage industriels
+                        2388:
+                            description: Autres immobilisations corporelles
+        25:
+            description: Parts dans des entreprises liées et créances sur des entreprises liées
+        26:
+            description: Participations et créances rattachées à des participations
+            subcategories:
+                261:
+                    description: Titres de participation
+                    subcategories:
+                        2611:
+                            description: Actions
+                        2618:
+                            description: Autres titres
+                266:
+                    description: Autres formes de participation
+                    subcategories:
+                        2661:
+                            description: Droits représentatifs d'actifs nets remis en fiducie
+                267:
+                    description: Créances rattachées à des participations
+                    subcategories:
+                        2671:
+                            description: Créances rattachées à des participations (groupe)
+                        2674:
+                            description: Créances rattachées à des participations (hors groupe)
+                        2675:
+                            description: Versements représentatifs d'apports non capitalisés (appel de fonds)
+                        2676:
+                            description: Avances consolidables
+                        2677:
+                            description: Autres créances rattachées à des participations
+                        2678:
+                            description: Intérêts courus
+                268:
+                    description: Créances rattachées à des sociétés en participation
+                    subcategories:
+                        2681:
+                            description: Principal
+                        2688:
+                            description: Intérêts courus
+                269:
+                    description: Versements restant à effectuer sur titres de participation non libérés
+        27:
+            description: Autres immobilisations financières
+            subcategories:
+                271:
+                    description: Titres immobilisés autres que les titres immobilisés de l'activité de portefeuille (droit de propriété)
+                    subcategories:
+                        2711:
+                            description: Actions
+                        2718:
+                            description: Autres titres
+                272:
+                    description: Titres immobilisés (droit de créance)
+                    subcategories:
+                        2721:
+                            description: Obligations
+                        2722:
+                            description: Bons
+                273:
+                    description: Titres immobilisés de l'activité de portefeuille
+                274:
+                    description: Prêts
+                    subcategories:
+                        2741:
+                            description: Prêts participatifs
+                        2742:
+                            description: Prêts aux associés
+                        2743:
+                            description: Prêts au personnel
+                        2748:
+                            description: Autres prêts
+                275:
+                    description: Dépôts et cautionnements versés
+                    subcategories:
+                        2751:
+                            description: Dépôts
+                        2755:
+                            description: Cautionnements
+                276:
+                    description: Autres créances immobilisées
+                    subcategories:
+                        2761:
+                            description: Créances diverses
+                        2768:
+                            description: Intérêts courus
+                            subcategories:
+                                27682:
+                                    description: sur titres immobilisés (droit de créance)
+                                27684:
+                                    description: sur prêts
+                                27685:
+                                    description: sur dépôts et cautionnements
+                                27688:
+                                    description: sur créances diverses
+                277:
+                    description: (Actions propres ou parts propres)
+                    subcategories:
+                        2771:
+                            description: Actions propres ou parts propres
+                        2772:
+                            description: Actions propres ou parts propres en voie d'annulation
+                278:
+                    description: Mali de fusion sur actifs financiers
+                279:
+                    description: Versements restant à effectuer sur titres immobilisés non libérés
+        28:
+            description: Amortissements des immobilisations
+            subcategories:
+                280:
+                    description: Amortissements des immobilisations incorporelles
+                    subcategories:
+                        2801:
+                            description: Frais d'établissement (même ventilation que celle du compte 201)
+                        2803:
+                            description: Frais de recherche et de développement
+                        2805:
+                            description: Concessions et droits similaires, brevets, licences, solutions informatiques, droits et valeurs similaires
+                        2807:
+                            description: Fonds commercial
+                        2808:
+                            description: Autres immobilisations incorporelles
+                            subcategories:
+                                28081:
+                                    description: Amortissements du mali de fusion sur actifs incorporels
+                281:
+                    description: Amortissements des immobilisations corporelles
+                    subcategories:
+                        2812:
+                            description: Agencements, aménagements de terrains (même ventilation que celle du compte 212)
+                        2813:
+                            description: Constructions (même ventilation que celle du compte 213)
+                        2814:
+                            description: Constructions sur sol d'autrui (même ventilation que celle du compte 214)
+                        2815:
+                            description: Installations, matériel et outillage industriels (même ventilation que celle du compte 215)
+                        2818:
+                            description: Autres immobilisations corporelles (même ventilation que celle du compte 218)
+                            subcategories:
+                                28187:
+                                    description: Amortissement du mali de fusion sur actifs corporels
+                282:
+                    description: Amortissements des immobilisations mises en concession
+        29:
+            description: Dépréciations des immobilisations
+            subcategories:
+                290:
+                    description: Dépréciations des immobilisations incorporelles
+                    subcategories:
+                        2905:
+                            description: Marques, procédés, droits et valeurs similaires
+                        2906:
+                            description: Droit au bail
+                        2907:
+                            description: Fonds commercial
+                        2908:
+                            description: Autres immobilisations incorporelles
+                            subcategories:
+                                29081:
+                                    description: Dépréciation du mali de fusion sur actifs incorporels
+                291:
+                    description: Dépréciations des immobilisations corporelles (même ventilation que celle du compte 21)
+                    subcategories:
+                        29187:
+                            description: Dépréciation du mali de fusion sur actifs corporels
+                292:
+                    description: Dépréciations des immobilisations mises en concession
+                293:
+                    description: Dépréciations des immobilisations en cours
+                    subcategories:
+                        2931:
+                            description: Immobilisations corporelles en cours
+                        2932:
+                            description: Immobilisations incorporelles en cours
+                296:
+                    description: Dépréciations des participations et créances rattachées à des participations
+                    subcategories:
+                        2961:
+                            description: Titres de participation
+                        2966:
+                            description: Autres formes de participation
+                        2967:
+                            description: Créances rattachées à des participations (même ventilation que celle du compte 267)
+                        2968:
+                            description: Créances rattachées à des sociétés en participation (même ventilation que celle du compte 268)
+                297:
+                    description: Dépréciations des autres immobilisations financières
+                    subcategories:
+                        2971:
+                            description: Titres immobilisés autres que les titres immobilisés de l'activité de portefeuille - droit de propriété (même ventilation que celle du compte 271)
+                        2972:
+                            description: Droit de créance (même ventilation que celle du compte 272)
+                        2973:
+                            description: Titres immobilisés de l'activité de portefeuille
+                        2974:
+                            description: Prêts (même ventilation que celle du compte 274)
+                        2975:
+                            description: Dépôts et cautionnements versés (même ventilation que celle du compte 275)
+                        2976:
+                            description: Autres créances immobilisées (même ventilation que celle du compte 276)
+                        29787:
+                            description: Dépréciation du mali de fusion sur actifs financiers
 
 3:
-    description: Dettes financières à moins d'un an
+    description: Comptes de stocks et en-cours
     subcategories:
-        30:
-            description: Dettes financières courantes
+        31:
+            description: Matières premières (et fournitures)
             subcategories:
-                301:
-                    description: Emprunts obligataires convertibles
-                302:
-                    description: Emprunts obligataires non convertibles
-                303:
-                    description: Emprunts auprès des établissements de crédit
-                304:
-                    description: Avances et acomptes reçus sur commandes en cours
-                305:
-                    description: Autres emprunts et dettes assimilées
+                311:
+                    description: Matières (ou groupe) A
+                312:
+                    description: Matières (ou groupe) B
+                317:
+                    description: Fournitures A, B, C
+        32:
+            description: Autres approvisionnements
+            subcategories:
+                321:
+                    description: Matières consommables
+                    subcategories:
+                        3211:
+                            description: Matières (ou groupe) C
+                        3212:
+                            description: Matières (ou groupe) D
+                322:
+                    description: Fournitures consommables
+                    subcategories:
+                        3221:
+                            description: Combustibles
+                        3222:
+                            description: Produits d'entretien
+                        3223:
+                            description: Fournitures d'atelier et d'usine
+                        3224:
+                            description: Fournitures de magasin
+                        3225:
+                            description: Fournitures de bureau
+                326:
+                    description: Emballages
+                    subcategories:
+                        3261:
+                            description: Emballages perdus
+                        3265:
+                            description: Emballages récupérables non identifiables
+                        3267:
+                            description: Emballages à usage mixte
+        33:
+            description: En-cours de production de biens
+            subcategories:
+                331:
+                    description: Produits en cours
+                    subcategories:
+                        3311:
+                            description: Produits en cours P 1
+                        3312:
+                            description: Produits en cours P 2
+                335:
+                    description: Travaux en cours
+                    subcategories:
+                        3351:
+                            description: Travaux en cours T 1
+                        3352:
+                            description: Travaux en cours T2
+        34:
+            description: En-cours de production de services
+            subcategories:
+                341:
+                    description: Études en cours
+                    subcategories:
+                        3411:
+                            description: Études en cours E 1
+                        3412:
+                            description: Études en cours E 2
+                345:
+                    description: Prestations de services en cours
+                    subcategories:
+                        3451:
+                            description: Prestations de services S 1
+                        3452:
+                            description: Prestations de services S 2
+        35:
+            description: Stocks de produits
+            subcategories:
+                351:
+                    description: Produits intermédiaires
+                    subcategories:
+                        3511:
+                            description: Produits intermédiaires (ou groupe) A
+                        3512:
+                            description: Produits intermédiaires (ou groupe) B
+                355:
+                    description: Produits finis
+                    subcategories:
+                        3551:
+                            description: Produits finis (ou groupe) A
+                        3552:
+                            description: Produits finis (ou groupe) B
+                358:
+                    description: Produits résiduels (ou matières de récupération)
+                    subcategories:
+                        3581:
+                            description: Déchets
+                        3585:
+                            description: Rebuts
+                        3586:
+                            description: Matières de récupération
+        36:
+            description: (compte à ouvrir, le cas échéant, sous l'intitulé "Stocks provenant d'immobilisations")
+        37:
+            description: Stocks de marchandises
+            subcategories:
+                371:
+                    description: Marchandises (ou groupe) A
+                372:
+                    description: Marchandises (ou groupe) B
+        38:
+            description: (lorsque l'entité tient un inventaire permanent en comptabilité générale, le compte 38 peut être utilisé pour comptabiliser les stocks en voie d'acheminement, mis en dépôt ou donnés en consignation)
+        39:
+            description: Dépréciations des stocks et en-cours
+            subcategories:
+                391:
+                    description: Dépréciations des matières premières (et fournitures)
+                    subcategories:
+                        3911:
+                            description: Matières (ou groupe) A
+                        3912:
+                            description: Matières (ou groupe) B
+                        3917:
+                            description: Fournitures A, B, C
+                392:
+                    description: Dépréciations des autres approvisionnements
+                    subcategories:
+                        3921:
+                            description: Matières consommables (même ventilation que celle du compte 321)
+                        3922:
+                            description: Fournitures consommables (même ventilation que celle du compte 322)
+                        3926:
+                            description: Emballages (même ventilation que celle du compte 326)
+                393:
+                    description: Dépréciations des en-cours de production de biens
+                    subcategories:
+                        3931:
+                            description: Produits en cours (même ventilation que celle du compte 331)
+                        3935:
+                            description: Travaux en cours (même ventilation que celle du compte 335)
+                394:
+                    description: Dépréciations des en-cours de production de services
+                    subcategories:
+                        3941:
+                            description: Études en cours (même ventilation que celle du compte 341)
+                        3945:
+                            description: Prestations de services en cours (même ventilation que celle du compte 345)
+                395:
+                    description: Dépréciations des stocks de produits
+                    subcategories:
+                        3951:
+                            description: Produits intermédiaires (même ventilation que celle du compte 351)
+                        3955:
+                            description: Produits finis (même ventilation que celle du compte 355)
+                397:
+                    description: Dépréciations des stocks de marchandises
+                    subcategories:
+                        3971:
+                            description: Marchandise (ou groupe) A
+                        3972:
+                            description: Marchandise (ou groupe) B
+
 4:
     description: Comptes de tiers
     subcategories:
@@ -77,82 +858,387 @@
             subcategories:
                 401:
                     description: Fournisseurs
-                403:
-                    description: Fournisseurs d'immobilisations
-                404:
-                    description: Fournisseurs d'immobilisations - Acomptes versés
-                408:
-                    description: Fournisseurs - Factures non parvenues
+                    subcategories:
+                        4011:
+                            description: Fournisseurs - Achats de biens et prestations de services
+                        4017:
+                            description: Fournisseurs - Retenues de garantie
+                        403:
+                            description: Fournisseurs - Effets à payer
+                        404:
+                            description: Fournisseurs d'immobilisations
+                            subcategories:
+                                4041:
+                                    description: Fournisseurs - Achats d'immobilisations
+                                4047:
+                                    description: Fournisseurs d'immobilisations - Retenues de garantie
+                        405:
+                            description: Fournisseurs d'immobilisations - Effets à payer
+                        408:
+                            description: Fournisseurs - Factures non parvenues
+                            subcategories:
+                                4081:
+                                    description: Fournisseurs
+                                4084:
+                                    description: Fournisseurs d'immobilisations
+                                4088:
+                                    description: Fournisseurs - Intérêts courus
                 409:
-                    description: Fournisseurs - Dettes en devises
+                    description: Fournisseurs débiteurs
+                    subcategories:
+                        4091:
+                            description: Fournisseurs - Avances et acomptes versés sur commandes
+                        4096:
+                            description: Fournisseurs - Créances pour emballages et matériel à rendre
+                        4097:
+                            description: Fournisseurs - Autres avoirs
+                            subcategories:
+                                40971:
+                                    description: Fournisseurs d'exploitation
+                                40974:
+                                    description: Fournisseurs d'immobilisations
+                        4098:
+                            description: Rabais, remises, ristournes à obtenir et autres avoirs non encore reçus
         41:
             description: Clients et comptes rattachés
             subcategories:
                 411:
                     description: Clients
-                413:
-                    description: Clients - Factures à établir
-                418:
-                    description: Clients - Avances et acomptes reçus sur commandes
+                    subcategories:
+                        4111:
+                            description: Clients - Ventes de biens ou de prestations de services
+                        4117:
+                            description: Clients - Retenues de garantie
+                        413:
+                            description: Clients - Effets à recevoir
+                        416:
+                            description: Clients douteux ou litigieux
+                        418:
+                            description: Clients - Produits non encore facturés
+                            subcategories:
+                                4181:
+                                    description: Clients - Factures à établir
+                                4188:
+                                    description: Clients - Intérêts courus
                 419:
-                    description: Clients - Avances et acomptes reçus en devises
+                    description: Clients créditeurs
+                    subcategories:
+                        4191:
+                            description: Clients - Avances et acomptes reçus sur commandes
+                        4196:
+                            description: Clients - Dettes sur emballages et matériels consignés
+                        4197:
+                            description: Clients - Autres avoirs
+                        4198:
+                            description: Rabais, remises, ristournes à accorder et autres avoirs à établir
         42:
             description: Personnel et comptes rattachés
             subcategories:
                 421:
                     description: Personnel - Rémunérations dues
-                428:
+                422:
+                    description: Comités d'entreprises, d'établissement, ...
+                424:
+                    description: Participation des salariés aux résultats
+                    subcategories:
+                        4246:
+                            description: Réserve spéciale
+                        4248:
+                            description: Comptes courants
+                425:
                     description: Personnel - Avances et acomptes
+                426:
+                    description: Personnel - Dépôts
+                427:
+                    description: Personnel - Oppositions
+                428:
+                    description: Personnel - Charges à payer et produits à recevoir
+                    subcategories:
+                        4282:
+                            description: Dettes provisionnées pour congés à payer
+                        4284:
+                            description: Dettes provisionnées pour participation des salariés aux résultats
+                        4286:
+                            description: Autres charges à payer
+                        4287:
+                            description: Produits à recevoir
         43:
             description: Sécurité sociale et autres organismes sociaux
             subcategories:
                 431:
                     description: Sécurité sociale
+                437:
+                    description: Autres organismes sociaux
                 438:
-                    description: Organismes sociaux - Autres
+                    description: Organismes sociaux - Charges à payer et produits à recevoir
+                    subcategories:
+                        4382:
+                            description: Charges sociales sur congés à payer
+                        4386:
+                            description: Autres charges à payer
+                        4387:
+                            description: Produits à recevoir
         44:
             description: État et autres collectivités publiques
             subcategories:
                 441:
-                    description: État - Impôts sur les bénéfices
+                    description: État - Subventions à recevoir
+                    subcategories:
+                        4411:
+                            description: Subventions d'investissement
+                        4417:
+                            description: Subventions d'exploitation
+                        4418:
+                            description: Subventions d'équilibre
+                        4419:
+                            description: Avances sur subventions
+                442:
+                    description: Contributions, impôts et taxes recouvrés pour le compte de l'État
+                    subcategories:
+                        4421:
+                            description: Prélèvements à la source (Impôt sur le revenu)
+                        4422:
+                            description: Prélèvements forfaitaires non libératoires
+                        4423:
+                            description: Retenues et prélèvements sur les distributions
+                        4424:
+                            description: Obligataires
+                        4425:
+                            description: Associés
+                443:
+                    description: Opérations particulières avec l'État, les collectivités publiques, les organismes internationaux
+                    subcategories:
+                        4431:
+                            description: Créances sur l'État résultant de la suppression de la règle du décalage d'un mois en matière de TVA
+                        4438:
+                            description: Intérêts courus sur créances figurant au 4431
                 444:
-                    description: État - Taxes sur le chiffre d'affaires
+                    description: État - Impôts sur les bénéfices
                 445:
-                    description: État - Autres taxes
+                    description: État - Taxes sur le chiffre d'affaires
+                    subcategories:
+                        4452:
+                            description: TVA due intracommunautaire
+                        4455:
+                            description: Taxes sur le chiffre d'affaires à décaisser
+                            subcategories:
+                                44551:
+                                    description: TVA à décaisser
+                                44558:
+                                    description: Taxes assimilées à la TVA
+                        4456:
+                            description: Taxes sur le chiffre d'affaires déductibles
+                            subcategories:
+                                44562:
+                                    description: TVA sur immobilisations
+                                44563:
+                                    description: TVA transférée par d'autres entreprises
+                                44566:
+                                    description: TVA sur autres biens et services
+                                44567:
+                                    description: Crédit de TVA à reporter
+                                44568:
+                                    description: Taxes assimilées à la TVA
+                        4457:
+                            description: Taxes sur le chiffre d'affaires collectées par l'entreprise
+                            subcategories:
+                                44571:
+                                    description: TVA collectée
+                                44578:
+                                    description: Taxes assimilées à la TVA
+                        4458:
+                            description: Taxes sur le chiffre d'affaires à régulariser ou en attente
+                            subcategories:
+                                44581:
+                                    description: Acomptes - Régime simplifié d'imposition
+                                44582:
+                                    description: Acomptes - Régime de forfait
+                                44583:
+                                    description: Remboursement de taxes sur le chiffre d'affaires demandé
+                                44584:
+                                    description: TVA récupérée d'avance
+                                44586:
+                                    description: Taxes sur le chiffre d'affaires sur factures non parvenues
+                                44587:
+                                    description: Taxes sur le chiffre d'affaires sur factures à établir
+                446:
+                    description: Obligations cautionnées
+                447:
+                    description: Autres impôts, taxes et versements assimilés
                 448:
-                    description: Autres collectivités publiques
+                    description: État - Charges à payer et produits à recevoir
+                    subcategories:
+                        4482:
+                            description: Charges fiscales sur congés à payer
+                        4486:
+                            description: Charges à payer
+                        4487:
+                            description: Produits à recevoir
+                449:
+                    description: Quotas d'émission à acquérir
         45:
-            description: Groupes et associés
+            description: Groupe et associés
             subcategories:
                 451:
-                    description: Groupes
+                    description: Groupe
                 455:
                     description: Associés - Comptes courants
+                    subcategories:
+                        4551:
+                            description: Principal
+                        4558:
+                            description: Intérêts courus
+                456:
+                    description: Associés - Opérations sur le capital
+                    subcategories:
+                        4561:
+                            description: Associés - Comptes d'apport en société
+                            subcategories:
+                                45611:
+                                    description: Apports en nature
+                                45615:
+                                    description: Apports en numéraire
+                        4562:
+                            description: Apporteurs - Capital appelé, non versé
+                            subcategories:
+                                45621:
+                                    description: Actionnaires - Capital souscrit et appelé, non versé
+                                45625:
+                                    description: Associés - Capital appelé, non versé
+                        4563:
+                            description: Associés - Versements reçus sur augmentation de capital
+                        4564:
+                            description: Associés - Versements anticipés
+                        4566:
+                            description: Actionnaires défaillants
+                        4567:
+                            description: Associés - Capital à rembourser
+                457:
+                    description: Associés - Dividendes à payer
                 458:
-                    description: Associés - Opérations en commun
+                    description: Associés - Opérations faites en commun et en GIE
+                    subcategories:
+                        4581:
+                            description: Opérations courantes
+                        4588:
+                            description: Intérêts courus
         46:
             description: Débiteurs divers et créditeurs divers
             subcategories:
                 462:
-                    description: Créditeurs divers
+                    description: Créances sur cessions d'immobilisations
+                464:
+                    description: Dettes sur acquisitions de valeurs mobilières de placement
+                465:
+                    description: Créances sur cessions de valeurs mobilières de placement
                 467:
-                    description: Débiteurs divers
+                    description: Autres comptes débiteurs ou créditeurs
+                468:
+                    description: Divers - Charges à payer et produits à recevoir
+                    subcategories:
+                        4686:
+                            description: Charges à payer
+                        4687:
+                            description: Produits à recevoir
         47:
-            description: Comptes intercalaires
+            description: Comptes transitoires ou d'attente
             subcategories:
                 471:
-                    description: Comptes transitoires entre entreprises
+                    description: Comptes d'attente
+                472:
+                    description: Comptes d'attente
+                473:
+                    description: Comptes d'attente
+                474:
+                    description: Différences d'évaluation de jetons sur des passifs
+                    subcategories:
+                        4746:
+                            description: Différence d'évaluation de jetons sur des passifs - ACTIF
+                        4747:
+                            description: Différence d'évaluation de jetons sur des passifs - PASSIF
+                475:
+                    description: Comptes d'attente
                 476:
-                    description: Comptes transitoires divers
+                    description: Différence de conversion - Actif
+                    subcategories:
+                        4761:
+                            description: Diminution des créances
+                        4762:
+                            description: Augmentation des dettes
+                        4768:
+                            description: Différences compensées par couverture de change
+                477:
+                    description: Différences de conversion - Passif
+                    subcategories:
+                        4771:
+                            description: Augmentation des créances
+                        4772:
+                            description: Diminution des dettes
+                        4778:
+                            description: Différences compensées par couverture de change
+                478:
+                    description: Autres comptes transitoires
+                    subcategories:
+                        4786:
+                            description: Différences d'évaluation - ACTIF
+                            subcategories:
+                                47861:
+                                    description: Différences d'évaluation sur instruments financier à terme - ACTIF
+                                47862:
+                                    description: Différences d'évaluation sur jetons détenus - ACTIF
+                        4787:
+                            description: Différences d'évaluation - PASSIF
+                            subcategories:
+                                47871:
+                                    description: Différences d'évaluation sur instruments financier à terme - PASSIF
+                                47872:
+                                    description: Différences d'évaluation sur jetons détenus - PASSIF
         48:
             description: Comptes de régularisation
             subcategories:
                 481:
                     description: Charges à répartir sur plusieurs exercices
+                    subcategories:
+                        4816:
+                            description: Frais d'émission des emprunts
                 486:
                     description: Charges constatées d'avance
                 487:
                     description: Produits constatés d'avance
+                    subcategories:
+                        4871:
+                            description: Produits constatés d'avance sur jetons émis
+                488:
+                    description: Comptes de répartition périodique des charges et des produits
+                    subcategories:
+                        4886:
+                            description: Charges
+                        4887:
+                            description: Produits
+        49:
+            description: Dépréciations des comptes de tiers
+            subcategories:
+                491:
+                    description: Dépréciations des comptes de clients
+                495:
+                    description: Dépréciations des comptes du groupe et des associés
+                    subcategories:
+                        4951:
+                            description: Comptes du groupe
+                        4955:
+                            description: Comptes courants des associés
+                        4958:
+                            description: Opérations faites en commun et en GIE
+                496:
+                    description: Dépréciations des comptes de débiteurs divers
+                    subcategories:
+                        4962:
+                            description: Créances sur cessions d'immobilisations
+                        4965:
+                            description: Créances sur cessions de valeurs mobilières de placement
+                        4967:
+                            description: Autres comptes débiteurs
+
 5:
     description: Comptes financiers
     subcategories:
@@ -160,71 +1246,231 @@
             description: Valeurs mobilières de placement
             subcategories:
                 501:
-                    description: Titres de participation
+                    description: Parts dans des entreprises liées
                 502:
-                    description: Autres titres immobilisés
-                503:
                     description: Actions propres
+                    subcategories:
+                        5021:
+                            description: Actions destinées à être attribuées aux employés et affectées à des plans déterminés
+                        5022:
+                            description: Actions disponibles pour être attribuées aux employés ou pour la régularisation des cours de bourse
+                503:
+                    description: Actions
+                    subcategories:
+                        5031:
+                            description: Titres cotés
+                        5035:
+                            description: Titres non cotés
+                504:
+                    description: Autres titres conférant un droit de propriété
+                505:
+                    description: Obligations et bons émis par la société et rachetés par elle
+                506:
+                    description: Obligations
+                    subcategories:
+                        5061:
+                            description: Titres cotés
+                        5065:
+                            description: Titres non cotés
+                507:
+                    description: Bons du Trésor et bons de caisse à court terme
                 508:
-                    description: Autres valeurs mobilières de placement
+                    description: Autres valeurs mobilières de placement et autres créances assimilées
+                    subcategories:
+                        5081:
+                            description: Autres valeurs mobilières
+                        5082:
+                            description: Bons de souscription
+                        5088:
+                            description: Intérêts courus sur obligations, bons et valeurs assimilés
+                509:
+                    description: Versements restant à effectuer sur valeurs mobilières de placement non libérées
         51:
             description: Banques, établissements financiers et assimilés
             subcategories:
                 511:
-                    description: Banques
+                    description: Valeurs à l'encaissement
+                    subcategories:
+                        5111:
+                            description: Coupons échus à l'encaissement
+                        5112:
+                            description: Chèques à encaisser
+                        5113:
+                            description: Effets à l'encaissement
+                        5114:
+                            description: Effets à l'escompte
                 512:
-                    description: Établissements financiers
+                    description: Banques
+                    subcategories:
+                        5121:
+                            description: Comptes en monnaie nationale
+                        5124:
+                            description: Comptes en devises
+                514:
+                    description: Chèques postaux
+                515:
+                    description: Caisses du Trésor et des établissements publics
+                516:
+                    description: Sociétés de bourse
+                517:
+                    description: Autres organismes financiers
                 518:
                     description: Intérêts courus
+                    subcategories:
+                        5181:
+                            description: Intérêts courus à payer
+                        5188:
+                            description: Intérêts courus à recevoir
                 519:
-                    description: Banques en devises
+                    description: Concours bancaires courants
+                    subcategories:
+                        5191:
+                            description: Crédit de mobilisation de créances commerciales
+                        5193:
+                            description: Mobilisation de créances nées à l'étranger
+                        5198:
+                            description: Intérêts courus sur concours bancaires courants
         52:
-            description: Instruments de trésorerie
+            description: Instruments financiers à terme et jetons détenus
             subcategories:
                 521:
-                    description: Instruments de trésorerie
+                    description: Instruments financiers à terme
+                522:
+                    description: Jetons détenus
+                523:
+                    description: Jetons auto-détenus
+                524:
+                    description: Jetons empruntés
         53:
             description: Caisse
             subcategories:
                 531:
-                    description: Caisse
+                    description: Caisse siège social
+                    subcategories:
+                        5311:
+                            description: Caisse en monnaie nationale
+                        5314:
+                            description: Caisse en devises
                 532:
-                    description: Caisse en devises
+                    description: Caisse succursale (ou usine) A
+                533:
+                    description: Caisse succursale (ou usine) B
         54:
-            description: Régies d'avances et accréditifs
-            subcategories:
-                541:
-                    description: Régies d'avances
-                542:
-                    description: Accréditifs
+            description: Régies d'avance et accréditifs
         58:
             description: Virements internes
+        59:
+            description: Dépréciations des comptes financiers
             subcategories:
-                581:
-                    description: Virements internes
+                590:
+                    description: Dépréciations des valeurs mobilières de placement
+                    subcategories:
+                        5903:
+                            description: Actions
+                        5904:
+                            description: Autres titres conférant un droit de propriété
+                        5906:
+                            description: Obligations
+                        5908:
+                            description: Autres valeurs mobilières de placement et créances assimilées
 
 6:
     description: Comptes de charges
     subcategories:
         60:
-            description: Achats
+            description: Achats (sauf 603)
             subcategories:
                 601:
-                    description: Achats stockés - Matières premières
+                    description: Achats stockés - Matières premières (et fournitures)
+                    subcategories:
+                        6011:
+                            description: Matières (ou groupe) A
+                        6012:
+                            description: Matières (ou groupe) B
+                        6017:
+                            description: Fournitures A, B, C
                 602:
-                    description: Achats stockés - Fournitures
-                603:
-                    description: Achats de fournitures non stockées
+                    description: Achats stockés - Autres approvisionnements
+                    subcategories:
+                        6021:
+                            description: Matières consommables
+                            subcategories:
+                                60211:
+                                    description: Matières (ou groupe) C
+                                60212:
+                                    description: Matières (ou groupe) D
+                        6022:
+                            description: Fournitures consommables
+                            subcategories:
+                                60221:
+                                    description: Combustibles
+                                60222:
+                                    description: Produits d'entretien
+                                60223:
+                                    description: Fournitures d'atelier et d'usine
+                                60224:
+                                    description: Fournitures de magasin
+                                60225:
+                                    description: Fourniture de bureau
+                        6026:
+                            description: Emballages
+                            subcategories:
+                                60261:
+                                    description: Emballages perdus
+                                60265:
+                                    description: Emballages récupérables non identifiables
+                                60267:
+                                    description: Emballages à usage mixte
                 604:
                     description: Achats d'études et prestations de services
+                605:
+                    description: Achats de matériel, équipements et travaux
                 606:
-                    description: Achats non courants de biens et services
+                    description: Achats non stockés de matière et fournitures
+                    subcategories:
+                        6061:
+                            description: Fournitures non stockables (eau, énergie, ...)
+                        6063:
+                            description: Fournitures d'entretien et de petit équipement
+                        6064:
+                            description: Fournitures administratives
+                        6068:
+                            description: Autres matières et fournitures
                 607:
-                    description: Achats d'immobilisations incorporelles
+                    description: Achats de marchandises
+                    subcategories:
+                        6071:
+                            description: Marchandise (ou groupe) A
+                        6072:
+                            description: Marchandise (ou groupe) B
                 608:
-                    description: Achats d'immobilisations corporelles
+                    description: (Compte réservé, le cas échéant, à la récapitulation des frais accessoires incorporés aux achats)
                 609:
-                    description: Achats d'immobilisations financières
+                    description: Rabais, remises et ristournes obtenus sur achats
+                    subcategories:
+                        6091:
+                            description: de matières premières (et fournitures)
+                        6092:
+                            description: d'autres approvisionnements stockés
+                        6094:
+                            description: d'études et prestations de services
+                        6095:
+                            description: de matériel, équipements et travaux
+                        6096:
+                            description: d'approvisionnements non stockés
+                        6097:
+                            description: de marchandises
+                        6098:
+                            description: Rabais, remises et ristournes non affectés
+        603:
+            description: Variations des stocks (approvisionnements et marchandises)
+            subcategories:
+                6031:
+                    description: Variation des stocks de matières premières (et fournitures)
+                6032:
+                    description: Variation des stocks des autres approvisionnements
+                6037:
+                    description: Variation des stocks de marchandises
         61:
             description: Services extérieurs
             subcategories:
@@ -232,196 +1478,663 @@
                     description: Sous-traitance générale
                 612:
                     description: Redevances de crédit-bail
+                    subcategories:
+                        6122:
+                            description: Crédit-bail mobilier
+                        6125:
+                            description: Crédit-bail immobilier
                 613:
                     description: Locations
+                    subcategories:
+                        6132:
+                            description: Locations immobilières
+                        6135:
+                            description: Locations mobilières
+                        6136:
+                            description: Malis sur emballages
                 614:
-                    description: Charges locatives
+                    description: Charges locatives et de copropriété
                 615:
                     description: Entretien et réparations
+                    subcategories:
+                        6152:
+                            description: sur biens immobiliers
+                        6155:
+                            description: sur biens mobiliers
+                        6156:
+                            description: Maintenance
                 616:
-                    description: Primes d'assurance
+                    description: Primes d'assurances
+                    subcategories:
+                        6161:
+                            description: Multirisques
+                        6162:
+                            description: Assurance obligatoire dommage construction
+                        6163:
+                            description: Assurance - transport
+                            subcategories:
+                                61636:
+                                    description: sur achats
+                                61637:
+                                    description: sur ventes
+                                61638:
+                                    description: sur autres biens
+                        6164:
+                            description: Risques d'exploitation
+                        6165:
+                            description: Insolvabilité clients
                 617:
                     description: Études et recherches
                 618:
                     description: Divers
+                    subcategories:
+                        6181:
+                            description: Documentation générale
+                        6183:
+                            description: Documentation technique
+                        6185:
+                            description: Frais de colloques, séminaires, conférences
+        619:
+            description: Rabais, remises et ristournes obtenus sur services extérieurs
         62:
             description: Autres services extérieurs
             subcategories:
                 621:
                     description: Personnel extérieur à l'entreprise
+                    subcategories:
+                        6211:
+                            description: Personnel intérimaire
+                        6214:
+                            description: Personnel détaché ou prêté à l'entreprise
                 622:
-                    description: Personnel intérimaire
-                623:
-                    description: Personnel détaché ou prêté
-                624:
-                    description: Honoraires
-                625:
                     description: Rémunérations d'intermédiaires et honoraires
-                626:
+                    subcategories:
+                        6221:
+                            description: Commissions et courtages sur achats
+                        6222:
+                            description: Commissions et courtages sur ventes
+                        6224:
+                            description: Rémunérations des transitaires
+                        6225:
+                            description: Rémunérations d'affacturage
+                        6226:
+                            description: Honoraires
+                        6227:
+                            description: Frais d'actes et de contentieux
+                        6228:
+                            description: Divers
+                623:
                     description: Publicité, publications, relations publiques
-                627:
+                    subcategories:
+                        6231:
+                            description: Annonces et insertions
+                        6232:
+                            description: Échantillons
+                        6233:
+                            description: Foires et expositions
+                        6234:
+                            description: Cadeaux à la clientèle
+                        6235:
+                            description: Primes
+                        6236:
+                            description: Catalogues et imprimés
+                        6237:
+                            description: Publications
+                        6238:
+                            description: Divers (pourboires, dons courants, ...)
+                624:
+                    description: Transports de biens et transports collectifs du personnel
+                    subcategories:
+                        6241:
+                            description: Transports sur achats
+                        6242:
+                            description: Transports sur ventes
+                        6243:
+                            description: Transports entre établissements ou chantiers
+                        6244:
+                            description: Transports administratifs
+                        6247:
+                            description: Transports collectifs du personnel
+                        6248:
+                            description: Divers
+                625:
                     description: Déplacements, missions et réceptions
-                628:
+                    subcategories:
+                        6251:
+                            description: Voyages et déplacements
+                        6255:
+                            description: Frais de déménagement
+                        6256:
+                            description: Missions
+                        6257:
+                            description: Réceptions
+                626:
                     description: Frais postaux et de télécommunications
+                627:
+                    description: Services bancaires et assimilés
+                    subcategories:
+                        6271:
+                            description: Frais sur titres (achat, vente, garde)
+                        6272:
+                            description: Commissions et frais sur émission d'emprunts
+                        6275:
+                            description: Frais sur effets
+                        6276:
+                            description: Location de coffres
+                        6278:
+                            description: Autres frais et commissions sur prestations de services
+                628:
+                    description: Divers
+                    subcategories:
+                        6281:
+                            description: Concours divers (cotisations, )
+                        6284:
+                            description: Frais de recrutement de personnel
+                629:
+                    description: Rabais, remises et ristournes obtenus sur autres services extérieurs
         63:
             description: Impôts, taxes et versements assimilés
             subcategories:
                 631:
-                    description: Impôts, taxes et versements assimilés sur rémunérations
+                    description: Impôts, taxes et versements assimilés sur rémunérations (administrations des impôts)
+                    subcategories:
+                        6311:
+                            description: Taxe sur les salaires
+                        6312:
+                            description: Taxe d'apprentissage
+                        6313:
+                            description: Participation des employeurs à la formation professionnelle continue
+                        6314:
+                            description: Cotisation pour défaut d'investissement obligatoire dans la construction
+                        6318:
+                            description: Autres
                 633:
-                    description: Impôts, taxes et versements assimilés sur autres bases
+                    description: Impôts, taxes et versements assimilés sur rémunérations (autres organismes)
+                    subcategories:
+                        6331:
+                            description: Versement de transport
+                        6332:
+                            description: Allocations logement
+                        6333:
+                            description: Contribution unique des employeurs à la formation professionnelle
+                        6334:
+                            description: Participation des employeurs à l'effort de construction
+                        6335:
+                            description: Versements libératoires ouvrant droit à l'exonération de la taxe d'apprentissage
+                        6338:
+                            description: Autres
                 635:
-                    description: Autres impôts, taxes et versements assimilés
+                    description: Autres impôts, taxes et versements assimilés (administrations des impôts)
+                    subcategories:
+                        6351:
+                            description: Impôts directs (sauf impôts sur les bénéfices)
+                            subcategories:
+                                63511:
+                                    description: Contribution économique territoriale
+                                63512:
+                                    description: Taxes foncières
+                                63513:
+                                    description: Autres impôts locaux
+                                63514:
+                                    description: Taxe sur les véhicules des sociétés
+                        6352:
+                            description: Taxe sur le chiffre d'affaires non récupérables
+                        6353:
+                            description: Impôts indirects
+                        6354:
+                            description: Droits d'enregistrement et de timbre
+                            subcategories:
+                                63541:
+                                    description: Droits de mutation
+                                6358:
+                                    description: Autres droits
                 637:
-                    description: Impôts correspondant à des prestations de services
+                    description: Autres impôts, taxes et versements assimilés (autres organismes)
+                    subcategories:
+                        6371:
+                            description: Contribution sociale de solidarité à la charge des sociétés
+                        6372:
+                            description: Taxes perçues par les organismes publics internationaux
+                        6374:
+                            description: Impôts et taxes exigibles à l'étranger
+                        6378:
+                            description: Taxes diverses
         64:
             description: Charges de personnel
             subcategories:
                 641:
                     description: Rémunérations du personnel
+                    subcategories:
+                        6411:
+                            description: Salaires, appointements
+                        6412:
+                            description: Congés payés
+                        6413:
+                            description: Primes et gratifications
+                        6414:
+                            description: Indemnités et avantages divers
+                        6415:
+                            description: Supplément familial
+                644:
+                    description: Rémunération du travail de l'exploitant
                 645:
-                    description: Charges de sécurité sociale
+                    description: Charges de sécurité sociale et de prévoyance
+                    subcategories:
+                        6451:
+                            description: Cotisations à l'URSSAF
+                        6452:
+                            description: Cotisations aux mutuelles
+                        6453:
+                            description: Cotisations aux caisses de retraites
+                        6454:
+                            description: Cotisations aux ASSEDIC
+                        6458:
+                            description: Cotisations aux autres organismes sociaux
                 646:
-                    description: Charges de prévoyance et de retraite
+                    description: Cotisations sociales personnelles de l'exploitant
                 647:
                     description: Autres charges sociales
+                    subcategories:
+                        6471:
+                            description: Prestations directes
+                        6472:
+                            description: Versements aux comités d'entreprise et d'établissement
+                        6473:
+                            description: Versements aux comités d'hygiène et de sécurité
+                        6474:
+                            description: Versements aux autres œuvres sociales
+                        6475:
+                            description: Médecine du travail, pharmacie
                 648:
                     description: Autres charges de personnel
         65:
             description: Autres charges de gestion courante
             subcategories:
                 651:
-                    description: Redevances pour concessions, brevets, licences
-                652:
-                    description: Jetons de présence
+                    description: Redevances pour concessions, brevets, licences, marques, procédés, solutions informatiques, droits et valeurs similaires
+                    subcategories:
+                        6511:
+                            description: Redevances pour concessions, brevets, licences, marques, procédés, solutions informatiques
+                        6516:
+                            description: Droits d'auteur et de reproduction
+                        6518:
+                            description: Autres droits et valeurs similaires
                 653:
-                    description: Commissions et courtages
+                    description: Jetons de présence
                 654:
                     description: Pertes sur créances irrécouvrables
+                    subcategories:
+                        6541:
+                            description: Créances de l'exercice
+                        6544:
+                            description: Créances des exercices antérieurs
                 655:
-                    description: Perte sur créances
+                    description: Quote-part de résultat sur opérations faites en commun
+                    subcategories:
+                        6551:
+                            description: Quote-part de bénéfice transférée (comptabilité du gérant)
+                        6555:
+                            description: Quote-part de perte supportée (comptabilité des associés non gérants)
                 656:
-                    description: Quotes-parts de résultat sur opérations faites en commun
-                657:
-                    description: Charges diverses de gestion courante
+                    description: Pertes de change sur créances commerciales
                 658:
-                    description: Risques sur créances et autres risques provisionnés
+                    description: Charges diverses de gestion courante
         66:
             description: Charges financières
             subcategories:
                 661:
                     description: Charges d'intérêts
+                    subcategories:
+                        6611:
+                            description: Intérêts des emprunts et dettes
+                            subcategories:
+                                66116:
+                                    description: des emprunts et dettes assimilées
+                                66117:
+                                    description: des dettes rattachées à des participations
+                        6612:
+                            description: Charges de la fiducie, résultat de la période
+                        6615:
+                            description: Intérêts des comptes courants et des dépôts créditeurs
+                        6616:
+                            description: Intérêts bancaires et sur opérations de financement (escompte,...)
+                        6617:
+                            description: Intérêts des obligations cautionnées
+                        6618:
+                            description: Intérêts des autres dettes
+                            subcategories:
+                                66181:
+                                    description: des dettes commerciales
+                                66188:
+                                    description: des dettes diverses
+                664:
+                    description: Pertes sur créances liées à des participations
                 665:
-                    description: Perte de change
+                    description: Escomptes accordés
+                666:
+                    description: Pertes de change financières
+                667:
+                    description: Charges nettes sur cessions de valeurs mobilières de placement
                 668:
-                    description: Charges financières diverses
+                    description: Autres charges financières
         67:
             description: Charges exceptionnelles
             subcategories:
                 671:
                     description: Charges exceptionnelles sur opérations de gestion
+                    subcategories:
+                        6711:
+                            description: Pénalités sur marchés (et dédits payés sur achats et ventes)
+                        6712:
+                            description: Pénalités, amendes fiscales et pénales
+                        6713:
+                            description: Dons, libéralités
+                        6714:
+                            description: Créances devenues irrécouvrables dans l'exercice
+                        6715:
+                            description: Subventions accordées
+                        6717:
+                            description: Rappel d'impôts (autres qu'impôts sur les bénéfices)
+                        6718:
+                            description: Autres charges exceptionnelles sur opérations de gestion
+                672:
+                    description: (Compte à la disposition des entités pour enregistrer, en cours d'exercice, les charges sur exercices antérieurs)
+                674:
+                    description: Opérations de constitution ou liquidation des fiducies
+                    subcategories:
+                        6741:
+                            description: Opérations liées à la constitution de fiducie - Transfert des éléments
+                        6742:
+                            description: Opérations liées à la liquidation de la fiducie
                 675:
-                    description: Charges exceptionnelles sur opérations en capital
+                    description: Valeurs comptables des éléments d'actif cédés
+                    subcategories:
+                        6751:
+                            description: Immobilisations incorporelles
+                        6752:
+                            description: Immobilisations corporelles
+                        6756:
+                            description: Immobilisations financières
+                        6758:
+                            description: Autres éléments d'actif
                 678:
                     description: Autres charges exceptionnelles
+                    subcategories:
+                        6781:
+                            description: Malis provenant de clauses d'indexation
+                        6782:
+                            description: Lots
+                        6783:
+                            description: Malis provenant du rachat par l'entreprise d'actions et obligations émises par elle-même
+                        6788:
+                            description: Charges exceptionnelles diverses
         68:
-            description: Dotations aux amortissements et provisions
+            description: Dotations aux amortissements, aux dépréciations et aux provisions
             subcategories:
                 681:
-                    description: Dotations aux amortissements
+                    description: Dotations aux amortissements, aux dépréciations et aux provisions - Charges d'exploitation
+                    subcategories:
+                        6811:
+                            description: Dotations aux amortissements sur immobilisations incorporelles et corporelles
+                            subcategories:
+                                68111:
+                                    description: Immobilisations incorporelles
+                                68112:
+                                    description: Immobilisations corporelles
+                        6812:
+                            description: Dotations aux amortissements des charges d'exploitation à répartir
+                        6815:
+                            description: Dotations aux provisions d'exploitation
+                        6816:
+                            description: Dotations pour dépréciations des immobilisations incorporelles et corporelles
+                            subcategories:
+                                68161:
+                                    description: Immobilisations incorporelles
+                                68162:
+                                    description: Immobilisations corporelles
+                        6817:
+                            description: Dotations pour dépréciations des actifs circulants
+                            subcategories:
+                                68173:
+                                    description: Stocks et en-cours
+                                68174:
+                                    description: Créances
                 686:
-                    description: Dotations aux provisions
+                    description: Dotations aux amortissements, aux dépréciations et aux provisions - Charges financières
+                    subcategories:
+                        6861:
+                            description: Dotations aux amortissements des primes de remboursement des obligations
+                        6865:
+                            description: Dotations aux provisions financières
+                        6866:
+                            description: Dotations pour dépréciations des éléments financiers
+                            subcategories:
+                                68662:
+                                    description: Immobilisations financières
+                                68665:
+                                    description: Valeurs mobilières de placements
+                        6868:
+                            description: Autres dotations
                 687:
-                    description: Dotations aux provisions réglementées
+                    description: Dotations aux amortissements, aux dépréciations et aux provisions - Charges exceptionnelles
+                    subcategories:
+                        6871:
+                            description: Dotations aux amortissements exceptionnels des immobilisations
+                        6872:
+                            description: Dotations aux provisions réglementées (immobilisations)
+                            subcategories:
+                                68725:
+                                    description: Amortissements dérogatoires
+                        6873:
+                            description: Dotations aux provisions réglementées (stocks)
+                        6874:
+                            description: Dotations aux autres provisions réglementées
+                        6875:
+                            description: Dotations aux provisions exceptionnelles
+                        6876:
+                            description: Dotations pour dépréciations exceptionnelles
+        69:
+            description: Participation des salariés - Impôts sur les bénéfices et assimilés
+            subcategories:
+                691:
+                    description: Participation des salariés aux résultats
+                695:
+                    description: Impôts sur les bénéfices
+                    subcategories:
+                        6951:
+                            description: Impôts dus en France
+                        6952:
+                            description: Contribution additionnelle à l'impôt sur les bénéfices
+                        6954:
+                            description: Impôts dus à l'étranger
+                696:
+                    description: Suppléments d'impôt sur les sociétés liés aux distributions
+                698:
+                    description: Intégration fiscale
+                    subcategories:
+                        6981:
+                            description: Intégration fiscale - Charges
+                        6989:
+                            description: Intégration fiscale - Produits
+                699:
+                    description: Produits - Reports en arrière des déficits
 
 7:
     description: Comptes de produits
     subcategories:
         70:
-            description: Ventes de biens et prestations de services
+            description: Ventes de produits fabriqués, prestations de services, marchandises
             subcategories:
                 701:
                     description: Ventes de produits finis
+                    subcategories:
+                        7011:
+                            description: Produits finis (ou groupe) A
+                        7012:
+                            description: Produits finis (ou groupe) B
                 702:
                     description: Ventes de produits intermédiaires
                 703:
                     description: Ventes de produits résiduels
                 704:
                     description: Travaux
+                    subcategories:
+                        7041:
+                            description: Travaux de catégorie (ou activité) A
+                        7042:
+                            description: Travaux de catégorie (ou activité) B
                 705:
                     description: Études
                 706:
                     description: Prestations de services
                 707:
                     description: Ventes de marchandises
+                    subcategories:
+                        7071:
+                            description: Marchandises (ou groupe) A
+                        7072:
+                            description: Marchandises (ou groupe) B
                 708:
                     description: Produits des activités annexes
+                    subcategories:
+                        7081:
+                            description: Produits des services exploités dans l'intérêt du personnel
+                        7082:
+                            description: Commissions et courtages
+                        7083:
+                            description: Locations diverses
+                        7084:
+                            description: Mise à disposition de personnel facturée
+                        7085:
+                            description: Ports et frais accessoires facturés
+                        7086:
+                            description: Bonis sur reprises d'emballages consignés
+                        7087:
+                            description: Bonifications obtenues des clients et primes sur ventes
+                        7088:
+                            description: Autres produits d'activités annexes (cessions d'approvisionnements,)
                 709:
                     description: Rabais, remises et ristournes accordés par l'entreprise
+                    subcategories:
+                        7091:
+                            description: sur ventes de produits finis
+                        7092:
+                            description: sur ventes de produits intermédiaires
+                        7094:
+                            description: sur travaux
+                        7095:
+                            description: sur études
+                        7096:
+                            description: sur prestations de services
+                        7097:
+                            description: sur ventes de marchandises
+                        7098:
+                            description: sur produits des activités annexes
         71:
-            description: Variation des stocks
+            description: Production stockée (ou déstockage)
             subcategories:
                 713:
-                    description: Variation des stocks de produits
-                718:
-                    description: Variation des stocks de produits
+                    description: Variation des stocks (en-cours de production, produits)
+                    subcategories:
+                        7133:
+                            description: Variation des en-cours de production de biens
+                            subcategories:
+                                71331:
+                                    description: Produits en cours
+                                71335:
+                                    description: Travaux en cours
+                        7134:
+                            description: Variation des en-cours de production de services
+                            subcategories:
+                                71341:
+                                    description: Études en cours
+                                71345:
+                                    description: Prestations de services en cours
+                        7135:
+                            description: Variation des stocks de produits
+                            subcategories:
+                                71351:
+                                    description: Produits intermédiaires
+                                71355:
+                                    description: Produits finis
+                                71358:
+                                    description: Produits résiduels
         72:
             description: Production immobilisée
             subcategories:
                 721:
-                    description: Production immobilisée
-                728:
-                    description: Production immobilisée
-        73:
-            description: Transferts de charges
-            subcategories:
-                731:
-                    description: Transferts de charges d'exploitation
-                736:
-                    description: Transferts de charges financières
-                737:
-                    description: Transferts de charges exceptionnelles
+                    description: Immobilisations incorporelles
+                722:
+                    description: Immobilisations corporelles
         74:
             description: Subventions d'exploitation
-            subcategories:
-                741:
-                    description: Subventions d'exploitation
-                748:
-                    description: Subventions d'exploitation
         75:
             description: Autres produits de gestion courante
             subcategories:
                 751:
-                    description: Quote-part de résultat sur opérations faites en commun
+                    description: Redevances pour concessions, brevets, licences, marques, procédés, solutions informatiques, droits et valeurs similaires
+                    subcategories:
+                        7511:
+                            description: Redevances pour concessions, brevets, licences, marques, procédés, solutions informatiques
+                        7516:
+                            description: Droits d'auteur et de reproduction
+                        7518:
+                            description: Autres droits et valeurs similaires
                 752:
-                    description: Redevances pour concessions, brevets, licences
+                    description: Revenus des immeubles non affectés à des activités professionnelles
                 753:
-                    description: Jetons de présence
+                    description: Jetons de présence et rémunérations d'administrateurs, gérants
                 754:
-                    description: Commissions et courtages
+                    description: Ristournes perçues des coopératives (provenant des excédents)
                 755:
-                    description: Revenus des créances
+                    description: Quote-parts de résultat sur opérations faites en commun
+                    subcategories:
+                        7551:
+                            description: Quote-part de perte transférée (comptabilité du gérant)
+                        7555:
+                            description: Quote-part de bénéfice attribuée (comptabilité des associés non gérants)
                 756:
-                    description: Gains sur créances
-                757:
-                    description: Produits divers de gestion courante
+                    description: Gains de change sur créances commerciales
                 758:
-                    description: Reprises sur provisions et transferts de charges
+                    description: Produits divers de gestion courante
         76:
             description: Produits financiers
             subcategories:
                 761:
                     description: Produits de participations
+                    subcategories:
+                        7611:
+                            description: Revenus des titres de participation
+                        7612:
+                            description: Produits de la fiducie, résultat de la période
+                        7616:
+                            description: Revenus sur autres formes de participation
+                        7617:
+                            description: Revenus des créances rattachées à des participations
                 762:
                     description: Produits des autres immobilisations financières
+                    subcategories:
+                        7621:
+                            description: Revenus des titres immobilisés
+                        7626:
+                            description: Revenus des prêts
+                        7627:
+                            description: Revenus des créances immobilisées
+                763:
+                    description: Revenus des autres créances
+                    subcategories:
+                        7631:
+                            description: Revenus des créances commerciales
+                        7638:
+                            description: Revenus des créances diverses
                 764:
-                    description: Revenus des autres valeurs mobilières
+                    description: Revenus des valeurs mobilières de placement
                 765:
-                    description: Gains de change
+                    description: Escomptes obtenus
                 766:
-                    description: Revenus sur autres créances
+                    description: Gains de change financiers
                 767:
-                    description: Gains sur cession de valeurs mobilières de placement
+                    description: Produits nets sur cessions de valeurs mobilières de placement
                 768:
                     description: Autres produits financiers
         77:
@@ -429,95 +2142,119 @@
             subcategories:
                 771:
                     description: Produits exceptionnels sur opérations de gestion
+                    subcategories:
+                        7711:
+                            description: Dédits et pénalités perçus sur achats et sur ventes
+                        7713:
+                            description: Libéralités reçues
+                        7714:
+                            description: Rentrées sur créances amorties
+                        7715:
+                            description: Subventions d'équilibre
+                        7717:
+                            description: Dégrèvements d'impôts autres qu'impôts sur les bénéfices
+                        7718:
+                            description: Autres produits exceptionnels sur opérations de gestion
+                772:
+                    description: (Compte à la disposition des entités pour enregistrer, en cours d'exercice, les produits sur exercices antérieurs)
+                774:
+                    description: Opérations de constitution ou liquidation des fiducies
+                    subcategories:
+                        7741:
+                            description: Opérations liées à la constitution de fiducie - Transfert des éléments
+                        7742:
+                            description: Opérations liées à la liquidation de la fiducie
                 775:
-                    description: Produits exceptionnels sur opérations en capital
+                    description: Produits des cessions d'éléments d'actif
+                    subcategories:
+                        7751:
+                            description: Immobilisations incorporelles
+                        7752:
+                            description: Immobilisations corporelles
+                        7756:
+                            description: Immobilisations financières
+                        7758:
+                            description: Autres éléments d'actif
                 777:
-                    description: Produits exceptionnels divers
+                    description: Quote-part des subventions d'investissement virée au résultat de l'exercice
+                778:
+                    description: Autres produits exceptionnels
+                    subcategories:
+                        7781:
+                            description: Bonis provenant de clauses d'indexation
+                        7782:
+                            description: Lots
+                        7783:
+                            description: Bonis provenant du rachat par l'entreprise d'actions et d'obligations émises par elle-même
+                        7788:
+                            description: Produits exceptionnels divers
         78:
-            description: Reprises sur amortissements et provisions
+            description: Reprises sur amortissements, dépréciations et provisions
             subcategories:
                 781:
-                    description: Reprises sur amortissements
+                    description: Reprises sur amortissements, dépréciations et provisions (à inscrire dans les produits d'exploitation)
+                    subcategories:
+                        7811:
+                            description: Reprises sur amortissements des immobilisations incorporelles et corporelles
+                            subcategories:
+                                78111:
+                                    description: Immobilisations incorporelles
+                                78112:
+                                    description: Immobilisations corporelles
+                        7815:
+                            description: Reprises sur provisions d'exploitation
+                        7816:
+                            description: Reprises sur dépréciations des immobilisations incorporelles et corporelles
+                            subcategories:
+                                78161:
+                                    description: Immobilisations incorporelles
+                                78162:
+                                    description: Immobilisations corporelles
+                        7817:
+                            description: Reprises sur dépréciations des actifs circulants
+                            subcategories:
+                                78173:
+                                    description: Stocks et en-cours
+                                78174:
+                                    description: Créances
                 786:
-                    description: Reprises sur provisions
+                    description: Reprises sur provisions pour risques et dépréciations (à inscrire dans les produits financiers)
+                    subcategories:
+                        7865:
+                            description: Reprises sur provisions financières
+                        7866:
+                            description: Reprises sur dépréciations des éléments financiers
+                            subcategories:
+                                78662:
+                                    description: Immobilisations financières
+                                78665:
+                                    description: Valeurs mobilières de placements
                 787:
-                    description: Reprises sur provisions réglementées
-
-8:
-    description: Comptes spéciaux
-    subcategories:
-        80:
-            description: Engagements hors bilan
+                    description: Reprises sur provisions et dépréciations (à inscrire dans les produits exceptionnels)
+                    subcategories:
+                        7872:
+                            description: Reprises sur provisions réglementées (immobilisations)
+                            subcategories:
+                                78725:
+                                    description: Amortissements dérogatoires
+                                78726:
+                                    description: Provision spéciale de réévaluation
+                                78727:
+                                    description: Plus-values réinvesties
+                        7873:
+                            description: Reprises sur provisions réglementées (stocks)
+                        7874:
+                            description: Reprises sur autres provisions réglementées
+                        7875:
+                            description: Reprises sur provisions exceptionnelles
+                        7876:
+                            description: Reprises sur dépréciations exceptionnelles
+        79:
+            description: Transferts de charges
             subcategories:
-                801:
-                    description: Engagements donnés
-                802:
-                    description: Engagements reçus
-        81:
-            description: Déclarations fiscales
-            subcategories:
-                811:
-                    description: Taxes sur le chiffre d'affaires
-                812:
-                    description: Taxes sur les salaires
-                813:
-                    description: Autres taxes
-        82:
-            description: Résultats sur exercices antérieurs
-            subcategories:
-                821:
-                    description: Résultats de l'exercice antérieur
-                822:
-                    description: Résultats des exercices antérieurs
-        83:
-            description: Opérations en devises
-            subcategories:
-                831:
-                    description: Opérations en devises
-        84:
-            description: Opérations de l'exercice
-            subcategories:
-                841:
-                    description: Opérations de l'exercice
-        85:
-            description: Répartition du résultat
-            subcategories:
-                851:
-                    description: Résultat de l'exercice
-                852:
-                    description: Résultat en instance d'affectation
-                853:
-                    description: Résultat de liquidation
-                854:
-                    description: Résultat de fusion
-                855:
-                    description: Résultat de scission
-        86:
-            description: Emplois des capitaux propres
-            subcategories:
-                861:
-                    description: Emplois des capitaux propres
-        87:
-            description: Informations complémentaires
-            subcategories:
-                871:
-                    description: Informations complémentaires
-        88:
-            description: Comptes d'ordre
-            subcategories:
-                881:
-                    description: Comptes d'ordre
-                882:
-                    description: Comptes d'ordre
-                883:
-                    description: Comptes d'ordre
-                884:
-                    description: Comptes d'ordre
-                885:
-                    description: Comptes d'ordre
-                886:
-                    description: Comptes d'ordre
-                887:
-                    description: Comptes d'ordre
-                888:
-                    description: Comptes d'ordre
+                791:
+                    description: Transferts de charges d'exploitation
+                796:
+                    description: Transferts de charges financières
+                797:
+                    description: Transferts de charges exceptionnelles

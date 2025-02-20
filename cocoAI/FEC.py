@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from common.convert import convert_beamer_to_pdf
-from common.path import DATA_PATH
+from common.convert import convert_beamer_to_pdf, load_yaml_to_dict
+from common.path import COMMON_PATH, DATA_PATH
 
 
 def generer_bilan_excel(fichier_excel):
@@ -182,8 +182,45 @@ def generate_beamer_presentation(
         f.write(latex_content)
 
 
-if __name__ == "__main__":
-    excel_path_list = list(DATA_PATH.glob("202*xls*"))[:2]
+def load_nomenclature(yaml_path=COMMON_PATH / "nomenclature.yaml"):
+    df_list = []
+    di = load_yaml_to_dict(yaml_path)
+    for k, dict in di.items():
+        df_list.append(
+            pd.DataFrame(
+                {"Classe": str(k), "description": dict["description"]}, index=[k]
+            )
+        )
+        if dict["subcategories"]:
+            for kk, dictt in dict["subcategories"].items():
+                df_list.append(
+                    pd.DataFrame(
+                        {
+                            "Classe": str(k),
+                            "niveau1": str(kk),
+                            "description": dictt["description"],
+                        },
+                        index=[kk],
+                    )
+                )
+                if "subcategories" in dictt.keys():
+                    for kkk, dicttt in dictt["subcategories"].items():
+                        df_list.append(
+                            pd.DataFrame(
+                                {
+                                    "Classe": str(k),
+                                    "niveau1": str(kk),
+                                    "niveau2": str(kkk),
+                                    "description": dicttt["description"],
+                                },
+                                index=[kkk],
+                            )
+                        )
+    df = pd.concat(df_list, ignore_index=True)
+    return df
+
+
+def main(excel_path_list):
     beamer_output_path = Path("presentation_beamer.tex")
 
     df = load_excel_data(excel_path_list)
@@ -203,3 +240,12 @@ if __name__ == "__main__":
         beamer_output_path, beamer_output_path.with_suffix(".pdf"), engine="pdflatex"
     )
     print(f"\n Présentation Beamer générée : {beamer_output_path}")
+    return
+
+
+if __name__ == "__main__":
+    # excel_path_list = list(DATA_PATH.glob("202*xls*"))[:2]
+    # main(excel_path_list)
+
+    df = load_nomenclature()
+    print(df)

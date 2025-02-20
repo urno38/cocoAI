@@ -57,7 +57,7 @@ def get_company_info(siren):
 def create_beneficiaires_effectifs_diagram(yaml_path):
     di = load_yaml_to_dict(yaml_path)
     title = ""
-    nodes = []
+    nodes = [Node("MIALANE")]
     links = []
     if di["beneficiaires_effectifs"] != []:
         LOGGER.info("il existe des beneficiaires effectifs")
@@ -66,7 +66,11 @@ def create_beneficiaires_effectifs_diagram(yaml_path):
             LOGGER.debug(beneff["prenom_usuel"], beneff["nom_usage"])
             # print(type(beneff["prenom_usuel"]), type(beneff["nom_usage"]))
             # try:
-            noms = beneff["prenom_usuel"] + " " + beneff["nom_usage"]
+            noms = (
+                beneff["prenom_usuel"] + " " + beneff["nom_usage"]
+                if beneff["nom_usage"] is not None
+                else beneff["prenom_usuel"]
+            )
             nodes.append(Node(noms))
             links.append(
                 Link(
