@@ -20,12 +20,13 @@ def define_formats():
     return formats_dict
 
 
-def get_unique_label_in_df(df, compte,type='compte'):
-    
-    
-    if type=='compte':
+def get_unique_label_in_df(df, identifiant, type="idlvl3"):
+
+    if type == "compte":
         # print(df.columns)
-        series_du_label = df.query("Compte==@compte")["Intitulé"].drop_duplicates()
+        series_du_label = df.query(f"Compte=={identifiant}")[
+            "Intitulé"
+        ].drop_duplicates()
         # print(series_du_label)
         # LOGGER.debug(compte)
         # LOGGER.debug(series_du_label)
@@ -35,16 +36,29 @@ def get_unique_label_in_df(df, compte,type='compte'):
             return series_du_label.iat[0]
         elif len(series_du_label) > 1:
             LOGGER.debug(
-                f"plusieurs labels pour le Compte {compte}, je prends l ID du compte"
+                f"plusieurs labels pour le Compte {identifiant}, je prends l ID du compte"
             )
-            return str(compte).strip()
+            return str(identifiant).strip()
         else:
             LOGGER.debug(series_du_label)
-            raise ValueError(f"pas d ecriture comptable pour le compte {compte}")
-    elif type='id':
-        pass
+            raise ValueError(f"pas d ecriture comptable pour le compte {identifiant}")
+    elif type == "idlvl3":
+        series_du_label = df.query(f"idlvl3=={identifiant}")[
+            "Intitulé"
+        ].drop_duplicates()
+        if len(series_du_label) == 1:
+            LOGGER.debug(series_du_label)
+            return series_du_label.iat[0]
+        elif len(series_du_label) > 1:
+            LOGGER.debug(
+                f"plusieurs labels pour l idlvl3 {identifiant}, je prends l ID du compte"
+            )
+            return str(identifiant).strip()
+        else:
+            LOGGER.debug(series_du_label)
+            raise ValueError(f"pas d ecriture comptable pour le compte {identifiant}")
     else:
-        raise ValueError('not  implemented')
+        raise ValueError("not implemented")
 
 
 def Solde_intermediaire_de_gestion(
