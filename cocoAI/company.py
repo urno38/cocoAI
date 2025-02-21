@@ -95,8 +95,8 @@ def create_beneficiaires_effectifs_diagram(yaml_path):
     chart = mmd.Mermaid(flowchart)
     chart.to_png(yaml_path.parent / "flowchart.png")
     chart.to_svg(yaml_path.parent / "flowchart.svg")
-    LOGGER.info(f"Produced {yaml_path.parent / "flowchart.png"}")
-    LOGGER.info(f"Produced {yaml_path.parent / "flowchart.svg"}")
+    LOGGER.info(f"Produced {yaml_path.parent / 'flowchart.png'}")
+    LOGGER.info(f"Produced {yaml_path.parent / 'flowchart.svg'}")
     return
 
 

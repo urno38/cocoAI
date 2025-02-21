@@ -86,7 +86,7 @@ source "$VENV_PATH/bin/activate"
 pip install -r requirements.txt
 
 # Set the PYTHONPATH environment variable
-NEW_PATH="$DOCUMENTS_PATH/cocoAI"
+NEW_PATH=$DOCUMENTS_PATH/cocoAI
 
 # Check if the new path is already in PYTHONPATH
 if [[ ":$PYTHONPATH:" != *":$NEW_PATH:"* ]]; then
@@ -98,3 +98,8 @@ else
     echo "We do not add it"
 fi
 echo PYTHONPATH $PYTHONPATH
+
+echo Copy of the input baux 
+cp -v ~/COMPTOIRS\ ET\ COMMERCES/COMMERCIAL\ -\ Documents/2\ -\ DOSSIERS\ à\ l\'ETUDE/RALLYE\ PASSY\ \(BOUILLON\ PASSY\)\ -\ 75016\ PARIS\ -\ 34\ Rue\ de\ l\'ANNONCIATION/4.\ LOCAUX\ -\ IMMOBILIER\ \&\ PLANS/Annexe\ 6\ * data/
+
+

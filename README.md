@@ -2,17 +2,17 @@
 
 *co*mptoir et *co*mmerce *AI*
 
-## Installation
-
-### version mac pour Antonin
+## Procédure d'installation
 
 1. Exécuter ```install.bash```
-2. récupérer les clés et les enregistrer dans common/keys.py
-3. Générer une clé ssh et l'envoyer sur le github  
 
 |                    | Windows     | Mac          |
 | ------------------ | ----------- | ------------ |
 | fichier à exécuter | install.ps1 | install.bash |
+
+
+2. récupérer les clés et les enregistrer dans common/keys.py
+3. Générer une clé ssh et l'envoyer sur le github  
 
 ## to do list
 
