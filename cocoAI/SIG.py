@@ -94,17 +94,17 @@ def Solde_intermediaire_de_gestion(
     # TODO code production stockee
     # TODO code production immobilisee
 
-    # PRODUCTION DE L EXERCICE
-    for compte in ["706310", "706320", "706350", "708000"]:
-        row, col = add_line_SIG(
-            f"{compte} {compte}",
-            dfd[int(curyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
-            dfd[int(refyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
-            normal,
-            row,
-            col_init,
-        )
-        row += 1
+    # # PRODUCTION DE L EXERCICE
+    # for compte in ["706310", "706320", "706350", "708000"]:
+    #     row, col = add_line_SIG(
+    #         f"{compte} {compte}",
+    #         dfd[int(curyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
+    #         dfd[int(refyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
+    #         normal,
+    #         row,
+    #         col_init,
+    #     )
+    #     row += 1
 
     return row, col
 
