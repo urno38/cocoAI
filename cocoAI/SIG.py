@@ -21,7 +21,9 @@ def define_formats():
 
 
 def get_unique_id_in_df(df, compte):
-    series_du_label = df.query("Compte==@compte").drop_duplicates()
+    print(df.columns)
+    series_du_label = df.query("Compte==@compte")["Intitulé"].drop_duplicates()
+    print(series_du_label)
     # LOGGER.debug(compte)
     # LOGGER.debug(series_du_label)
     sys.exit()
