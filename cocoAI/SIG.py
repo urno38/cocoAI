@@ -91,7 +91,6 @@ def Solde_intermediaire_de_gestion(
     normal = workbook.add_format(formats_dict["normal"])
     bold = workbook.add_format(formats_dict["bold"])
 
-    compte_productions_vendues = ["706310", "706320", "706350", "708000"]
     LOGGER.info("Production vendue")
     row, col = add_line_SIG(
         "Production vendue",
@@ -103,6 +102,8 @@ def Solde_intermediaire_de_gestion(
     )
     row += 1
 
+    LOGGER.info("Détail Production vendue")
+    compte_productions_vendues = ["706310", "706320", "706350", "708000"]
     for compte in compte_productions_vendues:
         LOGGER.info(f"Compte {compte}")
         row, col = add_line_SIG(
