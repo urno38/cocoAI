@@ -72,8 +72,8 @@ def Solde_intermediaire_de_gestion(
 
     row, col = add_line_SIG(
         "Production vendue",
-        dfd[int(curyear)]["Débit"].query().sum(),
-        dfd[int(refyear)]["Débit"].sum(),
+        dfd[int(curyear)].query("Compte in @compte_productions_vendues")["Débit"].sum(),
+        dfd[int(refyear)].query("Compte in @compte_productions_vendues")["Débit"].sum(),
         bold,
         row,
         col_init,
