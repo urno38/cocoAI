@@ -25,6 +25,7 @@ def Solde_intermediaire_de_gestion(
     # SAS GALLA pour 2022 p.6/73
     # print(df[df["Classe"] == "7"]["Crédit"].sum())
 
+    formats_dict = define_formats()
     worksheet = workbook.add_worksheet(sheet_name)
     # je stocke les row col initiales
 
