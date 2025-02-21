@@ -116,7 +116,28 @@ def Solde_intermediaire_de_gestion(
         )
         row += 1
 
-    # TODO code production stockee
+    LOGGER.info("Production stockée")
+    row, col = add_line_SIG(
+        "Production stockée",
+        dfd[int(curyear)].query("idlvl2=='71'")["Débit"].sum(),
+        dfd[int(refyear)].query("idlvl2=='71'")["Débit"].sum(),
+        bold,
+        row,
+        col_init,
+    )
+    row += 1
+
+    LOGGER.info("Production immobilisée")
+    row, col = add_line_SIG(
+        "Production immobilisée",
+        dfd[int(curyear)].query("idlvl2=='72'")["Débit"].sum(),
+        dfd[int(refyear)].query("idlvl2=='72'")["Débit"].sum(),
+        bold,
+        row,
+        col_init,
+    )
+    row += 1
+
     # TODO code production immobilisee
 
     # # PRODUCTION DE L EXERCICE
