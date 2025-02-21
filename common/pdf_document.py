@@ -12,7 +12,7 @@ from PIL import Image
 import requests
 from common.logconfig import LOGGER, configure_logger
 
-pytesseract.pytesseract.tesseract_cmd = str(TESSERACT_EXE_PATH)
+#pytesseract.pytesseract.tesseract_cmd = str(TESSERACT_EXE_PATH)
 
 
 def pdf_to_text(pdf_path):
