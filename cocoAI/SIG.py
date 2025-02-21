@@ -299,4 +299,4 @@ if __name__ == "__main__":
     df["idlvl3"] = df["Compte"].apply(lambda x: str(x[:3]))
     df["year"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%M/%Y").year)
     # main(df)
-    main(df, test=True)
+    main(df, test=False)
