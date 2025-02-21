@@ -23,14 +23,14 @@ def define_formats():
 def get_unique_label_in_df(df, identifiant, type="compte"):
 
     if type == "compte":
-        # print(df.columns)
+        print(df.columns)
         series_du_label = df.query(f"Compte=={identifiant}")[
             "Intitulé"
         ].drop_duplicates()
-        # print(series_du_label)
-        # LOGGER.debug(compte)
-        # LOGGER.debug(series_du_label)
-        # sys.exit()
+        print(series_du_label)
+        LOGGER.debug(identifiant)
+        LOGGER.debug(series_du_label)
+        sys.exit()
         if len(series_du_label) == 1:
             LOGGER.debug(series_du_label)
             return series_du_label.iat[0]
