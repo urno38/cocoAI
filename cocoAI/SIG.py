@@ -20,7 +20,7 @@ def define_formats():
     return formats_dict
 
 
-def get_unique_label_in_df(df, identifiant, type="idlvl3"):
+def get_unique_label_in_df(df, identifiant, type="compte"):
 
     if type == "compte":
         # print(df.columns)
@@ -56,7 +56,7 @@ def get_unique_label_in_df(df, identifiant, type="idlvl3"):
             return str(identifiant).strip()
         else:
             LOGGER.debug(series_du_label)
-            raise ValueError(f"pas d ecriture comptable pour le compte {identifiant}")
+            raise ValueError(f"pas d ecriture comptable pour l'idlvl3 {identifiant}")
     else:
         raise ValueError("not implemented")
 
