@@ -18,6 +18,19 @@ def define_formats():
     return formats_dict
 
 
+def get_unique_id_in_df(dfd, compte):
+    series_du_label = dfd.query("Compte==@compte")["Intitulé"].drop_duplicates()
+    if len(series_du_label) == 1:
+        return series_du_label.loc[:, "Intitulé"]
+    elif len(series_du_label) > 1:
+        LOGGER.debug(
+            f"plusieurs labels pour le Compte {compte}, je prends l ID du compte"
+        )
+        return str(compte).strip()
+
+    return label
+
+
 def Solde_intermediaire_de_gestion(
     dfd, workbook, row, col, refyear, curyear, sheet_name="SIG"
 ):
@@ -82,7 +95,7 @@ def Solde_intermediaire_de_gestion(
 
     for compte in compte_productions_vendues:
         row, col = add_line_SIG(
-            f"{compte} {compte}",
+            f"{compte} {get_unique_id_in_df(dfd,compte)}",
             dfd[int(curyear)].query("Compte==@compte")["Débit"].sum(),
             dfd[int(refyear)].query("Compte==@compte")["Débit"].sum(),
             normal,
