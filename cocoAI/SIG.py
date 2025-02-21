@@ -41,7 +41,7 @@ def get_unique_id_in_df(df, compte):
 
 
 def Solde_intermediaire_de_gestion(
-    dfd, workbook, row, col, refyear, curyear, sheet_name="SIG"
+    dfd, df, workbook, row, col, refyear, curyear, sheet_name="SIG"
 ):
     LOGGER.info("Let us pick up the SIG")
     # solde intermédiaires de gestion détaillés
@@ -106,7 +106,7 @@ def Solde_intermediaire_de_gestion(
     for compte in compte_productions_vendues:
         LOGGER.info(f"Compte {compte}")
         row, col = add_line_SIG(
-            f"{compte} {get_unique_id_in_df(dfd[int(curyear)],compte)}",
+            f"{compte} {get_unique_id_in_df(df,compte)}",
             dfd[int(curyear)].query("Compte==@compte")["Débit"].sum(),
             dfd[int(refyear)].query("Compte==@compte")["Débit"].sum(),
             normal,
@@ -207,7 +207,7 @@ def main(dfFEC, test=False):
         refyear = 2022
         curyear = 2023
         row, col = Solde_intermediaire_de_gestion(
-            dfd, workbook, row, col, refyear, curyear, "SIG"
+            dfd, df, workbook, row, col, refyear, curyear, "SIG"
         )
 
     # Analyse des comptes de resultats
