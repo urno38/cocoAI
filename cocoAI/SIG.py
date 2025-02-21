@@ -12,6 +12,12 @@ from common.path import COMMON_PATH, DATA_PATH, WORK_PATH
 # PRODUCTION DE LA FEUILLE EXCEL du SOLDE INTERMEDIAIRE DE GESTION
 
 
+def define_formats():
+    # je definis mes formats
+    formats_dict = {"bold": {"bold": True}, "normal": {"bold": False}}
+    return formats_dict
+
+
 def Solde_intermediaire_de_gestion(
     dfd, workbook, row, col, refyear, curyear, sheet_name="SIG"
 ):
@@ -57,10 +63,6 @@ def Solde_intermediaire_de_gestion(
         else:
             worksheet.write(row, col, np.nan, format)
         return row, col
-
-    # je definis mes formats
-    bold = workbook.add_format({"bold": True})
-    normal = workbook.add_format({"bold": False})
 
     row, col = add_line_SIG(
         "Production vendue",
