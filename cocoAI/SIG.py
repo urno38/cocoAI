@@ -68,6 +68,8 @@ def Solde_intermediaire_de_gestion(
     normal = workbook.add_format(formats_dict["normal"])
     bold = workbook.add_format(formats_dict["bold"])
 
+    compte_productions_vendues = ["706310", "706320", "706350", "708000"]
+
     row, col = add_line_SIG(
         "Production vendue",
         dfd[int(curyear)]["Débit"].sum(),
