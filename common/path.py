@@ -23,6 +23,9 @@ PROGRAMFILES_PATH = Path(r"C:\Program Files")
 TESSERACT_EXE_PATH = PROGRAMFILES_PATH / "Tesseract-OCR" / "tesseract.exe"
 PPTX_TEMPLATE_PATH = DATA_PATH / "templates" / "template_memorandum.pptx"
 
+# ONE_DRI
+
+
 # URL d'ACCES AUX API
 PAPPERS_API_URL = "https://api.pappers.fr/v2"
 OPENDATA_PARIS_URL = "https://opendata.paris.fr/api/explore/v2.1"
