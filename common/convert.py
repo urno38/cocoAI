@@ -248,9 +248,9 @@ def remove_unique_level_headers_and_code_blocks(file_path):
 
 
 def convert_markdown_to_beamer(
-    input_file: Path ,
-    output_pdf: Path  = "slides.pdf",
-    output_tex: Path  = "slides.tex",
+    input_file: Path,
+    output_pdf: Path = "slides.pdf",
+    output_tex: Path = "slides.tex",
     title: str = "Summary",
 ):
 

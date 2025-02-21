@@ -9,7 +9,7 @@ from common.logconfig import LOGGER
 if os.name == "posix":
     USER_PATH = Path("/Users/") / getpass.getuser()
 elif os.name == "nt":
-    USER_PATH = Path("/Users/") / getpass.getuser()
+    USER_PATH = Path(r"C:\Users") / getpass.getuser()
 
 DOCUMENTS_PATH = USER_PATH / "Documents"
 # DOCUMENTS_PATH = USER_PATH / "OneDrive - COMPTOIRS ET COMMERCES\Documents"
