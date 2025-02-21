@@ -164,7 +164,7 @@ def Solde_intermediaire_de_gestion(
     for idlvl3 in idlvl3_productions_vendues:
         LOGGER.info(f"idlvl3 {idlvl3}")
         row, col = add_line_SIG(
-            f"{idlvl3} {get_unique_label_in_df(df,idlvl3,type='id')}",
+            f"{idlvl3} {get_unique_label_in_df(df,idlvl3,type='idlvl3')}",
             dfd[int(curyear)].query("idlvl3==@idlvl3")["Débit"].sum(),
             dfd[int(refyear)].query("idlvl3==@idlvl3")["Débit"].sum(),
             normal,
