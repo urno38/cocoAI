@@ -67,7 +67,7 @@ def Solde_intermediaire_de_gestion(
     # worksheet.write(row, col, "au 31/12/2023")
 
     def add_line_SIG(txt, curvalue, refvalue, format, beginning_row, beginning_col):
-        print(curvalue, refvalue)
+        # print(curvalue, refvalue)
         row = beginning_row
         col = beginning_col
         worksheet.write(row, col, txt, format)
@@ -90,7 +90,7 @@ def Solde_intermediaire_de_gestion(
     bold = workbook.add_format(formats_dict["bold"])
 
     compte_productions_vendues = ["706310", "706320", "706350", "708000"]
-
+    LOGGER.info("Production vendue")
     row, col = add_line_SIG(
         "Production vendue",
         dfd[int(curyear)].query("Compte in @compte_productions_vendues")["Débit"].sum(),
@@ -102,6 +102,7 @@ def Solde_intermediaire_de_gestion(
     row += 1
 
     for compte in compte_productions_vendues:
+        LOGGER.info(f"Compte {compte}")
         row, col = add_line_SIG(
             f"{compte} {get_unique_id_in_df(dfd[int(curyear)],compte)}",
             dfd[int(curyear)].query("Compte==@compte")["Débit"].sum(),
