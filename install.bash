@@ -109,6 +109,10 @@ cp -v ~/COMPTOIRS\ ET\ COMMERCES/COMMERCIAL\ -\ Documents/2\ -\ DOSSIERS\ à\ l
 
 cp -rv ~/COMPTOIRS\ ET\ COMMERCES/COMMERCIAL\ -\ Documents/100\ -\ DOSSIERS\ ARCHIVES\ -\ A\ CONSULTER/1\ -\ ARCHIVES\ DOSSIERS\ SCANNÉS/1\ -\ DOSSIERS\ SCANNÉS\ -\ BRASSERIES\ \&\ DIVERS/GILBERTE\ -\ 79\ Rue\ de\ SEINE\ -\ 75006\ PARIS data/
 
+cp -rv ~/COMPTOIRS\ ET\ COMMERCES/COMMERCIAL\ -\ Documents/2\ -\ DOSSIERS\ à\ l\'ETUDE/CIAL\ -\ 75001\ PARIS\ -\ rue\ Mondétour\ -\ 16/4.\ LOCAUX\ -\ IMMOBILIER\ \&\ PLANS/CIAL*BAIL*pdf data/
+
+
+
 echo install tesseract 
  
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
