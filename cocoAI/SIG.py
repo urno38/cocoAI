@@ -72,7 +72,7 @@ def Solde_intermediaire_de_gestion(
 
     row, col = add_line_SIG(
         "Production vendue",
-        dfd[int(curyear)]["Débit"].sum(),
+        dfd[int(curyear)]["Débit"].query().sum(),
         dfd[int(refyear)]["Débit"].sum(),
         bold,
         row,
@@ -80,11 +80,11 @@ def Solde_intermediaire_de_gestion(
     )
     row += 1
 
-    for Compte in ["706310", "706320", "706350", "708000"]:
+    for compte in compte_productions_vendues:
         row, col = add_line_SIG(
-            f"{Compte} {Compte}",
-            dfd[int(curyear)].query(f"Compte=='{Compte}'")["Débit"].sum(),
-            dfd[int(refyear)].query(f"Compte=='{Compte}'")["Débit"].sum(),
+            f"{compte} {compte}",
+            dfd[int(curyear)].query("Compte==@compte")["Débit"].sum(),
+            dfd[int(refyear)].query("Compte==@compte")["Débit"].sum(),
             normal,
             row,
             col_init,
@@ -95,11 +95,11 @@ def Solde_intermediaire_de_gestion(
     # TODO code production immobilisee
 
     # PRODUCTION DE L EXERCICE
-    for Compte in ["706310", "706320", "706350", "708000"]:
+    for compte in ["706310", "706320", "706350", "708000"]:
         row, col = add_line_SIG(
-            f"{Compte} {Compte}",
-            dfd[int(curyear)].query(f"Compte=='{Compte}'")["Débit"].sum(),
-            dfd[int(refyear)].query(f"Compte=='{Compte}'")["Débit"].sum(),
+            f"{compte} {compte}",
+            dfd[int(curyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
+            dfd[int(refyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
             normal,
             row,
             col_init,
