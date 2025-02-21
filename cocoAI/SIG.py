@@ -236,6 +236,8 @@ if __name__ == "__main__":
     excel_path_list = list(DATA_PATH.glob("202*GL*xls*"))[:2]
     df = load_excel_data(excel_path_list)
     df["Classe"] = df["Compte"].apply(lambda x: str(x[0]))
+    df["idlvl2"] = df["Compte"].apply(lambda x: str(x[:2]))
+    df["idlvl3"] = df["Compte"].apply(lambda x: str(x[:3]))
     df["year"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%M/%Y").year)
     # main(df)
     main(df, test=True)
