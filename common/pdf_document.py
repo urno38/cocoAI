@@ -1,18 +1,17 @@
-from pathlib import Path
-import pytesseract
-from common.path import (
-    DATA_PATH,
-    TESSERACT_EXE_PATH,
-    create_parent_directory,
-)
-import fitz
-import os
 import io
-from PIL import Image
-import requests
-from common.logconfig import LOGGER, configure_logger
+import os
+from pathlib import Path
 
-#pytesseract.pytesseract.tesseract_cmd = str(TESSERACT_EXE_PATH)
+import fitz
+import pytesseract
+import requests
+from PIL import Image
+
+from common.logconfig import LOGGER, configure_logger
+from common.path import DATA_PATH, TESSERACT_EXE_PATH, create_parent_directory
+
+if os.name == "nt":
+    pytesseract.pytesseract.tesseract_cmd = str(TESSERACT_EXE_PATH)
 
 
 def pdf_to_text(pdf_path):
