@@ -34,7 +34,7 @@ def make_request_with_api_key(
     # check if the file already exists, then we do not recreate it
     if outputfile_path.with_suffix(".yaml").exists():
         logging.debug(
-            f"result already available in {outputfile_path.with_suffix(".yaml")}"
+            f'result already available in {outputfile_path.with_suffix(".yaml")}'
         )
         return
 

@@ -248,9 +248,9 @@ def remove_unique_level_headers_and_code_blocks(file_path):
 
 
 def convert_markdown_to_beamer(
-    input_file: Path | str,
-    output_pdf: Path | str = "slides.pdf",
-    output_tex: Path | str = "slides.tex",
+    input_file: Path ,
+    output_pdf: Path  = "slides.pdf",
+    output_tex: Path  = "slides.tex",
     title: str = "Summary",
 ):
 
@@ -307,8 +307,8 @@ def test_pappers_data_compliance(data):
     Args:
         data (_type_): _description_
     """
-    LOGGER.info(f"Societe {data["denomination"]}")
-    LOGGER.info(f"siren {data["siren"]}")
+    LOGGER.info(f"Societe {data['denomination']}")
+    LOGGER.info(f"siren {data['siren']}")
     if data["beneficiaires_effectifs"] != []:
         LOGGER.info("il existe des beneficiaires effectifs")
         for beneff in data["beneficiaires_effectifs"]:

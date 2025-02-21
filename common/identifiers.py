@@ -47,5 +47,5 @@ def load_siret_in_databank(etablissement, siret):
 if __name__ == "__main__":
     from common.logconfig import LOGGER
 
-    LOGGER.info(f"GALLA {pick_id("GALLA", kind="siren")}")
-    LOGGER.info(f"LE_JARDIN_DE_ROME {pick_id("LE_JARDIN_DE_ROME", kind="siret")}")
+    LOGGER.info(f'GALLA {pick_id("GALLA", kind="siren")}')
+    LOGGER.info(f'LE_JARDIN_DE_ROME {pick_id("LE_JARDIN_DE_ROME", kind="siret")}')

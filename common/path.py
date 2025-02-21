@@ -6,7 +6,8 @@ from pathlib import Path
 from common.logconfig import LOGGER
 
 USER = "lvolat"
-USER_PATH = Path(r"C:\Users") / USER
+if os.name=='posix': USER_PATH = Path('/Users/')/getpass.getuser()antoninbertuol/Documents/cocoAI  
+else: USER_PATH = Path(r"C:\Users") / USER
 DOCUMENTS_PATH = USER_PATH / "Documents"
 # DOCUMENTS_PATH = USER_PATH / "OneDrive - COMPTOIRS ET COMMERCES\Documents"
 COCOAI_PATH = DOCUMENTS_PATH / "cocoAI"
@@ -105,7 +106,7 @@ def get_unix_compatible_path(path_obj):
     return unix_compatible_path
 
 
-def rename_file_unix_compatible(path: Path | str):
+def rename_file_unix_compatible(path: Path):
     compatible_path = get_unix_compatible_path(Path(path))
     create_parent_directory(compatible_path)
     os.rename(path, compatible_path)

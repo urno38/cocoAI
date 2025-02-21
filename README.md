@@ -4,9 +4,17 @@
 
 ## Installation
 
+### version mac pour Antonin 
+
+1. Exécuter ```install.bash```
+2. récupérer les clés et les enregistrer dans common/keys.py  
+
 |            |                    | Windows     | Mac          |     |
 | ---------- | ------------------ | ----------- | ------------ | --- |
-| eeeeeeeees | fichier à exécuter | install.ps1 | install.bash | e   |
+|  | fichier à exécuter | install.ps1 | install.bash |    |
+
+
+
 
 ## to do list
 

@@ -91,9 +91,10 @@ NEW_PATH="$DOCUMENTS_PATH/cocoAI"
 # Check if the new path is already in PYTHONPATH
 if [[ ":$PYTHONPATH:" != *":$NEW_PATH:"* ]]; then
     # If not, add it to PYTHONPATH
-    export PYTHONPATH="$NEW_PATH:$PYTHONPATH"
+    export PYTHONPATH=$NEW_PATH
     echo "PYTHONPATH is updated to: $PYTHONPATH"
 else
     echo "PYTHONPATH already contains: $NEW_PATH"
     echo "We do not add it"
 fi
+echo PYTHONPATH $PYTHONPATH
