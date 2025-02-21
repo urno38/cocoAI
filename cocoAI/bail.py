@@ -270,7 +270,7 @@ def global_request_bail(bail_path, output_mdpath):
     return txt, output_mdpath
 
 
-def main(bail_path=list(DATA_PATH.glob("*Annexe*6_b*Bail*pdf"))[0]):
+def main(bail_path):
 
     new_bail_path = rename_file_unix_compatible(bail_path)
     output_folder = obtain_output_folder(new_bail_path.stem, kind="bail", number="")
