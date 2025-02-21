@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -19,11 +20,13 @@ def define_formats():
 
 
 def get_unique_id_in_df(df, compte):
-    series_du_label = df.query("Compte==@compte")["Intitulé"].drop_duplicates()
-    LOGGER.debug(series_du_label)
+    series_du_label = df.query("Compte==@compte").drop_duplicates()
+    # LOGGER.debug(compte)
+    # LOGGER.debug(series_du_label)
+    sys.exit()
     if len(series_du_label) == 1:
-        LOGGER.debug(series_du_label)
-        return str(series_du_label.loc[compte]).strip()
+        # LOGGER.debug(series_du_label)
+        return series_du_label[compte]
     elif len(series_du_label) > 1:
         LOGGER.debug(
             f"plusieurs labels pour le Compte {compte}, je prends l ID du compte"
