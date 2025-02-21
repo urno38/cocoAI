@@ -127,9 +127,15 @@ def main(dfFEC, test=False):
     LOGGER.info(f"On ouvre le fichier {xlsx_path.resolve()} ! ")
 
     # init du fichier
+
+    engine_options = {"nan_inf_to_errors": True}
+
     if not test:
-        # NE MARCHE PAS !!!
-        writer = pd.ExcelWriter(xlsx_path, engine="xlsxwriter")
+        writer = pd.ExcelWriter(
+            xlsx_path,
+            engine="xlsxwriter",
+            engine_kwargs={"options": engine_options},
+        )
         export_columns = ["Compte", "Intitulé", "Date", "Journal"]
         sorted_columns = export_columns + [
             c for c in df.columns if c not in export_columns
@@ -139,7 +145,7 @@ def main(dfFEC, test=False):
         workbook = writer.book
         # worksheet = writer.sheets['Sheet1']
     else:
-        workbook = xlsxwriter.Workbook(xlsx_path, {"nan_inf_to_errors": True})
+        workbook = xlsxwriter.Workbook(xlsx_path, engine_options)
         # worksheet = workbook.add_worksheet()
 
     # je cree un dictionnaire qui va servir de colonnes pour mon excel
@@ -149,28 +155,33 @@ def main(dfFEC, test=False):
     col = 0
 
     # Solde intermédiaire de gestion
-    sheet_name = "SIG"
-    refyear = 2022
-    curyear = 2023
-    row, col = Solde_intermediaire_de_gestion(
-        dfd, workbook, row, col, refyear, curyear, "SIG"
-    )
+    if 1:
+        sheet_name = "SIG"
+        refyear = 2022
+        curyear = 2023
+        row, col = Solde_intermediaire_de_gestion(
+            dfd, workbook, row, col, refyear, curyear, "SIG"
+        )
 
     # Analyse des comptes de resultats
-    sheet_name = "Comptes_resultats"
-    # row = 0
-    # column = 0
-    # row, column = Comptes_de_resultats_detaille(dfd, workbook, row, column, sheet_name)
+    if 0:
+        sheet_name = "Comptes_resultats"
+        # row = 0
+        # column = 0
+        # row, column = Comptes_de_resultats_detaille(dfd, workbook, row, column, sheet_name)
 
-    # Analyse financiere
-    sheet_name = "Capacite_autofinancement"
-    # row = 0
-    # column = 0
-    # row, column = Capacite_auto_financement(dfd, workbook, row, column, sheet_name)
+    if 0:
+        # Analyse financiere
+        sheet_name = "Capacite_autofinancement"
+        # row = 0
+        # column = 0
+        # row, column = Capacite_auto_financement(dfd, workbook, row, column, sheet_name)
 
     LOGGER.info(f"On ferme le fichier {xlsx_path.resolve()} ! ")
     if test:
         workbook.close()
+    else:
+        writer.close()
     return
 
 
