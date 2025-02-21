@@ -20,24 +20,31 @@ def define_formats():
     return formats_dict
 
 
-def get_unique_label_in_df(df, compte):
-    # print(df.columns)
-    series_du_label = df.query("Compte==@compte")["Intitulé"].drop_duplicates()
-    # print(series_du_label)
-    # LOGGER.debug(compte)
-    # LOGGER.debug(series_du_label)
-    # sys.exit()
-    if len(series_du_label) == 1:
-        LOGGER.debug(series_du_label)
-        return series_du_label.iat[0]
-    elif len(series_du_label) > 1:
-        LOGGER.debug(
-            f"plusieurs labels pour le Compte {compte}, je prends l ID du compte"
-        )
-        return str(compte).strip()
+def get_unique_label_in_df(df, compte,type='compte'):
+    
+    
+    if type=='compte':
+        # print(df.columns)
+        series_du_label = df.query("Compte==@compte")["Intitulé"].drop_duplicates()
+        # print(series_du_label)
+        # LOGGER.debug(compte)
+        # LOGGER.debug(series_du_label)
+        # sys.exit()
+        if len(series_du_label) == 1:
+            LOGGER.debug(series_du_label)
+            return series_du_label.iat[0]
+        elif len(series_du_label) > 1:
+            LOGGER.debug(
+                f"plusieurs labels pour le Compte {compte}, je prends l ID du compte"
+            )
+            return str(compte).strip()
+        else:
+            LOGGER.debug(series_du_label)
+            raise ValueError(f"pas d ecriture comptable pour le compte {compte}")
+    elif type='id':
+        pass
     else:
-        LOGGER.debug(series_du_label)
-        raise ValueError(f"pas d ecriture comptable pour le compte {compte}")
+        raise ValueError('not  implemented')
 
 
 def Solde_intermediaire_de_gestion(
