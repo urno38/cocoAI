@@ -14,6 +14,7 @@ from common.path import COMMON_PATH, DATA_PATH, WORK_PATH
 
 
 def define_formats():
+    LOGGER.info("on récupère les formats")
     # je definis mes formats
     formats_dict = {"bold": {"bold": True}, "normal": {"bold": False}}
     return formats_dict
@@ -40,6 +41,7 @@ def get_unique_id_in_df(df, compte):
 def Solde_intermediaire_de_gestion(
     dfd, workbook, row, col, refyear, curyear, sheet_name="SIG"
 ):
+    LOGGER.info("Let us pick up the SIG")
     # solde intermédiaires de gestion détaillés
     # SAS GALLA pour 2022 p.6/73
     # print(df[df["Classe"] == "7"]["Crédit"].sum())
