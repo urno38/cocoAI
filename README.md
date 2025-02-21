@@ -7,7 +7,8 @@
 ### version mac pour Antonin 
 
 1. Exécuter ```install.bash```
-2. récupérer les clés et les enregistrer dans common/keys.py  
+2. récupérer les clés et les enregistrer dans common/keys.py
+3. Générer une clé ssh et l'envoyer sur le github  
 
 |            |                    | Windows     | Mac          |     |
 | ---------- | ------------------ | ----------- | ------------ | --- |
