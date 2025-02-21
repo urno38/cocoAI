@@ -129,8 +129,8 @@ def Solde_intermediaire_de_gestion(
         LOGGER.info(f"Compte {compte}")
         row, col = add_line_SIG(
             f"{compte} {get_unique_label_in_df(df,compte)}",
-            dfd[int(curyear)].query("Compte==@compte")["Débit"].sum(),
-            dfd[int(refyear)].query("Compte==@compte")["Débit"].sum(),
+            dfd[int(curyear)].query(f"Compte=={compte}")["Débit"].sum(),
+            dfd[int(refyear)].query(f"Compte=={compte}")["Débit"].sum(),
             normal,
             row,
             col_init,
