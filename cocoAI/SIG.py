@@ -92,7 +92,7 @@ def Solde_intermediaire_de_gestion(
     # TODO code production stockee
     # TODO code production immobilisee
 
-    # Production de l exercice
+    # PRODUCTION DE L EXERCICE
     for Compte in ["706310", "706320", "706350", "708000"]:
         row, col = add_line_SIG(
             f"{Compte} {Compte}",
