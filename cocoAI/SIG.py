@@ -20,7 +20,7 @@ def define_formats():
     return formats_dict
 
 
-def get_unique_id_in_df(df, compte):
+def get_unique_label_in_df(df, compte):
     # print(df.columns)
     series_du_label = df.query("Compte==@compte")["Intitulé"].drop_duplicates()
     # print(series_du_label)
@@ -107,7 +107,7 @@ def Solde_intermediaire_de_gestion(
     for compte in compte_productions_vendues:
         LOGGER.info(f"Compte {compte}")
         row, col = add_line_SIG(
-            f"{compte} {get_unique_id_in_df(df,compte)}",
+            f"{compte} {get_unique_label_in_df(df,compte)}",
             dfd[int(curyear)].query("Compte==@compte")["Débit"].sum(),
             dfd[int(refyear)].query("Compte==@compte")["Débit"].sum(),
             normal,
@@ -138,7 +138,19 @@ def Solde_intermediaire_de_gestion(
     )
     row += 1
 
-    # TODO code production immobilisee
+    LOGGER.info("Détail Production immobilisée")
+    idlvl3_productions_vendues = ["721", "722"]
+    for idlvl3 in idlvl3_productions_vendues:
+        LOGGER.info(f"idlvl3 {idlvl3}")
+        row, col = add_line_SIG(
+            f"{idlvl3} {get_unique_label_in_df(df,idlvl3,type='id')}",
+            dfd[int(curyear)].query("idlvl3==@idlvl3")["Débit"].sum(),
+            dfd[int(refyear)].query("idlvl3==@idlvl3")["Débit"].sum(),
+            normal,
+            row,
+            col_init,
+        )
+        row += 1
 
     # # PRODUCTION DE L EXERCICE
     # for compte in ["706310", "706320", "706350", "708000"]:
