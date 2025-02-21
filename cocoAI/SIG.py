@@ -164,15 +164,18 @@ def Solde_intermediaire_de_gestion(
     idlvl3_productions_vendues = ["721", "722"]
     for idlvl3 in idlvl3_productions_vendues:
         LOGGER.info(f"idlvl3 {idlvl3}")
-        row, col = add_line_SIG(
-            f"{idlvl3} {get_unique_label_in_df(df,idlvl3,type='idlvl3')}",
-            dfd[int(curyear)].query(f"idlvl3=='{idlvl3}'")["Débit"].sum(),
-            dfd[int(refyear)].query(f"idlvl3=='{idlvl3}'")["Débit"].sum(),
-            normal,
-            row,
-            col_init,
-        )
-        row += 1
+        try:
+            row, col = add_line_SIG(
+                f"{idlvl3} {get_unique_label_in_df(df,idlvl3,type='idlvl3')}",
+                dfd[int(curyear)].query(f"idlvl3=='{idlvl3}'")["Débit"].sum(),
+                dfd[int(refyear)].query(f"idlvl3=='{idlvl3}'")["Débit"].sum(),
+                normal,
+                row,
+                col_init,
+            )
+            row += 1
+        except:
+            LOGGER.debug(f"pas d ecriture comptable pour l'idlvl3 {idlvl3}")
 
     # # PRODUCTION DE L EXERCICE
     # for compte in ["706310", "706320", "706350", "708000"]:
