@@ -6,8 +6,10 @@ from pathlib import Path
 from common.logconfig import LOGGER
 
 USER = "lvolat"
-if os.name=='posix': USER_PATH = Path('/Users/')/getpass.getuser()antoninbertuol/Documents/cocoAI  
-else: USER_PATH = Path(r"C:\Users") / USER
+if os.name == "posix":
+    USER_PATH = Path("/Users/") / getpass.getuser()
+elif os.name == "nt":
+    USER_PATH = Path(r"C:\Users") / USER
 DOCUMENTS_PATH = USER_PATH / "Documents"
 # DOCUMENTS_PATH = USER_PATH / "OneDrive - COMPTOIRS ET COMMERCES\Documents"
 COCOAI_PATH = DOCUMENTS_PATH / "cocoAI"
