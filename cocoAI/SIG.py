@@ -20,6 +20,7 @@ def define_formats():
 
 def get_unique_id_in_df(df, compte):
     series_du_label = df.query("Compte==@compte")["Intitulé"].drop_duplicates()
+    LOGGER.debug(series_du_label)
     if len(series_du_label) == 1:
         LOGGER.debug(series_du_label)
         return str(series_du_label.loc[compte]).strip()
