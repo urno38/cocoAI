@@ -23,14 +23,15 @@ def define_formats():
 def get_unique_label_in_df(df, identifiant, type="compte"):
 
     if type == "compte":
-        print(df.columns)
-        series_du_label = df.query(f"Compte=={identifiant}")[
+        # print(df.columns)
+        # print(f"Compte=='{identifiant}'")
+        series_du_label = df.query(f"Compte=='{identifiant}'")[
             "Intitulé"
         ].drop_duplicates()
-        print(series_du_label)
+        # print(series_du_label)
         LOGGER.debug(identifiant)
         LOGGER.debug(series_du_label)
-        sys.exit()
+        # sys.exit()
         if len(series_du_label) == 1:
             LOGGER.debug(series_du_label)
             return series_du_label.iat[0]
@@ -43,7 +44,7 @@ def get_unique_label_in_df(df, identifiant, type="compte"):
             LOGGER.debug(series_du_label)
             raise ValueError(f"pas d ecriture comptable pour le compte {identifiant}")
     elif type == "idlvl3":
-        series_du_label = df.query(f"idlvl3=={identifiant}")[
+        series_du_label = df.query(f"idlvl3=='{identifiant}'")[
             "Intitulé"
         ].drop_duplicates()
         if len(series_du_label) == 1:
