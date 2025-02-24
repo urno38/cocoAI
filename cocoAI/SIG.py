@@ -1,4 +1,3 @@
-import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -6,9 +5,9 @@ import numpy as np
 import pandas as pd
 import xlsxwriter
 
-from cocoAI.FEC import load_excel_data, load_nomenclature
+from cocoAI.FEC import load_excel_data
 from common.logconfig import LOGGER
-from common.path import COMMON_PATH, DATA_PATH, WORK_PATH
+from common.path import DATA_PATH, WORK_PATH
 
 # PRODUCTION DE LA FEUILLE EXCEL du SOLDE INTERMEDIAIRE DE GESTION
 
@@ -62,6 +61,29 @@ def get_unique_label_in_df(df, identifiant, type="compte"):
         raise ValueError("not implemented")
 
 
+def add_line_SIG(
+    worksheet, txt, curvalue, refvalue, format, beginning_row, beginning_col
+):
+    # print(curvalue, refvalue)
+    row = beginning_row
+    col = beginning_col
+    worksheet.write(row, col, txt, format)
+    col += 1
+    worksheet.write_number(row, col, curvalue, format)
+    col += 1
+    worksheet.write_number(row, col, refvalue, format)
+    col += 1
+    worksheet.write_number(row, col, float(curvalue) - float(refvalue), format)
+    col += 1
+    if refvalue != 0:
+        worksheet.write_number(
+            row, col, (float(curvalue) / float(refvalue) - 1) * 100, format
+        )
+    else:
+        worksheet.write_number(row, col, np.nan, format)
+    return row, col
+
+
 def Solde_intermediaire_de_gestion(
     dfd, df, workbook, row, col, refyear, curyear, sheet_name="SIG"
 ):
@@ -82,42 +104,32 @@ def Solde_intermediaire_de_gestion(
     # premiere ligne les entetes
     worksheet.write(row, col, "Solde intermédiaire de gestion")
     col += 1
-    # TODO a particulariser
-    worksheet.write(row, col, "au 31/12/2023")
+    worksheet.write(row, col, f"Année {int(curyear)}")
     col += 1
+    worksheet.write(row, col, f"Année {int(refyear)}")
+    col += 1
+    worksheet.write(row, col, f"{int(curyear)} - {int(refyear)} [€]")
+    col += 1
+    worksheet.write(row, col, f"{int(curyear)}/{int(refyear)}-1 [%]")
+    col += 1
+
+    row += 1
 
     # Marges commerciales
     # NON CODE POUR L INSTANT N APPARAIT PAS DANS LE BILAN DE GALLA
     # worksheet.write(row, col, "au 31/12/2023")
-
-    def add_line_SIG(txt, curvalue, refvalue, format, beginning_row, beginning_col):
-        # print(curvalue, refvalue)
-        row = beginning_row
-        col = beginning_col
-        worksheet.write(row, col, txt, format)
-        col += 1
-        worksheet.write(row, col, curvalue, format)
-        col += 1
-        worksheet.write(row, col, refvalue, format)
-        col += 1
-        worksheet.write(row, col, float(curvalue) - float(refvalue), format)
-        col += 1
-        if refvalue != 0:
-            worksheet.write(
-                row, col, (float(curvalue) / float(refvalue) - 1) * 100, format
-            )
-        else:
-            worksheet.write(row, col, np.nan, format)
-        return row, col
 
     normal = workbook.add_format(formats_dict["normal"])
     bold = workbook.add_format(formats_dict["bold"])
 
     LOGGER.info("Production vendue")
     row, col = add_line_SIG(
+        worksheet,
         "Production vendue",
-        dfd[int(curyear)].query("idlvl2=='70'")["Débit"].sum(),
-        dfd[int(refyear)].query("idlvl2=='70'")["Débit"].sum(),
+        dfd[int(curyear)].query("idlvl2=='70'")["Crédit"].sum()
+        - dfd[int(curyear)].query("idlvl2=='70'")["Débit"].sum(),
+        dfd[int(refyear)].query("idlvl2=='70'")["Crédit"].sum()
+        - dfd[int(refyear)].query("idlvl2=='70'")["Débit"].sum(),
         bold,
         row,
         col_init,
@@ -128,8 +140,11 @@ def Solde_intermediaire_de_gestion(
     compte_productions_vendues = ["706310", "706320", "706350", "708000"]
     for compte in compte_productions_vendues:
         LOGGER.info(f"Compte {compte}")
+        label = f"{compte} {get_unique_label_in_df(df,compte)}"
+        LOGGER.info(label)
         row, col = add_line_SIG(
-            f"{compte} {get_unique_label_in_df(df,compte)}",
+            worksheet,
+            label,
             dfd[int(curyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
             dfd[int(refyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
             normal,
@@ -140,6 +155,7 @@ def Solde_intermediaire_de_gestion(
 
     LOGGER.info("Production stockée")
     row, col = add_line_SIG(
+        worksheet,
         "Production stockée",
         dfd[int(curyear)].query("idlvl2=='71'")["Débit"].sum(),
         dfd[int(refyear)].query("idlvl2=='71'")["Débit"].sum(),
@@ -151,6 +167,7 @@ def Solde_intermediaire_de_gestion(
 
     LOGGER.info("Production immobilisée")
     row, col = add_line_SIG(
+        worksheet,
         "Production immobilisée",
         dfd[int(curyear)].query("idlvl2=='72'")["Débit"].sum(),
         dfd[int(refyear)].query("idlvl2=='72'")["Débit"].sum(),
@@ -165,8 +182,11 @@ def Solde_intermediaire_de_gestion(
     for idlvl3 in idlvl3_productions_vendues:
         LOGGER.info(f"idlvl3 {idlvl3}")
         try:
+            label = f"{idlvl3} {get_unique_label_in_df(df,idlvl3,type='idlvl3')}"
+            LOGGER.info(label)
             row, col = add_line_SIG(
-                f"{idlvl3} {get_unique_label_in_df(df,idlvl3,type='idlvl3')}",
+                worksheet,
+                label,
                 dfd[int(curyear)].query(f"idlvl3=='{idlvl3}'")["Débit"].sum(),
                 dfd[int(refyear)].query(f"idlvl3=='{idlvl3}'")["Débit"].sum(),
                 normal,
@@ -179,7 +199,7 @@ def Solde_intermediaire_de_gestion(
 
     # # PRODUCTION DE L EXERCICE
     # for compte in ["706310", "706320", "706350", "708000"]:
-    #     row, col = add_line_SIG(
+    #     row, col = add_line_SIG(worksheet,
     #         f"{compte} {compte}",
     #         dfd[int(curyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
     #         dfd[int(refyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
@@ -188,6 +208,36 @@ def Solde_intermediaire_de_gestion(
     #         col_init,
     #     )
     #     row += 1
+
+    LOGGER.info("Matières premières et approvisionnements consommés")
+    raw_mat_columns = ["601", "603"]
+    row, col = add_line_SIG(
+        worksheet,
+        "Matières premières et approvisionnements consommés",
+        dfd[int(curyear)].query("idlvl3 in @raw_mat_columns")["Débit"].sum(),
+        dfd[int(refyear)].query("idlvl3 in @raw_mat_columns")["Débit"].sum(),
+        bold,
+        row,
+        col_init,
+    )
+    row += 1
+
+    LOGGER.info("Détail Matières premières et approvisionnements consommés")
+    compte_productions_vendues = ["601100", "601200", "603100"]
+    for compte in compte_productions_vendues:
+        LOGGER.info(f"Compte {compte}")
+        label = f"{compte} {get_unique_label_in_df(df,compte)}"
+        LOGGER.info(label)
+        row, col = add_line_SIG(
+            worksheet,
+            label,
+            dfd[int(curyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
+            dfd[int(refyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
+            normal,
+            row,
+            col_init,
+        )
+        row += 1
 
     return row, col
 
@@ -299,4 +349,4 @@ if __name__ == "__main__":
     df["idlvl3"] = df["Compte"].apply(lambda x: str(x[:3]))
     df["year"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%M/%Y").year)
     # main(df)
-    main(df, test=False)
+    main(df, test=True)
