@@ -12,6 +12,11 @@ from common.path import DATA_PATH, WORK_PATH
 # PRODUCTION DE LA FEUILLE EXCEL du SOLDE INTERMEDIAIRE DE GESTION
 
 
+def calcule_balance_cred_moins_deb(df):
+    # pour rendre le code compact
+    return df["Crédit"].sum() - df["Débit"].sum()
+
+
 def define_formats():
     LOGGER.info("on récupère les formats")
     # je definis mes formats
@@ -62,13 +67,26 @@ def get_unique_label_in_df(df, identifiant, type="compte"):
 
 
 def add_line_SIG(
-    worksheet, txt, curvalue, refvalue, format, beginning_row, beginning_col
+    worksheet,
+    txt,
+    curvalue,
+    refvalue,
+    format,
+    beginning_row,
+    beginning_col,
+    signe="+",
 ):
-    # print(curvalue, refvalue)
+    if signe not in ["+", "-", ""]:
+        raise ValueError("not implemented")
+    if signe == "-":
+        refvalue = (-1) * refvalue
+        curvalue = (-1) * curvalue
     row = beginning_row
     col = beginning_col
-    worksheet.write(row, col, txt, format)
+
+    worksheet.write(row, col, signe + txt, format)
     col += 1
+    # Affichage de l oppose de la valeur
     worksheet.write_number(row, col, curvalue, format)
     col += 1
     worksheet.write_number(row, col, refvalue, format)
@@ -87,157 +105,302 @@ def add_line_SIG(
 def Solde_intermediaire_de_gestion(
     dfd, df, workbook, row, col, refyear, curyear, sheet_name="SIG"
 ):
-    LOGGER.info("Let us pick up the SIG")
     # solde intermédiaires de gestion détaillés
     # SAS GALLA pour 2022 p.6/73
     # print(df[df["Classe"] == "7"]["Crédit"].sum())
 
+    # definition des formats
     formats_dict = define_formats()
-    worksheet = workbook.add_worksheet(sheet_name)
-    # je stocke les row col initiales
+    normal = workbook.add_format(formats_dict["normal"])
+    bold = workbook.add_format(formats_dict["bold"])
 
-    # dfnom = load_nomenclature(yaml_path=COMMON_PATH / "nomenclature.yaml")
+    worksheet = workbook.add_worksheet(sheet_name)
 
     row_init = row
     col_init = col
 
-    # premiere ligne les entetes
+    # ENTETES DE PREMIERE LIGNE
     worksheet.write(row, col, "Solde intermédiaire de gestion")
     col += 1
     worksheet.write(row, col, f"Année {int(curyear)}")
     col += 1
     worksheet.write(row, col, f"Année {int(refyear)}")
     col += 1
-    worksheet.write(row, col, f"{int(curyear)} - {int(refyear)} [€]")
+    worksheet.write(row, col, f"Variation absolue")
     col += 1
-    worksheet.write(row, col, f"{int(curyear)}/{int(refyear)}-1 [%]")
+    worksheet.write(row, col, f"Variation %")
     col += 1
-
     row += 1
 
     # Marges commerciales
-    # NON CODE POUR L INSTANT N APPARAIT PAS DANS LE BILAN DE GALLA
+    # TODO NON CODE POUR L INSTANT N APPARAIT PAS DANS LE BILAN DE GALLA
+    marge_commerciale_curyear = 0
+    marge_commerciale_refyear = 0
     # worksheet.write(row, col, "au 31/12/2023")
 
-    normal = workbook.add_format(formats_dict["normal"])
-    bold = workbook.add_format(formats_dict["bold"])
-
     LOGGER.info("Production vendue")
+    productions_vendues_curyear = calcule_balance_cred_moins_deb(
+        dfd[int(curyear)].query("idlvl2=='70'")
+    )
+    productions_vendues_refyear = calcule_balance_cred_moins_deb(
+        dfd[int(refyear)].query("idlvl2=='70'")
+    )
     row, col = add_line_SIG(
         worksheet,
-        "Production vendue",
-        dfd[int(curyear)].query("idlvl2=='70'")["Crédit"].sum()
-        - dfd[int(curyear)].query("idlvl2=='70'")["Débit"].sum(),
-        dfd[int(refyear)].query("idlvl2=='70'")["Crédit"].sum()
-        - dfd[int(refyear)].query("idlvl2=='70'")["Débit"].sum(),
+        "\tProduction vendue",
+        productions_vendues_curyear,
+        productions_vendues_refyear,
         bold,
         row,
         col_init,
     )
     row += 1
-
     LOGGER.info("Détail Production vendue")
     compte_productions_vendues = ["706310", "706320", "706350", "708000"]
     for compte in compte_productions_vendues:
         LOGGER.info(f"Compte {compte}")
-        label = f"{compte} {get_unique_label_in_df(df,compte)}"
+        label = f"\t\t{compte} {get_unique_label_in_df(df,compte)}"
         LOGGER.info(label)
         row, col = add_line_SIG(
             worksheet,
             label,
-            dfd[int(curyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
-            dfd[int(refyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
+            calcule_balance_cred_moins_deb(
+                dfd[int(curyear)].query(f"Compte=='{compte}'")
+            ),
+            calcule_balance_cred_moins_deb(
+                dfd[int(refyear)].query(f"Compte=='{compte}'")
+            ),
             normal,
             row,
             col_init,
         )
         row += 1
-
     LOGGER.info("Production stockée")
+    production_stockee_curyear = calcule_balance_cred_moins_deb(
+        dfd[int(curyear)].query("idlvl2=='71'")
+    )
+    production_stockee_refyear = calcule_balance_cred_moins_deb(
+        dfd[int(refyear)].query("idlvl2=='71'")
+    )
     row, col = add_line_SIG(
         worksheet,
-        "Production stockée",
-        dfd[int(curyear)].query("idlvl2=='71'")["Débit"].sum(),
-        dfd[int(refyear)].query("idlvl2=='71'")["Débit"].sum(),
+        "\tProduction stockée",
+        production_stockee_curyear,
+        production_stockee_refyear,
         bold,
         row,
         col_init,
     )
     row += 1
-
     LOGGER.info("Production immobilisée")
+    productions_immobilisees_curyear = calcule_balance_cred_moins_deb(
+        dfd[int(curyear)].query("idlvl2=='72'")
+    )
+    productions_immobilisees_refyear = calcule_balance_cred_moins_deb(
+        dfd[int(refyear)].query("idlvl2=='72'")
+    )
     row, col = add_line_SIG(
         worksheet,
-        "Production immobilisée",
-        dfd[int(curyear)].query("idlvl2=='72'")["Débit"].sum(),
-        dfd[int(refyear)].query("idlvl2=='72'")["Débit"].sum(),
+        "\tProduction immobilisée",
+        productions_immobilisees_curyear,
+        productions_immobilisees_refyear,
         bold,
         row,
         col_init,
     )
     row += 1
 
-    LOGGER.info("Détail Production immobilisée")
-    idlvl3_productions_vendues = ["721", "722"]
-    for idlvl3 in idlvl3_productions_vendues:
-        LOGGER.info(f"idlvl3 {idlvl3}")
-        try:
-            label = f"{idlvl3} {get_unique_label_in_df(df,idlvl3,type='idlvl3')}"
-            LOGGER.info(label)
-            row, col = add_line_SIG(
-                worksheet,
-                label,
-                dfd[int(curyear)].query(f"idlvl3=='{idlvl3}'")["Débit"].sum(),
-                dfd[int(refyear)].query(f"idlvl3=='{idlvl3}'")["Débit"].sum(),
-                normal,
-                row,
-                col_init,
-            )
-            row += 1
-        except:
-            LOGGER.debug(f"pas d ecriture comptable pour l'idlvl3 {idlvl3}")
+    try:
+        LOGGER.info("Détail Production immobilisée")
+        idlvl3_productions_vendues = ["721", "722"]
+        for idlvl3 in idlvl3_productions_vendues:
+            LOGGER.info(f"idlvl3 {idlvl3}")
+        label = f"\t\t{idlvl3} {get_unique_label_in_df(df,idlvl3,type='idlvl3')}"
+        LOGGER.info(label)
+        row, col = add_line_SIG(
+            worksheet,
+            label,
+            calcule_balance_cred_moins_deb(
+                dfd[int(curyear)].query(f"idlvl3=='{idlvl3}'")
+            ),
+            calcule_balance_cred_moins_deb(
+                dfd[int(refyear)].query(f"idlvl3=='{idlvl3}'")
+            ),
+            normal,
+            row,
+            col_init,
+        )
+        row += 1
+    except:
+        LOGGER.debug(f"pas d ecriture comptable pour l'idlvl3 {idlvl3}")
 
-    # # PRODUCTION DE L EXERCICE
-    # for compte in ["706310", "706320", "706350", "708000"]:
-    #     row, col = add_line_SIG(worksheet,
-    #         f"{compte} {compte}",
-    #         dfd[int(curyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
-    #         dfd[int(refyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
-    #         normal,
-    #         row,
-    #         col_init,
-    #     )
-    #     row += 1
+    # PRODUCTION DE L EXERCICE
+    production_exercice_curyear = (
+        productions_vendues_curyear
+        - production_stockee_curyear
+        - productions_immobilisees_curyear
+    )
+    production_exercice_refyear = (
+        productions_vendues_refyear
+        - production_stockee_refyear
+        - productions_immobilisees_refyear
+    )
+    row, col = add_line_SIG(
+        worksheet,
+        f"\t\t\tProduction de l'exercice",
+        production_exercice_curyear,
+        production_exercice_refyear,
+        bold,
+        row,
+        col_init,
+        signe="",
+    )
+    row += 1
 
+    # variation des matières premières
     LOGGER.info("Matières premières et approvisionnements consommés")
     raw_mat_columns = ["601", "603"]
+    raw_mat_appro_consommes_curyear = calcule_balance_cred_moins_deb(
+        dfd[int(curyear)].query("idlvl3 in @raw_mat_columns")
+    )
+    raw_mat_appro_consommes_refyear = calcule_balance_cred_moins_deb(
+        dfd[int(refyear)].query("idlvl3 in @raw_mat_columns")
+    )
     row, col = add_line_SIG(
         worksheet,
-        "Matières premières et approvisionnements consommés",
-        dfd[int(curyear)].query("idlvl3 in @raw_mat_columns")["Débit"].sum(),
-        dfd[int(refyear)].query("idlvl3 in @raw_mat_columns")["Débit"].sum(),
+        "\tMatières premières et approvisionnements consommés",
+        raw_mat_appro_consommes_curyear,
+        raw_mat_appro_consommes_refyear,
         bold,
         row,
         col_init,
+        signe="-",
     )
     row += 1
-
     LOGGER.info("Détail Matières premières et approvisionnements consommés")
-    compte_productions_vendues = ["601100", "601200", "603100"]
+    compte_productions_vendues = ["601100", "601200", "603100", "609000", "609100"]
     for compte in compte_productions_vendues:
         LOGGER.info(f"Compte {compte}")
-        label = f"{compte} {get_unique_label_in_df(df,compte)}"
+        label = f"\t\t\t{compte} {get_unique_label_in_df(df,compte)}"
         LOGGER.info(label)
         row, col = add_line_SIG(
             worksheet,
             label,
-            dfd[int(curyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
-            dfd[int(refyear)].query(f"Compte=='{compte}'")["Débit"].sum(),
+            calcule_balance_cred_moins_deb(
+                dfd[int(curyear)].query(f"Compte=='{compte}'")
+            ),
+            calcule_balance_cred_moins_deb(
+                dfd[int(refyear)].query(f"Compte=='{compte}'")
+            ),
             normal,
             row,
             col_init,
+            signe="-",
         )
         row += 1
+    LOGGER.info("Sous traitance directe")
+    sous_traitance_columns = ["604"]
+    sous_traitance_directe_curyear = calcule_balance_cred_moins_deb(
+        dfd[int(curyear)].query("idlvl3 in @sous_traitance_columns")
+    )
+    sous_traitance_directe_refyear = calcule_balance_cred_moins_deb(
+        dfd[int(curyear)].query("idlvl3 in @sous_traitance_columns")
+    )
+    row, col = add_line_SIG(
+        worksheet,
+        "\tSous traitance directe",
+        sous_traitance_directe_curyear,
+        sous_traitance_directe_refyear,
+        bold,
+        row,
+        col_init,
+        signe="-",
+    )
+    row += 1
+    LOGGER.info("Détail Sous-traitance directe")
+    compte_productions_vendues = list(
+        (df.query("idlvl3 in @raw_mat_columns")["Compte"].drop_duplicates().values)
+    )
+    for compte in compte_productions_vendues:
+        LOGGER.info(f"Compte {compte}")
+        label = f"\t\t\t{compte} {get_unique_label_in_df(df,compte)}"
+        LOGGER.info(label)
+        row, col = add_line_SIG(
+            worksheet,
+            label,
+            calcule_balance_cred_moins_deb(
+                dfd[int(curyear)].query(f"Compte=='{compte}'")
+            ),
+            calcule_balance_cred_moins_deb(
+                dfd[int(refyear)].query(f"Compte=='{compte}'")
+            ),
+            normal,
+            row,
+            col_init,
+            signe="-",
+        )
+        row += 1
+
+    # MARGE BRUTE SUR PRODUCTION (II)
+    LOGGER.info("Marge brute sur production (II)")
+    marge_brute_curyear = (
+        production_exercice_curyear
+        + raw_mat_appro_consommes_curyear
+        + sous_traitance_directe_curyear
+    )
+    marge_brute_refyear = (
+        production_exercice_refyear
+        + raw_mat_appro_consommes_refyear
+        + sous_traitance_directe_refyear
+    )
+    row, col = add_line_SIG(
+        worksheet,
+        f"\t\t\tMARGE brute sur production (II)",
+        marge_brute_curyear,
+        marge_brute_refyear,
+        bold,
+        row,
+        col_init,
+        signe="",
+    )
+    row += 1
+
+    # MARGE BRUTE GLOBALE (I+II)
+    LOGGER.info("MARGE BRUTE GLOBALE")
+    marge_brute_globale_curyear = marge_commerciale_curyear + marge_brute_curyear
+    marge_brute_globale_refyear = marge_commerciale_refyear + marge_brute_refyear
+    row, col = add_line_SIG(
+        worksheet,
+        f"\t\t\tMarge brute globale (I+II)",
+        marge_brute_globale_curyear,
+        marge_brute_globale_refyear,
+        bold,
+        row,
+        col_init,
+        signe="",
+    )
+    row += 1
+
+    # Services extérieurs et autres charges externes
+    LOGGER.info("Services extérieurs et autres charges externes")
+    services_ext_columns = ["61", "62"]
+    services_ext_curyear = calcule_balance_cred_moins_deb(
+        dfd[int(curyear)].query("idlvl2 in @services_ext_columns")
+    )
+    services_ext_refyear = calcule_balance_cred_moins_deb(
+        dfd[int(refyear)].query("idlvl2 in @services_ext_columns")
+    )
+    row, col = add_line_SIG(
+        worksheet,
+        "\tServices extérieurs et autres charges externes",
+        services_ext_curyear,
+        services_ext_refyear,
+        bold,
+        row,
+        col_init,
+        signe="-",
+    )
+    row += 1
 
     return row, col
 
@@ -279,7 +442,7 @@ def Bilan_detaille(dfd, workbook, row, col, sheet_name):
 
 def main(dfFEC, test=False):
 
-    xlsx_path = Path(WORK_PATH / "pandas_multiple.xlsx")
+    xlsx_path = Path(WORK_PATH / "Solde_intermediaire_de_gestion.xlsx")
     LOGGER.info(f"On ouvre le fichier {xlsx_path.resolve()} ! ")
 
     # init du fichier
@@ -315,6 +478,7 @@ def main(dfFEC, test=False):
         sheet_name = "SIG"
         refyear = 2022
         curyear = 2023
+        LOGGER.info("Let us pick up the SIG")
         row, col = Solde_intermediaire_de_gestion(
             dfd, df, workbook, row, col, refyear, curyear, "SIG"
         )

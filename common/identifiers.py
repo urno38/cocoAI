@@ -1,3 +1,5 @@
+import pandas as pd
+
 from common.convert import dict_to_yaml_file, load_yaml_to_dict
 from common.logconfig import LOGGER
 from common.path import COMMON_PATH, DATABANK_PATH, make_unix_compatible
@@ -42,6 +44,66 @@ def load_siret_in_databank(etablissement, siret):
     write_databank(databank_di)
     LOGGER.info(f"siret {siret} loaded in databank")
     return databank_di
+
+
+def load_nomenclature(yaml_path=COMMON_PATH / "nomenclature.yaml"):
+    df_list = []
+    di = load_yaml_to_dict(yaml_path)
+    for k, dict in di.items():
+        df_list.append(
+            pd.DataFrame(
+                {"Classe": str(k), "description": dict["description"]}, index=[k]
+            )
+        )
+        if dict["subcategories"]:
+            for kk, dictt in dict["subcategories"].items():
+                df_list.append(
+                    pd.DataFrame(
+                        {
+                            "Classe": str(k),
+                            "niveau1": str(kk),
+                            "description": dictt["description"],
+                        },
+                        index=[kk],
+                    )
+                )
+                if "subcategories" in dictt.keys():
+                    for kkk, dicttt in dictt["subcategories"].items():
+                        df_list.append(
+                            pd.DataFrame(
+                                {
+                                    "Classe": str(k),
+                                    "niveau1": str(kk),
+                                    "niveau2": str(kkk),
+                                    "description": dicttt["description"],
+                                },
+                                index=[kkk],
+                            )
+                        )
+    df = pd.concat(df_list, ignore_index=True)
+    return df
+
+
+def load_nomenclature_dict_lvl1(yaml_path=COMMON_PATH / "nomenclature.yaml"):
+    return NOM_DF.dropna(subset=["Classe"]).set_index("Classe")["description"].to_dict()
+
+
+def load_nomenclature_dict_lvl2(yaml_path=COMMON_PATH / "nomenclature.yaml"):
+    return (
+        NOM_DF.dropna(subset=["niveau1"]).set_index("niveau1")["description"].to_dict()
+    )
+
+
+def load_nomenclature_dict_lvl3(yaml_path=COMMON_PATH / "nomenclature.yaml"):
+    return (
+        NOM_DF.dropna(subset=["niveau2"]).set_index("niveau2")["description"].to_dict()
+    )
+
+
+NOM_DF = load_nomenclature()
+NOM_DICT_LVL1 = load_nomenclature_dict_lvl1()
+NOM_DICT_LVL2 = load_nomenclature_dict_lvl2()
+NOM_DICT_LVL3 = load_nomenclature_dict_lvl3()
 
 
 if __name__ == "__main__":

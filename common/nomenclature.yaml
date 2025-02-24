@@ -1462,15 +1462,15 @@
                             description: de marchandises
                         6098:
                             description: Rabais, remises et ristournes non affectés
-        603:
-            description: Variations des stocks (approvisionnements et marchandises)
-            subcategories:
-                6031:
-                    description: Variation des stocks de matières premières (et fournitures)
-                6032:
-                    description: Variation des stocks des autres approvisionnements
-                6037:
-                    description: Variation des stocks de marchandises
+                603:
+                    description: Variations des stocks (approvisionnements et marchandises)
+                    subcategories:
+                        6031:
+                            description: Variation des stocks de matières premières (et fournitures)
+                        6032:
+                            description: Variation des stocks des autres approvisionnements
+                        6037:
+                            description: Variation des stocks de marchandises
         61:
             description: Services extérieurs
             subcategories:
