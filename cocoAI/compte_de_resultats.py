@@ -6,7 +6,12 @@ import pandas as pd
 import xlsxwriter
 
 from cocoAI.FEC import load_excel_data
-from common.identifiers import NOM_DICT_LVL1, NOM_DICT_LVL2, NOM_DICT_LVL3
+from common.identifiers import (
+    NOM_DICT_LVL1,
+    NOM_DICT_LVL2,
+    NOM_DICT_LVL3,
+    NOM_DICT_LVL4,
+)
 from common.logconfig import LOGGER
 from common.path import DATA_PATH, WORK_PATH
 
@@ -100,41 +105,6 @@ def add_line_CR(
     return row, col
 
 
-def add_line_lvl3_CR(
-    worksheet,
-    idlvl3,
-    beginning_row,
-    beginning_col,
-    dfd,
-    df,
-    curyear,
-    refyear,
-    format=None,
-    LOGGER_msg=None,
-):
-
-    LOGGER.info(NOM_DICT_LVL3[idlvl3] if LOGGER_msg is None else LOGGER_msg)
-
-    curyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(curyear)].query(f"idlvl3 == '{idlvl3}'")
-    )
-    refyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(refyear)].query(f"idlvl3 == '{idlvl3}'")
-    )
-
-    row, col = add_line_CR(
-        worksheet,
-        NOM_DICT_LVL3[idlvl3],
-        curyear_value,
-        refyear_value,
-        format,
-        beginning_row,
-        beginning_col,
-    )
-    row += 1
-    return row, col
-
-
 def add_line_lvl2_CR(
     worksheet,
     idlvl2,
@@ -170,11 +140,120 @@ def add_line_lvl2_CR(
     return row, col
 
 
+def add_line_lvl3_CR(
+    worksheet,
+    idlvl3,
+    beginning_row,
+    beginning_col,
+    dfd,
+    df,
+    curyear,
+    refyear,
+    format=None,
+    LOGGER_msg=None,
+):
+
+    LOGGER.info(NOM_DICT_LVL3[idlvl3] if LOGGER_msg is None else LOGGER_msg)
+
+    curyear_value = calcule_balance_cred_moins_deb(
+        dfd[int(curyear)].query(f"idlvl3 == '{idlvl3}'")
+    )
+    refyear_value = calcule_balance_cred_moins_deb(
+        dfd[int(refyear)].query(f"idlvl3 == '{idlvl3}'")
+    )
+
+    row, col = add_line_CR(
+        worksheet,
+        NOM_DICT_LVL3[idlvl3],
+        curyear_value,
+        refyear_value,
+        format,
+        beginning_row,
+        beginning_col,
+    )
+    row += 1
+    return row, col
+
+
+def add_line_lvl3list_CR(
+    worksheet,
+    idlvl3list,
+    beginning_row,
+    beginning_col,
+    dfd,
+    df,
+    curyear,
+    refyear,
+    format=None,
+    label=None,
+    LOGGER_msg=None,
+):
+    # TODO : A REPRENDRE ici
+    LOGGER.info(NOM_DICT_LVL3[idlvl3] if LOGGER_msg is None else LOGGER_msg)
+
+    curyear_value = calcule_balance_cred_moins_deb(
+        dfd[int(curyear)].query(f"idlvl3 == '{idlvl3}'")
+    )
+    refyear_value = calcule_balance_cred_moins_deb(
+        dfd[int(refyear)].query(f"idlvl3 == '{idlvl3}'")
+    )
+
+    row, col = add_line_CR(
+        worksheet,
+        NOM_DICT_LVL3[idlvl3],
+        curyear_value,
+        refyear_value,
+        format,
+        beginning_row,
+        beginning_col,
+    )
+    row += 1
+    return row, col
+
+
+def add_line_lvl4_CR(
+    worksheet,
+    idlvl4,
+    beginning_row,
+    beginning_col,
+    dfd,
+    df,
+    curyear,
+    refyear,
+    format=None,
+    LOGGER_msg=None,
+):
+
+    LOGGER.info(NOM_DICT_LVL4[idlvl4] if LOGGER_msg is None else LOGGER_msg)
+
+    curyear_value = calcule_balance_cred_moins_deb(
+        dfd[int(curyear)].query(f"idlvl4 == '{idlvl4}'")
+    )
+    refyear_value = calcule_balance_cred_moins_deb(
+        dfd[int(refyear)].query(f"idlvl4 == '{idlvl4}'")
+    )
+
+    row, col = add_line_CR(
+        worksheet,
+        NOM_DICT_LVL4[idlvl4],
+        curyear_value,
+        refyear_value,
+        format,
+        beginning_row,
+        beginning_col,
+    )
+    row += 1
+    return row, col
+
+
 def extract_df_for_CR(excel_path_list):
     df = load_excel_data(excel_path_list)
     df["Classe"] = df["Compte"].apply(lambda x: str(x[0]))
     df["idlvl2"] = df["Compte"].apply(lambda x: str(x[:2]))
     df["idlvl3"] = df["Compte"].apply(lambda x: str(x[:3]))
+    df["idlvl4"] = df["Compte"].apply(lambda x: str(x[:4]))
+    df["idlvl5"] = df["Compte"].apply(lambda x: str(x[:5]))
+    df["idlvl6"] = df["Compte"].apply(lambda x: str(x[:6]))
     df["year"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%M/%Y").year)
     df["descriptionClasse"] = df["Classe"].apply(
         lambda x: NOM_DICT_LVL1[x] if x in NOM_DICT_LVL1.keys() else None
@@ -184,6 +263,9 @@ def extract_df_for_CR(excel_path_list):
     )
     df["descriptionlvl3"] = df["idlvl3"].apply(
         lambda x: NOM_DICT_LVL3[x] if x in NOM_DICT_LVL3.keys() else None
+    )
+    df["descriptionlvl4"] = df["idlvl4"].apply(
+        lambda x: NOM_DICT_LVL4[x] if x in NOM_DICT_LVL4.keys() else None
     )
     return df
 
@@ -283,6 +365,11 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     row, col = add_line_lvl3_CR(worksheet, "607", row, col_init, **data, format=normal)
     row, col = add_line_lvl3_CR(worksheet, "603", row, col_init, **data, format=normal)
     row, col = add_line_lvl3_CR(worksheet, "601", row, col_init, **data, format=normal)
+    row, col = add_line_lvl4_CR(worksheet, "6031", row, col_init, **data, format=normal)
+    # Autres achats et charges externes
+    row, col = add_line_lvl3list_CR(
+        worksheet, "6031", row, col_init, **data, format=normal
+    )
 
     return row, col
 

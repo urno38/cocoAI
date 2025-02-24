@@ -80,6 +80,20 @@ def load_nomenclature(yaml_path=COMMON_PATH / "nomenclature.yaml"):
                                 index=[kkk],
                             )
                         )
+                    if "subcategories" in dicttt.keys():
+                        for kkkk, dictttt in dicttt["subcategories"].items():
+                            df_list.append(
+                                pd.DataFrame(
+                                    {
+                                        "Classe": str(k),
+                                        "niveau1": str(kk),
+                                        "niveau2": str(kkk),
+                                        "niveau3": str(kkkk),
+                                        "description": dictttt["description"],
+                                    },
+                                    index=[kkkk],
+                                )
+                            )
     df = pd.concat(df_list, ignore_index=True)
     return df
 
@@ -100,10 +114,17 @@ def load_nomenclature_dict_lvl3(yaml_path=COMMON_PATH / "nomenclature.yaml"):
     )
 
 
+def load_nomenclature_dict_lvl4(yaml_path=COMMON_PATH / "nomenclature.yaml"):
+    return (
+        NOM_DF.dropna(subset=["niveau3"]).set_index("niveau3")["description"].to_dict()
+    )
+
+
 NOM_DF = load_nomenclature()
 NOM_DICT_LVL1 = load_nomenclature_dict_lvl1()
 NOM_DICT_LVL2 = load_nomenclature_dict_lvl2()
 NOM_DICT_LVL3 = load_nomenclature_dict_lvl3()
+NOM_DICT_LVL4 = load_nomenclature_dict_lvl4()
 
 
 if __name__ == "__main__":
