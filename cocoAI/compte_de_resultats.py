@@ -1,7 +1,7 @@
+import sys
 from datetime import datetime
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import xlsxwriter
 
@@ -11,6 +11,7 @@ from common.identifiers import (
     NOM_DICT_LVL2,
     NOM_DICT_LVL3,
     NOM_DICT_LVL4,
+    get_official_nomenclature,
 )
 from common.logconfig import LOGGER
 from common.path import DATA_PATH, WORK_PATH
@@ -96,18 +97,22 @@ def add_line_CR(
     # worksheet.write(row, col, signe + txt, format)
     worksheet.write(row, col, txt, format)  # no sign
     col += 1
-    worksheet.write_number(row, col, curvalue, format)
+    if curvalue != 0:
+        worksheet.write_number(row, col, curvalue, format)
     col += 1
-    worksheet.write_number(row, col, refvalue, format)
+    if refvalue != 0:
+        worksheet.write_number(row, col, refvalue, format)
     col += 1
-    worksheet.write_number(row, col, float(curvalue) - float(refvalue), format)
+    if curvalue != 0 and refvalue != 0:
+        worksheet.write_number(row, col, float(curvalue) - float(refvalue), format)
     col += 1
     if refvalue != 0:
         worksheet.write_number(
             row, col, (float(curvalue) / float(refvalue) - 1) * 100, format
         )
     else:
-        worksheet.write_number(row, col, np.nan, format)
+        # worksheet.write_number(row, col, np.nan, format)
+        pass
     return row, col
 
 
@@ -136,7 +141,7 @@ def add_line_lvl2_CR(
 
     row, col = add_line_CR(
         worksheet,
-        NOM_DICT_LVL2,
+        NOM_DICT_LVL2[idlvl2],
         curyear_value,
         refyear_value,
         format,
@@ -285,19 +290,9 @@ def add_line_idlist_CR(
         else LOGGER_msg
     )
 
-    # print(
-    #     worksheet,
-    #     idlist,
-    #     beginning_row,
-    #     beginning_col,
-    #     curyear,
-    #     refyear,
-    # )
-
     curyear_value = 0
     refyear_value = 0
     for id in idlist:
-        # print(id)
         if len(id) == 1:
             curyear_value += calcule_balance_cred_moins_deb(
                 dfd[int(curyear)].query(f"classe == '{id}'")
@@ -343,6 +338,12 @@ def add_macro_categorie_and_detail(
     signe="+",
 ):
 
+    if len(idlist) == 1 and label is None:
+        label = get_official_nomenclature(idlist[0])
+    if idlist == ["607"]:
+        print(label)
+        sys.exit()
+
     row, col = add_line_idlist_CR(
         worksheet,
         idlist,
@@ -352,9 +353,10 @@ def add_macro_categorie_and_detail(
         df,
         curyear,
         refyear,
-        formats_dict["normal"],
-        label,
-        signe,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        label=label,
+        signe=signe,
     )
 
     dftest = dfd[int(curyear)]
@@ -372,7 +374,7 @@ def add_macro_categorie_and_detail(
                 curyear,
                 refyear,
                 formats_dict["normal"],
-                label,
+                formats_dict=None,
                 signe=signe,
             )
 
@@ -492,24 +494,147 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     row += 1
     LOGGER.info("Production immobilisée")
 
-    # CHARGES D'EXPLOITATION
-
-    # variation des matières premières
-    worksheet.write(row, col, "Charges d'exploitation", formats_dict["bold"])
-    row, col = add_line_lvl3_CR(worksheet, "607", row, col_init, **data, signe="-")
-    row, col = add_line_lvl3_CR(worksheet, "603", row, col_init, **data, signe="-")
-    row, col = add_line_lvl3_CR(worksheet, "601", row, col_init, **data, signe="-")
-    row, col = add_line_lvl4_CR(worksheet, "6031", row, col_init, **data, signe="-")
-    # Autres achats et charges externes
-    idlist = ["602", "604", "605", "606", "607", "608", "609", "61", "62"]
+    # Charges d'exploitation
+    worksheet.write(row, col_init, "Charges d'exploitation", formats_dict["bold"])
+    row += 1
+    # Achats de marchandises
     row, col = add_macro_categorie_and_detail(
         worksheet,
-        idlist,
+        ["607"],
+        row,
+        col_init,
+        **data,
+        signe="-",
+    )
+    # Achats de matières premières
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["601"],
+        row,
+        col_init,
+        **data,
+        signe="-",
+    )
+    # Variation de stock (marchandises)
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["603"],
+        row,
+        col_init,
+        **data,
+        signe="-",
+    )
+    # Autres achats et charges externes
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["602", "604", "605", "606", "608", "609", "61", "62"],
         row,
         col_init,
         **data,
         label="Autres achats et charges externes",
         signe="-",
+    )
+
+    # Impots, taxes et versements assimiles
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["63"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+    )
+    # Salaires et traitements
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["641", "644"],
+        row,
+        col_init,
+        label="Salaires et traitements",
+        signe="-",
+        **data,
+    )
+    # Charges sociales
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["645", "646", "647", "648"],
+        row,
+        col_init,
+        label="Charges sociales",
+        signe="-",
+        **data,
+    )
+    # Autres charges de gestions courantes
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["65"],
+        row,
+        col_init,
+        # label="Charges sociales",
+        signe="-",
+        **data,
+    )
+    # Charges exceptionnelles
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["67"],
+        row,
+        col_init,
+        # label="Charges sociales",
+        signe="-",
+        **data,
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["6811"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["6812"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+    )
+    # Dotations pour dépréciations des immobilisations incorporelles et corporelles
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["6816"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+    )
+    #  Dotations aux dépréciations des actifs circulants
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["6817"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+    )
+    # Dotations aux provisions pour risques et charges
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["6865"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+    )
+    # Autres charges
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["65"],
+        row,
+        col_init,
+        signe="-",
+        **data,
     )
 
     return row, col
