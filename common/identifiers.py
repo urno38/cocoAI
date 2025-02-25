@@ -1,5 +1,3 @@
-from pprint import pprint
-
 import pandas as pd
 
 from common.convert import dict_to_yaml_file, load_yaml_to_dict
@@ -52,7 +50,6 @@ def load_nomenclature(yaml_path=COMMON_PATH / "nomenclature.yaml"):
     df_list = []
     di = load_yaml_to_dict(yaml_path)
     for k, dict in di.items():
-        print(k, dict)
         df_list.append(
             pd.DataFrame(
                 {"Classe": str(k), "description": dict["description"]}, index=[k]
@@ -176,10 +173,11 @@ def get_official_nomenclature(id):
 
 
 if __name__ == "__main__":
+    pass
     # from common.logconfig import LOGGER
 
     # LOGGER.info(f'GALLA {pick_id("GALLA", kind="siren")}')
     # LOGGER.info(f'LE_JARDIN_DE_ROME {pick_id("LE_JARDIN_DE_ROME", kind="siret")}')
     # df = load_nomenclature()
     # print(df)
-    pprint(NOM_DICT_LVL3)
+    # pprint(NOM_DICT_LVL3)

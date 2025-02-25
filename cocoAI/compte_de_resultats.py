@@ -1,4 +1,3 @@
-import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -33,12 +32,9 @@ def define_formats(workbook):
 def get_unique_label_in_df(df, identifiant, type="compte"):
 
     if type == "compte":
-        # print(df.columns)
-        # print(f"Compte=='{identifiant}'")
         series_du_label = df.query(f"Compte=='{identifiant}'")[
             "Intitulé"
         ].drop_duplicates()
-        # print(series_du_label)
         LOGGER.debug(identifiant)
         LOGGER.debug(series_du_label)
         # sys.exit()
@@ -319,7 +315,7 @@ def add_line_idlist_CR(
         signe=signe,
     )
     row += 1
-    return row, col
+    return row, col, curyear_value, refyear_value
 
 
 def add_macro_categorie_and_detail(
@@ -340,11 +336,8 @@ def add_macro_categorie_and_detail(
 
     if len(idlist) == 1 and label is None:
         label = get_official_nomenclature(idlist[0])
-    if idlist == ["607"]:
-        print(label)
-        sys.exit()
 
-    row, col = add_line_idlist_CR(
+    row, col, curyear_value, refyear_value = add_line_idlist_CR(
         worksheet,
         idlist,
         beginning_row,
@@ -359,10 +352,9 @@ def add_macro_categorie_and_detail(
         signe=signe,
     )
 
-    dftest = dfd[int(curyear)]
     for idk in idlist:
         for compte in (
-            dftest[dftest.Compte.str.startswith(idk)]["Compte"].drop_duplicates().values
+            df[df.Compte.str.startswith(idk)]["Compte"].drop_duplicates().values
         ):
             row, col = add_line_compte_CR(
                 worksheet,
@@ -436,67 +428,82 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     col += 1
     row += 1
 
+    # Produits d'exploitation
+
+    worksheet.write(row, col_init, "Produits d'exploitation", formats_dict["bold"])
+    row += 1
+
     # A CONTINUER PLUS TARD
-    # PRODUITS D'EXPLOITATION
-    LOGGER.info("Production vendue")
-    productions_vendues_curyear = calcule_balance_cred_moins_deb(
-        dfd[int(curyear)].query("idlvl2=='70'")
-    )
-    productions_vendues_refyear = calcule_balance_cred_moins_deb(
-        dfd[int(refyear)].query("idlvl2=='70'")
-    )
-    row, col = add_line_CR(
-        worksheet,
-        "\tProduction vendue",
-        productions_vendues_curyear,
-        productions_vendues_refyear,
-        formats_dict["bold"],
-        row,
-        col_init,
-    )
-    row += 1
-    LOGGER.info("Détail Production vendue")
-    compte_productions_vendues = ["706310", "706320", "706350", "708000"]
-    for compte in compte_productions_vendues:
-        LOGGER.info(f"Compte {compte}")
-        label = f"\t\t{compte} {get_unique_label_in_df(df,compte)}"
-        LOGGER.info(label)
-        row, col = add_line_CR(
-            worksheet,
-            label,
-            calcule_balance_cred_moins_deb(
-                dfd[int(curyear)].query(f"Compte=='{compte}'")
-            ),
-            calcule_balance_cred_moins_deb(
-                dfd[int(refyear)].query(f"Compte=='{compte}'")
-            ),
-            formats_dict["normal"],
-            row,
-            col_init,
-        )
-        row += 1
-    LOGGER.info("Production stockée")
-    production_stockee_curyear = calcule_balance_cred_moins_deb(
-        dfd[int(curyear)].query("idlvl2=='71'")
-    )
-    production_stockee_refyear = calcule_balance_cred_moins_deb(
-        dfd[int(refyear)].query("idlvl2=='71'")
-    )
-    row, col = add_line_CR(
-        worksheet,
-        "\tProduction stockée",
-        production_stockee_curyear,
-        production_stockee_refyear,
-        formats_dict["bold"],
-        row,
-        col_init,
-    )
-    row += 1
-    LOGGER.info("Production immobilisée")
+
+    # # PRODUITS D'EXPLOITATION
+    # LOGGER.info("Production vendue")
+    # productions_vendues_curyear = calcule_balance_cred_moins_deb(
+    #     dfd[int(curyear)].query("idlvl2=='70'")
+    # )
+    # productions_vendues_refyear = calcule_balance_cred_moins_deb(
+    #     dfd[int(refyear)].query("idlvl2=='70'")
+    # )
+    # row, col = add_line_CR(
+    #     worksheet,
+    #     "\tProduction vendue",
+    #     productions_vendues_curyear,
+    #     productions_vendues_refyear,
+    #     formats_dict["bold"],
+    #     row,
+    #     col_init,
+    # )
+    # row += 1
+    # LOGGER.info("Détail Production vendue")
+    # compte_productions_vendues = ["706310", "706320", "706350", "708000"]
+    # for compte in compte_productions_vendues:
+    #     LOGGER.info(f"Compte {compte}")
+    #     label = f"\t\t{compte} {get_unique_label_in_df(df,compte)}"
+    #     LOGGER.info(label)
+    #     row, col = add_line_CR(
+    #         worksheet,
+    #         label,
+    #         calcule_balance_cred_moins_deb(
+    #             dfd[int(curyear)].query(f"Compte=='{compte}'")
+    #         ),
+    #         calcule_balance_cred_moins_deb(
+    #             dfd[int(refyear)].query(f"Compte=='{compte}'")
+    #         ),
+    #         formats_dict["normal"],
+    #         row,
+    #         col_init,
+    #     )
+    #     row += 1
+    # LOGGER.info("Production stockée")
+    # production_stockee_curyear = calcule_balance_cred_moins_deb(
+    #     dfd[int(curyear)].query("idlvl2=='71'")
+    # )
+    # production_stockee_refyear = calcule_balance_cred_moins_deb(
+    #     dfd[int(refyear)].query("idlvl2=='71'")
+    # )
+    # row, col = add_line_CR(
+    #     worksheet,
+    #     "\tProduction stockée",
+    #     production_stockee_curyear,
+    #     production_stockee_refyear,
+    #     formats_dict["bold"],
+    #     row,
+    #     col_init,
+    # )
+    # row += 1
+    # LOGGER.info("Production immobilisée")
 
     # Charges d'exploitation
     worksheet.write(row, col_init, "Charges d'exploitation", formats_dict["bold"])
     row += 1
+    # Achats de marchandises
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["6037"],
+        row,
+        col_init,
+        **data,
+        signe="-",
+    )
     # Achats de marchandises
     row, col = add_macro_categorie_and_detail(
         worksheet,
@@ -506,22 +513,14 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         **data,
         signe="-",
     )
-    # Achats de matières premières
+    # Achats de matières premières et autres approvisionnements
     row, col = add_macro_categorie_and_detail(
         worksheet,
-        ["601"],
+        ["6031", "6032"],
         row,
         col_init,
         **data,
-        signe="-",
-    )
-    # Variation de stock (marchandises)
-    row, col = add_macro_categorie_and_detail(
-        worksheet,
-        ["603"],
-        row,
-        col_init,
-        **data,
+        label="Achats de matières premières et autres approvisionnements",
         signe="-",
     )
     # Autres achats et charges externes
@@ -635,6 +634,21 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         col_init,
         signe="-",
         **data,
+    )
+    idlist = ["60", "61", "62", "63", "64", "65", "681"]
+    row, col, curyear_value_totalII, refyear_value_totalII = add_line_idlist_CR(
+        worksheet,
+        idlist,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["bold"],
+        formats_dict=formats_dict,
+        label="TOTAL (II)",
+        signe="-",
     )
 
     return row, col
