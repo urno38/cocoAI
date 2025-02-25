@@ -29,13 +29,16 @@ def define_formats(workbook):
         ),
         "bold": workbook.add_format({"bold": True, "num_format": "#,##0.00"}),
         "normal": workbook.add_format({"bold": False, "num_format": "#,##0.00"}),
+        "compte": workbook.add_format(
+            {"bold": False, "num_format": "#,##0.00", "font_size": 9, "italic": True}
+        ),
         "totals": workbook.add_format(
             {
                 "bold": True,
                 "font_color": "blue",
                 "num_format": "#,##0.00",
-                "bottom": 2,
-                "top": 2,
+                # "bottom": 2,
+                # "top": 2,
             }
         ),
         "row_intercalaire": workbook.add_format(
@@ -112,22 +115,42 @@ def add_line_CR(
     # worksheet.write(row, col, signe + txt, format)
     worksheet.write(row, col, txt, format)  # no sign
     col += 1
+
+    format.set_bg_color("#BCE3F1")  # curyear value
     if curvalue != 0:
+        format.set_align("right")
         worksheet.write_number(row, col, curvalue, format)
+    else:
+        format.set_align("right")
+        worksheet.write(row, col, "-", format)
+        format.set_align("left")
     col += 1
+
+    format.set_bg_color("#BCE3F1")  # refyear value
     if refvalue != 0:
+        format.set_align("right")
         worksheet.write_number(row, col, refvalue, format)
+    else:
+        format.set_align("right")
+        worksheet.write(row, col, "-", format)
+        format.set_align("left")
     col += 1
+    format.set_bg_color("#FFFFFF")  # blanc
+
     if curvalue != 0 and refvalue != 0:
+        format.set_align("right")
         worksheet.write_number(row, col, float(curvalue) - float(refvalue), format)
     col += 1
     if refvalue != 0 and curvalue != 0:
+        format.set_align("right")
         worksheet.write_number(
             row, col, (float(curvalue) / float(refvalue) - 1) * 100, format
         )
     else:
-        # worksheet.write_number(row, col, np.nan, format)
-        pass
+        format.set_align("right")
+        worksheet.write(row, col, "-", format)
+        format.set_align("left")
+        # pass
     return row, col
 
 
@@ -274,7 +297,7 @@ def add_line_compte_CR(
         f"    {label}",
         curyear_value,
         refyear_value,
-        format,
+        formats_dict["compte"],
         beginning_row,
         beginning_col,
         signe=signe,
@@ -385,7 +408,7 @@ def add_macro_categorie_and_detail(
                 curyear,
                 refyear,
                 formats_dict["normal"],
-                formats_dict=None,
+                formats_dict=formats_dict,
                 signe=signe,
             )
 
@@ -436,9 +459,9 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
 
     # Let us define the width of the columns one time pour toutes
     # worksheet.set_column(0, 0, get_max_len_of_the_descriptions() / 2)
-    col_format = workbook.add_format({"bg_color": "#BCE3F1"})
+    # col_format = workbook.add_format({"bg_color": "#BCE3F1"})
     worksheet.set_column(0, 0, 40)
-    worksheet.set_column(1, 1, 15, col_format)
+    worksheet.set_column(1, 1, 15)
     worksheet.set_column(2, 2, 15)
     worksheet.set_column(3, 3, 20)
     worksheet.set_column(4, 4, 20)
@@ -508,7 +531,8 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     )
     # autres produits
     row, col = add_macro_categorie_and_detail(worksheet, ["75"], row, col_init, **data)
-    idlist = ["71", "72", "74", "75", "78", "79"]
+    idlist = ["70", "71", "72", "74", "75", "78", "79"]
+    # idlist = ["7"]
     row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist_CR(
         worksheet,
         idlist,
@@ -746,4 +770,4 @@ def main(excel_path_list, test=False):
 
 
 if __name__ == "__main__":
-    main(excel_path_list=list(DATA_PATH.glob("202*GL*xls*"))[:2], test=True)
+    main(excel_path_list=list(DATA_PATH.glob("202*GL*xls*"))[:2], test=False)
