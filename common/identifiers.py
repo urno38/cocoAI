@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import pandas as pd
 
 from common.convert import dict_to_yaml_file, load_yaml_to_dict
@@ -157,6 +159,15 @@ NOM_DICT_LVL4 = load_nomenclature_dict_lvl4()
 # NOM_DICT_LVL5 = load_nomenclature_dict_lvl5()
 
 
+def get_max_len_of_the_descriptions():
+    maximum = 0
+    for di in [NOM_DICT_LVL1, NOM_DICT_LVL2, NOM_DICT_LVL3, NOM_DICT_LVL4]:
+        tmp = max([len(des) for des in di.values()])
+        if tmp > maximum:
+            maximum = tmp
+    return maximum
+
+
 def get_official_nomenclature(id):
     if len(id) == 1:
         return NOM_DICT_LVL1[id]
@@ -171,8 +182,7 @@ def get_official_nomenclature(id):
     else:
         raise ValueError("not implemented")
 
-
-if __name__ == "__main__":
+    # if __name__ == "__main__":
     pass
     # from common.logconfig import LOGGER
 
@@ -180,4 +190,4 @@ if __name__ == "__main__":
     # LOGGER.info(f'LE_JARDIN_DE_ROME {pick_id("LE_JARDIN_DE_ROME", kind="siret")}')
     # df = load_nomenclature()
     # print(df)
-    # pprint(NOM_DICT_LVL3)
+    pprint(NOM_DICT_LVL2)

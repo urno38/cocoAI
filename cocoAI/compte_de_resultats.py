@@ -22,9 +22,28 @@ def calcule_balance_cred_moins_deb(df):
 
 
 def define_formats(workbook):
+
     formats_dict = {
-        "bold": workbook.add_format({"bold": True}),
-        "normal": workbook.add_format({"bold": False}),
+        "title": workbook.add_format(
+            {"bold": False, "text_wrap": True, "num_format": "#,##0.00"}
+        ),
+        "bold": workbook.add_format({"bold": True, "num_format": "#,##0.00"}),
+        "normal": workbook.add_format({"bold": False, "num_format": "#,##0.00"}),
+        "totals": workbook.add_format(
+            {
+                "bold": True,
+                "font_color": "blue",
+                "num_format": "#,##0.00",
+                "bottom": 2,
+                "top": 2,
+            }
+        ),
+        "row_intercalaire": workbook.add_format(
+            {
+                "bold": False,
+                "num_format": "#,##0.00",
+            }
+        ),
     }
     return formats_dict
 
@@ -102,7 +121,7 @@ def add_line_CR(
     if curvalue != 0 and refvalue != 0:
         worksheet.write_number(row, col, float(curvalue) - float(refvalue), format)
     col += 1
-    if refvalue != 0:
+    if refvalue != 0 and curvalue != 0:
         worksheet.write_number(
             row, col, (float(curvalue) / float(refvalue) - 1) * 100, format
         )
@@ -252,7 +271,7 @@ def add_line_compte_CR(
     # print(signe)
     row, col = add_line_CR(
         worksheet,
-        "\t\t" + label,
+        f"    {label}",
         curyear_value,
         refyear_value,
         format,
@@ -346,9 +365,9 @@ def add_macro_categorie_and_detail(
         df,
         curyear,
         refyear,
-        format=formats_dict["normal"],
+        format=formats_dict["title"],
         formats_dict=formats_dict,
-        label=label,
+        label="  " + label,
         signe=signe,
     )
 
@@ -415,82 +434,95 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     row_init = row
     col_init = col
 
+    # Let us define the width of the columns one time pour toutes
+    # worksheet.set_column(0, 0, get_max_len_of_the_descriptions() / 2)
+    col_format = workbook.add_format({"bg_color": "#BCE3F1"})
+    worksheet.set_column(0, 0, 40)
+    worksheet.set_column(1, 1, 15, col_format)
+    worksheet.set_column(2, 2, 15)
+    worksheet.set_column(3, 3, 20)
+    worksheet.set_column(4, 4, 20)
+
     # ENTETES DE PREMIERE LIGNE
     worksheet.write(row, col, "Compte de résultats détaillés")
     col += 1
-    worksheet.write(row, col, f"Année {int(curyear)}")
+    cell_format = workbook.add_format({"bold": False, "align": "center"})
+    worksheet.write(row, col, f"Année {int(curyear)}", cell_format)
     col += 1
-    worksheet.write(row, col, f"Année {int(refyear)}")
+    worksheet.write(row, col, f"Année {int(refyear)}", cell_format)
     col += 1
-    worksheet.write(row, col, f"Variation absolue")
+    worksheet.write(row, col, f"Variation absolue", cell_format)
     col += 1
-    worksheet.write(row, col, f"Variation %")
+    worksheet.write(row, col, f"Variation %", cell_format)
     col += 1
+    row += 1
     row += 1
 
     # Produits d'exploitation
-
     worksheet.write(row, col_init, "Produits d'exploitation", formats_dict["bold"])
     row += 1
+    # Ventes de marchandises
+    row, col = add_macro_categorie_and_detail(worksheet, ["707"], row, col_init, **data)
+    # Production vendue biens
+    row, col = add_macro_categorie_and_detail(worksheet, ["701"], row, col_init, **data)
+    # Production vendue services
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["706", "708"],
+        row,
+        col_init,
+        **data,
+        label="Production vendue services",
+    )
+    idlist = ["70"]
+    row, col, curyear_value_CA, refyear_value_CA = add_line_idlist_CR(
+        worksheet,
+        idlist,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totals"],
+        formats_dict=formats_dict,
+        label="Chiffres d'affaires net",
+    )
+    row += 1
 
-    # A CONTINUER PLUS TARD
-
-    # # PRODUITS D'EXPLOITATION
-    # LOGGER.info("Production vendue")
-    # productions_vendues_curyear = calcule_balance_cred_moins_deb(
-    #     dfd[int(curyear)].query("idlvl2=='70'")
-    # )
-    # productions_vendues_refyear = calcule_balance_cred_moins_deb(
-    #     dfd[int(refyear)].query("idlvl2=='70'")
-    # )
-    # row, col = add_line_CR(
-    #     worksheet,
-    #     "\tProduction vendue",
-    #     productions_vendues_curyear,
-    #     productions_vendues_refyear,
-    #     formats_dict["bold"],
-    #     row,
-    #     col_init,
-    # )
-    # row += 1
-    # LOGGER.info("Détail Production vendue")
-    # compte_productions_vendues = ["706310", "706320", "706350", "708000"]
-    # for compte in compte_productions_vendues:
-    #     LOGGER.info(f"Compte {compte}")
-    #     label = f"\t\t{compte} {get_unique_label_in_df(df,compte)}"
-    #     LOGGER.info(label)
-    #     row, col = add_line_CR(
-    #         worksheet,
-    #         label,
-    #         calcule_balance_cred_moins_deb(
-    #             dfd[int(curyear)].query(f"Compte=='{compte}'")
-    #         ),
-    #         calcule_balance_cred_moins_deb(
-    #             dfd[int(refyear)].query(f"Compte=='{compte}'")
-    #         ),
-    #         formats_dict["normal"],
-    #         row,
-    #         col_init,
-    #     )
-    #     row += 1
-    # LOGGER.info("Production stockée")
-    # production_stockee_curyear = calcule_balance_cred_moins_deb(
-    #     dfd[int(curyear)].query("idlvl2=='71'")
-    # )
-    # production_stockee_refyear = calcule_balance_cred_moins_deb(
-    #     dfd[int(refyear)].query("idlvl2=='71'")
-    # )
-    # row, col = add_line_CR(
-    #     worksheet,
-    #     "\tProduction stockée",
-    #     production_stockee_curyear,
-    #     production_stockee_refyear,
-    #     formats_dict["bold"],
-    #     row,
-    #     col_init,
-    # )
-    # row += 1
-    # LOGGER.info("Production immobilisée")
+    # TOTAL I
+    # Production stockée
+    row, col = add_macro_categorie_and_detail(worksheet, ["71"], row, col_init, **data)
+    # Production immobilisée
+    row, col = add_macro_categorie_and_detail(worksheet, ["72"], row, col_init, **data)
+    # subventions d exploitation recues
+    row, col = add_macro_categorie_and_detail(worksheet, ["74"], row, col_init, **data)
+    # subventions d exploitation recues
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["78", "79"],
+        row,
+        col_init,
+        **data,
+        label="Reprises sur amortissements, dépréciations et provisions, transferts de charges",
+    )
+    # autres produits
+    row, col = add_macro_categorie_and_detail(worksheet, ["75"], row, col_init, **data)
+    idlist = ["71", "72", "74", "75", "78", "79"]
+    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist_CR(
+        worksheet,
+        idlist,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totals"],
+        formats_dict=formats_dict,
+        label="TOTAL (I)",
+    )
+    row += 1
 
     # Charges d'exploitation
     worksheet.write(row, col_init, "Charges d'exploitation", formats_dict["bold"])
@@ -513,10 +545,19 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         **data,
         signe="-",
     )
+    # Variation de stock
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["603"],
+        row,
+        col_init,
+        **data,
+        signe="-",
+    )
     # Achats de matières premières et autres approvisionnements
     row, col = add_macro_categorie_and_detail(
         worksheet,
-        ["6031", "6032"],
+        ["601"],
         row,
         col_init,
         **data,
@@ -533,6 +574,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         label="Autres achats et charges externes",
         signe="-",
     )
+    row += 1
 
     # Impots, taxes et versements assimiles
     row, col = add_macro_categorie_and_detail(
@@ -645,11 +687,12 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         df,
         curyear,
         refyear,
-        format=formats_dict["bold"],
+        format=formats_dict["totals"],
         formats_dict=formats_dict,
         label="TOTAL (II)",
         signe="-",
     )
+    row += 1
 
     return row, col
 
