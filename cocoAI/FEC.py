@@ -4,6 +4,7 @@ import pandas as pd
 
 from common.convert import convert_beamer_to_pdf
 from common.identifiers import load_nomenclature
+from common.path import rapatrie_file
 
 
 def generer_bilan_excel(fichier_excel):
@@ -184,7 +185,7 @@ def generate_beamer_presentation(
 
 def main(excel_path_list):
     beamer_output_path = Path("presentation_beamer.tex")
-
+    excel_path_list = [rapatrie_file(f) for f in excel_path_list]
     df = load_excel_data(excel_path_list)
 
     bilan_df = calculate_balance_sheet(df)

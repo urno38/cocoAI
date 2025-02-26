@@ -4,7 +4,7 @@ from common.AI_API import request_Mistral
 from common.convert import clean_and_export_file, convert_markdown_to_beamer
 from common.keys import MISTRAL_API_KEY
 from common.logconfig import LOGGER
-from common.path import DATA_PATH, obtain_output_folder, rename_file_unix_compatible
+from common.path import obtain_output_folder, rapatrie_file, rename_file_unix_compatible
 from common.pdf_document import convert_pdf_to_ascii
 
 
@@ -271,7 +271,7 @@ def global_request_bail(bail_path, output_mdpath):
 
 
 def main(bail_path):
-
+    bail_path = rapatrie_file(bail_path)
     new_bail_path = rename_file_unix_compatible(bail_path)
     output_folder = obtain_output_folder(new_bail_path.stem, kind="bail", number="")
 

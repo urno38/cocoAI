@@ -13,7 +13,7 @@ from common.identifiers import (
     get_official_nomenclature,
 )
 from common.logconfig import LOGGER
-from common.path import DATA_PATH, WORK_PATH
+from common.path import DATA_PATH, WORK_PATH, rapatrie_file
 
 
 def calcule_balance_cred_moins_deb(df):
@@ -1139,11 +1139,11 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
 
 
 def main(excel_path_list, test=False):
+
+    excel_path_list = [rapatrie_file(f) for f in excel_path_list]
     df = extract_df_for_CR(excel_path_list)
     xlsx_path = Path(WORK_PATH / "Compte_de_resultats_detailles.xlsx")
     LOGGER.info(f"On ouvre le fichier {xlsx_path.resolve()} ! ")
-
-    # init du fichier
 
     engine_options = {"nan_inf_to_errors": True}
 

@@ -2,28 +2,37 @@ import getpass
 import logging
 import os
 import re
+import shutil
 from pathlib import Path
 
 from common.logconfig import LOGGER
 
-if os.name == "posix":
-    USER_PATH = Path("/Users/") / getpass.getuser()
-elif os.name == "nt":
+# definition du path vers le one drive comptoirs et commerces
+if getpass.getuser() == "lvolat":
     USER_PATH = Path(r"C:\Users") / getpass.getuser()
+    DOCUMENTS_PATH = USER_PATH / "Documents"
+    COMMERCIAL_ONE_DRIVE_PATH = (
+        USER_PATH / "COMPTOIRS ET COMMERCES" / "COMMERCIAL - Documents"
+    )
+    PROGRAMFILES_PATH = Path(r"C:\Program Files")
+    TESSERACT_EXE_PATH = PROGRAMFILES_PATH / "Tesseract-OCR" / "tesseract.exe"
+elif getpass.getuser() == "antoninbertuol":
+    USER_PATH = Path("/Users/") / getpass.getuser()
+    DOCUMENTS_PATH = USER_PATH / "Documents"
+    COMMERCIAL_ONE_DRIVE_PATH = (
+        USER_PATH / "COMPTOIRS ET COMMERCES" / "COMMERCIAL - Documents"
+    )
+else:
+    raise ValueError("not implemented, please write all the paths concerning the user")
 
-DOCUMENTS_PATH = USER_PATH / "Documents"
-# DOCUMENTS_PATH = USER_PATH / "OneDrive - COMPTOIRS ET COMMERCES\Documents"
+
 COCOAI_PATH = DOCUMENTS_PATH / "cocoAI"
 DATA_PATH = COCOAI_PATH / "data"
 WORK_PATH = COCOAI_PATH / "work"
 OUTPUT_PATH = COCOAI_PATH / "work" / "output"
 COMMON_PATH = COCOAI_PATH / "common"
 DATABANK_PATH = COMMON_PATH / "databank.yaml"
-PROGRAMFILES_PATH = Path(r"C:\Program Files")
-TESSERACT_EXE_PATH = PROGRAMFILES_PATH / "Tesseract-OCR" / "tesseract.exe"
 PPTX_TEMPLATE_PATH = DATA_PATH / "templates" / "template_memorandum.pptx"
-
-# ONE_DRI
 
 
 # URL d'ACCES AUX API
@@ -85,6 +94,7 @@ def make_unix_compatible(name):
     name = name.replace("(", "")
     # Remove invalid characters for Unix
     name = re.sub(r"[^a-zA-Z0-9._-]", "", name)
+    name = re.sub("_+", "_", name)
     name = name.strip()
     return name
 
@@ -120,6 +130,45 @@ def rename_file_unix_compatible(path: Path):
     return compatible_path
 
 
+def truncate_path_to_parent(path, parent_path):
+    # Create a Path object
+    if not isinstance(path, Path):
+        full_path = Path(path)
+    else:
+        full_path = path
+
+    # Iterate through the parents to find the desired parent directory
+    for parent in full_path.parents:
+        if parent == parent_path:
+            # The remaining part of the path
+            remaining_path = full_path.relative_to(parent)
+            return parent, remaining_path
+
+    # If the parent directory is not found, return the original path and an empty remaining path
+    return full_path, Path()
+
+
+def rapatrie_file(filepath, dest_folder=DATA_PATH):
+
+    if not isinstance(filepath, Path):
+        filepath = Path(filepath)
+
+    if not filepath.is_relative_to(DATA_PATH):
+        if filepath.is_relative_to(COMMERCIAL_ONE_DRIVE_PATH):
+            parent, rel_path = truncate_path_to_parent(
+                filepath, COMMERCIAL_ONE_DRIVE_PATH
+            )
+            destpath = get_unix_compatible_path(DATA_PATH / rel_path)
+        else:
+            destpath = get_unix_compatible_path(DATA_PATH / filepath.name)
+
+        destpath.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(filepath, destpath)
+        LOGGER.info(f"{filepath} has been copied to {destpath}")
+
+    return destpath
+
+
 if __name__ == "__main__":
 
     """
@@ -128,10 +177,16 @@ if __name__ == "__main__":
     logging.debug(USER, DOCUMENTS_PATH)
     """
 
-    # Exemple d'utilisation
-    chemin_compatible = get_unix_compatible_path(
-        Path(
-            r"C:\Users\lvolat\Documents\cocoAI\work\output\bail_Annexe 6 a) - Bail du 1er septembre 1995\slides_results.pdf"
-        )
-    )
-    print(chemin_compatible)
+    # # Exemple d'utilisation
+    # chemin_compatible = get_unix_compatible_path(
+    #     Path(
+    #         r"C:\Users\lvolat\Documents\cocoAI\work\output\bail_Annexe 6 a) - Bail du 1er septembre 1995\slides_results.pdf"
+    #     )
+    # )
+    # print(chemin_compatible)
+    filepath = Path(
+        r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\COMMERCIAL - Documents\2 - DOSSIERS à l'ETUDE\CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF\3. DOCUMENTATION FINANCIÈRE\2022 - GALLA - GL.xlsx"
+    ).resolve()
+    print(filepath)
+    print(COMMERCIAL_ONE_DRIVE_PATH)
+    new_file_path = rapatrie_file(filepath)

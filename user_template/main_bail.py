@@ -1,7 +1,18 @@
-from cocoAI.bail import main
-from common.path import DATA_PATH
+from pathlib import Path
 
-# main(bail_path=list(DATA_PATH.glob("*Annexe*6_b*Bail*pdf"))[0])
-main(bail_path=list(DATA_PATH.glob("*GILBERTE*/**/*BAIL*SEINE*.pdf"))[0])
-main(bail_path=list(DATA_PATH.glob("*CIAL*BAIL*20150101.pdf"))[0])
-main(bail_path=list(DATA_PATH.glob("*CIAL*BAIL*20240101.pdf"))[0])
+from cocoAI.bail import main
+from common.path import COMMERCIAL_ONE_DRIVE_PATH
+
+# Mettre les paths sous la forme
+bail_path = Path(r"<chemin a copier ici>")
+
+for bail_path in COMMERCIAL_ONE_DRIVE_PATH.glob("**/*Annexe*6_b*Bail*pdf"):
+    main(bail_path=bail_path)
+
+main(
+    bail_path=list(COMMERCIAL_ONE_DRIVE_PATH.glob("**/*GILBERTE*/**/*BAIL*SEINE*.pdf"))[
+        0
+    ]
+)
+main(bail_path=list(COMMERCIAL_ONE_DRIVE_PATH.glob("**/*CIAL*BAIL*20150101.pdf"))[0])
+main(bail_path=list(COMMERCIAL_ONE_DRIVE_PATH.glob("**/*CIAL*BAIL*20240101.pdf"))[0])
