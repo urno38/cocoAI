@@ -37,6 +37,7 @@ def define_formats(workbook):
                 "bold": True,
                 "font_color": "blue",
                 "num_format": "#,##0.00",
+                "text_wrap": True,
                 # "bottom": 2,
                 # "top": 2,
             }
@@ -90,7 +91,7 @@ def get_unique_label_in_df(df, identifiant, type="compte"):
         raise ValueError("not implemented")
 
 
-def add_line_CR(
+def add_line_CR_elementary(
     worksheet,
     txt,
     curvalue,
@@ -100,7 +101,6 @@ def add_line_CR(
     beginning_col,
     signe="+",
 ):
-
     # print(worksheet, txt, curvalue, refvalue, format, beginning_row, beginning_col)
 
     if signe not in ["+", "-", ""]:
@@ -151,6 +151,7 @@ def add_line_CR(
         worksheet.write(row, col, "-", format)
         format.set_align("left")
         # pass
+    row += 1
     return row, col
 
 
@@ -177,7 +178,7 @@ def add_line_lvl2_CR(
         dfd[int(refyear)].query(f"idlvl2 == '{idlvl2}'")
     )
 
-    row, col = add_line_CR(
+    row, col = add_line_CR_elementary(
         worksheet,
         NOM_DICT_LVL2[idlvl2],
         curyear_value,
@@ -187,7 +188,6 @@ def add_line_lvl2_CR(
         beginning_col,
         signe=signe,
     )
-    row += 1
     return row, col
 
 
@@ -215,7 +215,7 @@ def add_line_lvl3_CR(
         dfd[int(refyear)].query(f"idlvl3 == '{idlvl3}'")
     )
 
-    row, col = add_line_CR(
+    row, col = add_line_CR_elementary(
         worksheet,
         NOM_DICT_LVL3[idlvl3],
         curyear_value,
@@ -225,7 +225,6 @@ def add_line_lvl3_CR(
         beginning_col,
         signe=signe,
     )
-    row += 1
     return row, col
 
 
@@ -253,7 +252,7 @@ def add_line_lvl4_CR(
         dfd[int(refyear)].query(f"idlvl4 == '{idlvl4}'")
     )
 
-    row, col = add_line_CR(
+    row, col = add_line_CR_elementary(
         worksheet,
         NOM_DICT_LVL4[idlvl4],
         curyear_value,
@@ -263,7 +262,6 @@ def add_line_lvl4_CR(
         beginning_col,
         signe=signe,
     )
-    row += 1
     return row, col
 
 
@@ -292,7 +290,7 @@ def add_line_compte_CR(
         dfd[int(refyear)].query(f"Compte == '{compte}'")
     )
     # print(signe)
-    row, col = add_line_CR(
+    row, col = add_line_CR_elementary(
         worksheet,
         f"    {label}",
         curyear_value,
@@ -302,7 +300,6 @@ def add_line_compte_CR(
         beginning_col,
         signe=signe,
     )
-    row += 1
     return row, col
 
 
@@ -322,11 +319,14 @@ def add_line_idlist_CR(
     signe="+",
 ):
 
-    LOGGER.info(
-        "je concatene tous les id " + " ".join(idlist)
-        if LOGGER_msg is None
-        else LOGGER_msg
-    )
+    if len(idlist) == 1 and label is None:
+        label = get_official_nomenclature(idlist[0])
+    else:
+        LOGGER.info(
+            "je concatene tous les id " + " ".join(idlist)
+            if LOGGER_msg is None
+            else LOGGER_msg
+        )
 
     curyear_value = 0
     refyear_value = 0
@@ -346,9 +346,9 @@ def add_line_idlist_CR(
                 dfd[int(refyear)].query(f"idlvl{len(id)} == '{id}'")
             )
 
-    row, col = add_line_CR(
+    row, col = add_line_CR_elementary(
         worksheet,
-        label,
+        "  " + label,
         curyear_value,
         refyear_value,
         format,
@@ -356,7 +356,6 @@ def add_line_idlist_CR(
         beginning_col,
         signe=signe,
     )
-    row += 1
     return row, col, curyear_value, refyear_value
 
 
@@ -376,9 +375,6 @@ def add_macro_categorie_and_detail(
     signe="+",
 ):
 
-    if len(idlist) == 1 and label is None:
-        label = get_official_nomenclature(idlist[0])
-
     row, col, curyear_value, refyear_value = add_line_idlist_CR(
         worksheet,
         idlist,
@@ -390,7 +386,7 @@ def add_macro_categorie_and_detail(
         refyear,
         format=formats_dict["title"],
         formats_dict=formats_dict,
-        label="  " + label,
+        label=label,
         signe=signe,
     )
 
@@ -453,6 +449,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     }  # data qui ne bougeront jamais, pour rendre les signatures plus courtes
 
     worksheet = workbook.add_worksheet(sheet_name)
+    worksheet.freeze_panes(1, 0)
 
     row_init = row
     col_init = col
@@ -520,10 +517,9 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     row, col = add_macro_categorie_and_detail(worksheet, ["72"], row, col_init, **data)
     # subventions d exploitation recues
     row, col = add_macro_categorie_and_detail(worksheet, ["74"], row, col_init, **data)
-    # subventions d exploitation recues
     row, col = add_macro_categorie_and_detail(
         worksheet,
-        ["78", "79"],
+        ["781"],
         row,
         col_init,
         **data,
@@ -598,7 +594,6 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         label="Autres achats et charges externes",
         signe="-",
     )
-    row += 1
 
     # Impots, taxes et versements assimiles
     row, col = add_macro_categorie_and_detail(
@@ -609,6 +604,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         signe="-",
         **data,
     )
+
     # Salaires et traitements
     row, col = add_macro_categorie_and_detail(
         worksheet,
@@ -651,47 +647,47 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     )
     row, col = add_macro_categorie_and_detail(
         worksheet,
-        ["6811"],
+        ["681"],
         row,
         col_init,
         signe="-",
         **data,
     )
-    row, col = add_macro_categorie_and_detail(
-        worksheet,
-        ["6812"],
-        row,
-        col_init,
-        signe="-",
-        **data,
-    )
-    # Dotations pour dépréciations des immobilisations incorporelles et corporelles
-    row, col = add_macro_categorie_and_detail(
-        worksheet,
-        ["6816"],
-        row,
-        col_init,
-        signe="-",
-        **data,
-    )
-    #  Dotations aux dépréciations des actifs circulants
-    row, col = add_macro_categorie_and_detail(
-        worksheet,
-        ["6817"],
-        row,
-        col_init,
-        signe="-",
-        **data,
-    )
-    # Dotations aux provisions pour risques et charges
-    row, col = add_macro_categorie_and_detail(
-        worksheet,
-        ["6865"],
-        row,
-        col_init,
-        signe="-",
-        **data,
-    )
+    # row, col = add_macro_categorie_and_detail(
+    #     worksheet,
+    #     ["6812"],
+    #     row,
+    #     col_init,
+    #     signe="-",
+    #     **data,
+    # )
+    # # Dotations pour dépréciations des immobilisations incorporelles et corporelles
+    # row, col = add_macro_categorie_and_detail(
+    #     worksheet,
+    #     ["6816"],
+    #     row,
+    #     col_init,
+    #     signe="-",
+    #     **data,
+    # )
+    # #  Dotations aux dépréciations des actifs circulants
+    # row, col = add_macro_categorie_and_detail(
+    #     worksheet,
+    #     ["6817"],
+    #     row,
+    #     col_init,
+    #     signe="-",
+    #     **data,
+    # )
+    # # Dotations aux provisions pour risques et charges
+    # row, col = add_macro_categorie_and_detail(
+    #     worksheet,
+    #     ["6865"],
+    #     row,
+    #     col_init,
+    #     signe="-",
+    #     **data,
+    # )
     # Autres charges
     row, col = add_macro_categorie_and_detail(
         worksheet,
@@ -716,7 +712,410 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         label="TOTAL (II)",
         signe="-",
     )
+    # row += 1
+
+    # Resultats d exploitation (I-II)
+    # attention, II est deja negatif
+
+    row, col = add_line_CR_elementary(
+        worksheet,
+        "RESULTAT D'EXPLOITATION",
+        curyear_value_totalI + curyear_value_totalII,
+        refyear_value_totalI + refyear_value_totalII,
+        formats_dict["totals"],
+        row,
+        col_init,
+        signe="+",
+    )
     row += 1
+
+    # Bénéfices attribués ou pertes tranférées
+    (
+        row,
+        col,
+        curyear_value_totalIII,
+        refyear_value_totalIII,
+    ) = add_line_idlist_CR(worksheet, ["655"], row, col_init, signe="-", **data)
+
+    # Perte supportée ou bénéfice transféré
+    row, col, curyear_value_totalIV, refyear_value_totalIV = add_line_idlist_CR(
+        worksheet, ["755"], row, col_init, signe="-", **data
+    )
+
+    row += 1
+
+    # Produits financiers
+    worksheet.write(row, col_init, "Produits financiers", formats_dict["bold"])
+    row += 1
+    # Produits financiers de participation
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["761"],
+        row,
+        col_init,
+        **data,
+    )
+    # Produits autres valeurs mobilières et créances actif immobilisé
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["762", "763", "764"],
+        row,
+        col_init,
+        **data,
+        label="Produits autres valeurs mobilières et créances actif immobilisé",
+    )
+    #  Autres intérêts et produits assimilés
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["768"],
+        row,
+        col_init,
+        **data,
+        label="Autres intérêts et produits assimilés",
+    )
+    #  Autres intérêts et produits assimilés
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["765"],
+        row,
+        col_init,
+        **data,
+        label="Autres intérêts et produits assimilés",
+    )
+
+    # Différence positives de change
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["766"],
+        row,
+        col_init,
+        **data,
+    )
+    #  Produits nets sur cessions de valeurs mobilières de placement
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["767"],
+        row,
+        col_init,
+        **data,
+    )
+    #  Produits nets sur cessions de valeurs mobilières de placement
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["786"],
+        row,
+        col_init,
+        **data,
+    )
+
+    # idlist = ["60", "61", "62", "63", "64", "65", "681"]
+    row, col, curyear_value_totalV, refyear_value_totalV = add_line_idlist_CR(
+        worksheet,
+        ["76", "786"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totals"],
+        formats_dict=formats_dict,
+        label="TOTAL (V)",
+        signe="-",
+    )
+    row += 1
+
+    # Charges financières
+    worksheet.write(row, col_init, "Charges financières", formats_dict["bold"])
+    row += 1
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["664", "665"],
+        row,
+        col_init,
+        **data,
+        label="Dotations financières aux amortissements, dépréciations et provisions",
+        signe="-",
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ["661"], row, col_init, **data, signe="-"
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ["666"], row, col_init, **data, signe="-"
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ["667"], row, col_init, **data, signe="-"
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ["668"], row, col_init, **data, signe="-"
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ["686"], row, col_init, **data, signe="-"
+    )
+
+    # idlist = ["60", "61", "62", "63", "64", "65", "681"]
+    row, col, curyear_value_totalVI, refyear_value_totalVI = add_line_idlist_CR(
+        worksheet,
+        ["66", "686"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totals"],
+        formats_dict=formats_dict,
+        label="TOTAL (VI)",
+        signe="-",
+    )
+    row += 1
+
+    row, col = add_line_CR_elementary(
+        worksheet,
+        "RESULTAT FINANCIER",
+        curyear_value_totalV + curyear_value_totalVI,
+        refyear_value_totalV + refyear_value_totalVI,
+        formats_dict["totals"],
+        row,
+        col_init,
+        signe="+",
+    )
+
+    row, col = add_line_CR_elementary(
+        worksheet,
+        "RESULTAT COURANT AVANT IMPOTS",
+        curyear_value_totalI
+        + curyear_value_totalII
+        + curyear_value_totalIII
+        + curyear_value_totalIV
+        + curyear_value_totalV
+        + curyear_value_totalVI,
+        refyear_value_totalI
+        + refyear_value_totalII
+        + refyear_value_totalIII
+        + refyear_value_totalIV
+        + refyear_value_totalV
+        + refyear_value_totalVI,
+        formats_dict["totals"],
+        row,
+        col_init,
+        signe="+",
+    )
+
+    row += 1
+    # Produits exceptionnels
+    worksheet.write(row, col_init, "Produits exceptionnels", formats_dict["bold"])
+    LOGGER.info("Produits exceptionnels")
+    row += 1
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["771"],
+        row,
+        col_init,
+        **data,
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["772"],
+        row,
+        col_init,
+        **data,
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["774", "775", "777", "778"],
+        row,
+        col_init,
+        **data,
+        label="Produits exceptionnels sur opérations en capital",
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["787"],
+        row,
+        col_init,
+        **data,
+    )
+
+    row, col, curyear_value_totalVII, refyear_value_totalVII = add_line_idlist_CR(
+        worksheet,
+        ["77", "787"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totals"],
+        formats_dict=formats_dict,
+        label="TOTAL (VII)",
+        signe="-",
+    )
+    row += 1
+
+    # Charges exceptionnelles
+    worksheet.write(row, col_init, "Charges exceptionnelles", formats_dict["bold"])
+    row += 1
+    LOGGER.info("Charges exceptionnelles")
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["671"],
+        row,
+        col_init,
+        **data,
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["672"],
+        row,
+        col_init,
+        **data,
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["674", "675", "677", "678"],
+        row,
+        col_init,
+        **data,
+        label="Charges exceptionnelles sur opérations en capital",
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["687"],
+        row,
+        col_init,
+        **data,
+    )
+    row, col, curyear_value_totalVIII, refyear_value_totalVIII = add_line_idlist_CR(
+        worksheet,
+        ["67", "687"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totals"],
+        formats_dict=formats_dict,
+        label="TOTAL (VIII)",
+        signe="-",
+    )
+
+    row, col = add_line_CR_elementary(
+        worksheet,
+        "RESULTAT EXCEPTIONNEL (VII-VIII)",
+        curyear_value_totalVII + curyear_value_totalVIII,
+        refyear_value_totalVII + refyear_value_totalVIII,
+        formats_dict["totals"],
+        row,
+        col_init,
+        signe="+",
+    )
+
+    row, col, curyear_value_totalIX, refyear_value_totalIX = add_line_idlist_CR(
+        worksheet,
+        ["691"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totals"],
+        formats_dict=formats_dict,
+        # signe="-",
+    )
+
+    row, col, curyear_value_totalX, refyear_value_totalX = add_line_idlist_CR(
+        worksheet,
+        ["695"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totals"],
+        formats_dict=formats_dict,
+        # signe="-",
+    )
+
+    LOGGER.info("TOTAL DES PRODUITS")
+    row, col = add_line_CR_elementary(
+        worksheet,
+        "TOTAL DES PRODUITS",
+        curyear_value_totalI
+        + curyear_value_totalIII
+        + curyear_value_totalV
+        + curyear_value_totalVII,
+        refyear_value_totalI
+        + refyear_value_totalIII
+        + refyear_value_totalV
+        + refyear_value_totalVII,
+        formats_dict["totals"],
+        row,
+        col_init,
+        signe="+",
+    )
+
+    LOGGER.info("TOTAL DES CHARGES")
+    row, col = add_line_CR_elementary(
+        worksheet,
+        "TOTAL DES CHARGES",
+        curyear_value_totalII
+        + curyear_value_totalIV
+        + curyear_value_totalVI
+        + curyear_value_totalVIII
+        + curyear_value_totalIX
+        + curyear_value_totalX,
+        refyear_value_totalII
+        + refyear_value_totalIV
+        + refyear_value_totalVI
+        + refyear_value_totalVIII
+        + refyear_value_totalIX
+        + refyear_value_totalX,
+        formats_dict["totals"],
+        row,
+        col_init,
+        signe="-",
+    )
+
+    LOGGER.info("BENEFICE OU PERTES = (TOTAL DES PRODUITS - TOTAL DES CHARGES)")
+    row, col = add_line_CR_elementary(
+        worksheet,
+        "BENEFICE OU PERTES = (TOTAL DES PRODUITS - TOTAL DES CHARGES)",
+        (
+            curyear_value_totalI
+            + curyear_value_totalIII
+            + curyear_value_totalV
+            + curyear_value_totalVII
+        )
+        + (
+            curyear_value_totalII
+            + curyear_value_totalIV
+            + curyear_value_totalVI
+            + curyear_value_totalVIII
+            + curyear_value_totalIX
+            + refyear_value_totalX
+        ),
+        (
+            refyear_value_totalI
+            + refyear_value_totalIII
+            + refyear_value_totalV
+            + refyear_value_totalVII
+        )
+        + (
+            refyear_value_totalII
+            + refyear_value_totalIV
+            + refyear_value_totalVI
+            + refyear_value_totalVIII
+            + refyear_value_totalIX
+            + refyear_value_totalX
+        ),
+        formats_dict["totals"],
+        row,
+        col_init,
+    )
 
     return row, col
 
@@ -770,4 +1169,4 @@ def main(excel_path_list, test=False):
 
 
 if __name__ == "__main__":
-    main(excel_path_list=list(DATA_PATH.glob("202*GL*xls*"))[:2], test=False)
+    main(excel_path_list=list(DATA_PATH.glob("202*GL*xls*"))[:2], test=True)

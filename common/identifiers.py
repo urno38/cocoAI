@@ -182,7 +182,8 @@ def get_official_nomenclature(id):
     else:
         raise ValueError("not implemented")
 
-    # if __name__ == "__main__":
+
+if __name__ == "__main__":
     pass
     # from common.logconfig import LOGGER
 
@@ -190,4 +191,4 @@ def get_official_nomenclature(id):
     # LOGGER.info(f'LE_JARDIN_DE_ROME {pick_id("LE_JARDIN_DE_ROME", kind="siret")}')
     # df = load_nomenclature()
     # print(df)
-    pprint(NOM_DICT_LVL2)
+    pprint(NOM_DICT_LVL3)

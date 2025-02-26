@@ -1769,7 +1769,7 @@
                         6544:
                             description: Créances des exercices antérieurs
                 655:
-                    description: Quote-part de résultat sur opérations faites en commun
+                    description: Bénéfice transféré ou perte supportée
                     subcategories:
                         6551:
                             description: Quote-part de bénéfice transférée (comptabilité du gérant)
@@ -2087,7 +2087,7 @@
                 754:
                     description: Ristournes perçues des coopératives (provenant des excédents)
                 755:
-                    description: Quote-parts de résultat sur opérations faites en commun
+                    description: Bénéfice attribué ou pertes transférée
                     subcategories:
                         7551:
                             description: Quote-part de perte transférée (comptabilité du gérant)
