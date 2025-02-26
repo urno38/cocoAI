@@ -321,10 +321,10 @@
                                     description: Frais de publicité
                         2013:
                             description: Frais d'augmentation de capital et d'opérations diverses (fusions, scissions, transformations)
-                        203:
-                            description: Frais de recherche et de développement
-                        205:
-                            description: Concessions et droits similaires, brevets, licences, marques, procédés, solutions informatiques, droits et valeurs similaires
+                203:
+                    description: Frais de recherche et de développement
+                205:
+                    description: Concessions et droits similaires, brevets, licences, marques, procédés, solutions informatiques, droits et valeurs similaires
                 206:
                     description: Droit au bail
                 207:

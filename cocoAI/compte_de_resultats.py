@@ -13,7 +13,7 @@ from common.identifiers import (
     get_official_nomenclature,
 )
 from common.logconfig import LOGGER
-from common.path import DATA_PATH, WORK_PATH, rapatrie_file
+from common.path import COMMERCIAL_ONE_DRIVE_PATH, WORK_PATH, rapatrie_file
 
 
 def calcule_balance_cred_moins_deb(df):
@@ -152,116 +152,6 @@ def add_line_CR_elementary(
         format.set_align("left")
         # pass
     row += 1
-    return row, col
-
-
-def add_line_lvl2_CR(
-    worksheet,
-    idlvl2,
-    beginning_row,
-    beginning_col,
-    dfd,
-    df,
-    curyear,
-    refyear,
-    format=None,
-    LOGGER_msg=None,
-    signe="+",
-):
-
-    LOGGER.info(NOM_DICT_LVL2 if LOGGER_msg is None else LOGGER_msg)
-
-    curyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(curyear)].query(f"idlvl2 == '{idlvl2}'")
-    )
-    refyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(refyear)].query(f"idlvl2 == '{idlvl2}'")
-    )
-
-    row, col = add_line_CR_elementary(
-        worksheet,
-        NOM_DICT_LVL2[idlvl2],
-        curyear_value,
-        refyear_value,
-        format,
-        beginning_row,
-        beginning_col,
-        signe=signe,
-    )
-    return row, col
-
-
-def add_line_lvl3_CR(
-    worksheet,
-    idlvl3,
-    beginning_row,
-    beginning_col,
-    dfd,
-    df,
-    curyear,
-    refyear,
-    format=None,
-    formats_dict=None,
-    LOGGER_msg=None,
-    signe="+",
-):
-
-    LOGGER.info(NOM_DICT_LVL3[idlvl3] if LOGGER_msg is None else LOGGER_msg)
-
-    curyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(curyear)].query(f"idlvl3 == '{idlvl3}'")
-    )
-    refyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(refyear)].query(f"idlvl3 == '{idlvl3}'")
-    )
-
-    row, col = add_line_CR_elementary(
-        worksheet,
-        NOM_DICT_LVL3[idlvl3],
-        curyear_value,
-        refyear_value,
-        format,
-        beginning_row,
-        beginning_col,
-        signe=signe,
-    )
-    return row, col
-
-
-def add_line_lvl4_CR(
-    worksheet,
-    idlvl4,
-    beginning_row,
-    beginning_col,
-    dfd,
-    df,
-    curyear,
-    refyear,
-    format=None,
-    formats_dict=None,
-    LOGGER_msg=None,
-    signe="+",
-):
-
-    LOGGER.info(NOM_DICT_LVL4[idlvl4] if LOGGER_msg is None else LOGGER_msg)
-
-    curyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(curyear)].query(f"idlvl4 == '{idlvl4}'")
-    )
-    refyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(refyear)].query(f"idlvl4 == '{idlvl4}'")
-    )
-
-    row, col = add_line_CR_elementary(
-        worksheet,
-        NOM_DICT_LVL4[idlvl4],
-        curyear_value,
-        refyear_value,
-        format,
-        beginning_row,
-        beginning_col,
-        signe=signe,
-    )
     return row, col
 
 
@@ -1189,4 +1079,22 @@ def main(excel_path_list, test=False):
 
 
 if __name__ == "__main__":
-    main(excel_path_list=list(DATA_PATH.glob("202*GL*xls*"))[:2], test=False)
+
+    excel_path_list = [
+        (
+            COMMERCIAL_ONE_DRIVE_PATH
+            / "2 - DOSSIERS à l'ETUDE"
+            / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
+            / "3. DOCUMENTATION FINANCIÈRE"
+            / "2022 - GALLA - GL.xlsx"
+        ),
+        (
+            COMMERCIAL_ONE_DRIVE_PATH
+            / "2 - DOSSIERS à l'ETUDE"
+            / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
+            / "3. DOCUMENTATION FINANCIÈRE"
+            / "2023 - GALLA - GL.xlsx"
+        ),
+    ]
+
+    main(excel_path_list, test=True)
