@@ -719,7 +719,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
 
     row, col = add_line_CR_elementary(
         worksheet,
-        "RESULTAT D'EXPLOITATION",
+        "RESULTAT D'EXPLOITATION (I-II)",
         curyear_value_totalI + curyear_value_totalII,
         refyear_value_totalI + refyear_value_totalII,
         formats_dict["totals"],
@@ -735,11 +735,25 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         col,
         curyear_value_totalIII,
         refyear_value_totalIII,
-    ) = add_line_idlist_CR(worksheet, ["655"], row, col_init, signe="-", **data)
+    ) = add_line_idlist_CR(
+        worksheet,
+        ["655"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+        label="Bénéfices attribués ou pertes tranférées (III)",
+    )
 
     # Perte supportée ou bénéfice transféré
     row, col, curyear_value_totalIV, refyear_value_totalIV = add_line_idlist_CR(
-        worksheet, ["755"], row, col_init, signe="-", **data
+        worksheet,
+        ["755"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+        label="Perte supportée ou bénéfice transféré (IV)",
     )
 
     row += 1
@@ -872,7 +886,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
 
     row, col = add_line_CR_elementary(
         worksheet,
-        "RESULTAT FINANCIER",
+        "RESULTAT FINANCIER (V-VI)",
         curyear_value_totalV + curyear_value_totalVI,
         refyear_value_totalV + refyear_value_totalVI,
         formats_dict["totals"],
@@ -883,7 +897,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
 
     row, col = add_line_CR_elementary(
         worksheet,
-        "RESULTAT COURANT AVANT IMPOTS",
+        "RESULTAT COURANT AVANT IMPOTS (I-II+III-IV+V-VI)",
         curyear_value_totalI
         + curyear_value_totalII
         + curyear_value_totalIII
@@ -963,6 +977,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         row,
         col_init,
         **data,
+        signe="-",
     )
     row, col = add_macro_categorie_and_detail(
         worksheet,
@@ -970,6 +985,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         row,
         col_init,
         **data,
+        signe="-",
     )
     row, col = add_macro_categorie_and_detail(
         worksheet,
@@ -978,6 +994,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         col_init,
         **data,
         label="Charges exceptionnelles sur opérations en capital",
+        signe="-",
     )
     row, col = add_macro_categorie_and_detail(
         worksheet,
@@ -985,6 +1002,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         row,
         col_init,
         **data,
+        signe="-",
     )
     row, col, curyear_value_totalVIII, refyear_value_totalVIII = add_line_idlist_CR(
         worksheet,
@@ -1154,11 +1172,13 @@ def main(excel_path_list, test=False):
     row = 0
     col = 0
 
-    sheet_name = "CR"
+    sheet_name = "Compte_de_resultats"
     refyear = 2022
     curyear = 2023
     LOGGER.info("Let us pick up the CR")
-    row, col = compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, "CR")
+    row, col = compte_de_resultats(
+        dfd, df, workbook, row, col, refyear, curyear, sheet_name
+    )
 
     LOGGER.info(f"On ferme le fichier {xlsx_path.resolve()} ! ")
     if test:
@@ -1169,4 +1189,4 @@ def main(excel_path_list, test=False):
 
 
 if __name__ == "__main__":
-    main(excel_path_list=list(DATA_PATH.glob("202*GL*xls*"))[:2], test=True)
+    main(excel_path_list=list(DATA_PATH.glob("202*GL*xls*"))[:2], test=False)
