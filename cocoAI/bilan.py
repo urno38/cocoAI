@@ -33,7 +33,7 @@ def define_formats(workbook):
         "compte": workbook.add_format(
             {"bold": False, "num_format": "#,##0.00", "font_size": 9, "italic": True}
         ),
-        "totals": workbook.add_format(
+        "totaux": workbook.add_format(
             {
                 "bold": True,
                 "font_color": "blue",
@@ -218,6 +218,8 @@ def add_line_idlist_bilan(
             if LOGGER_msg is None
             else LOGGER_msg
         )
+        if label is None:
+            raise ValueError("label must be provided")
 
     curyear_value = 0
     refyear_value = 0
@@ -371,7 +373,6 @@ def bilan_de_comptes_annuels(
     row += 1
     row += 1
 
-    # Produits d'exploitation
     worksheet.write(row, col_init, "Actif immobilisé".upper(), formats_dict["bigtitle"])
     row += 1
 
@@ -389,11 +390,26 @@ def bilan_de_comptes_annuels(
     row, col, curyear_value, refyear_value = add_line_idlist_bilan(
         worksheet, ["206"], row, col_init, **data, signe="-"
     )
+    # Droit au bail enlevé
+    # row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    #     worksheet, ["207"], row, col_init, **data, signe="-"
+    # )
     row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["207"], row, col_init, **data, signe="-"
+        worksheet,
+        ["2808", "2908"],
+        row,
+        col_init,
+        **data,
+        label="Autres immobilisations incorporelles",
     )
     row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["208"], row, col_init, **data, signe="-"
+        worksheet,
+        ["237", "238"],
+        row,
+        col_init,
+        **data,
+        label="Avances et acomptes sur immobilisations corporelles",
+        signe="-",
     )
 
     worksheet.write(row, col_init, "Immobilisation corporelles", formats_dict["bold"])
@@ -413,76 +429,148 @@ def bilan_de_comptes_annuels(
     row, col, curyear_value, refyear_value = add_line_idlist_bilan(
         worksheet, ["218"], row, col_init, **data, signe="-"
     )
+    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+        worksheet, ["231"], row, col_init, **data, signe="-"
+    )
 
-    # TODO A CONTINUER A PARTIR DE CA
+    worksheet.write(row, col_init, "Immobilisations financières", formats_dict["bold"])
+    row += 1
+    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+        worksheet, ["271"], row, col_init, **data, signe="-"
+    )
+    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+        worksheet, ["272"], row, col_init, **data, signe="-"
+    )
+    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+        worksheet, ["275"], row, col_init, **data, signe="-"
+    )
 
-    #     Un bilan d'actifs comptable présente les actifs détenus par une entreprise à une date donnée. Ces actifs sont généralement classés en deux grandes catégories : les actifs immobilisés (ou non courants) et les actifs circulants (ou courants). Voici les principaux comptes que l'on retrouve dans un bilan d'actifs comptable, en suivant le Plan Comptable Général (PCG) français :
+    idlist = ["2"]
+    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist_bilan(
+        worksheet,
+        idlist,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (I)",
+        signe="-",
+    )
+    row += 1
 
-    # ### 1. **Actifs Immobilisés (Non Courants)**
-    # Ces actifs sont destinés à être utilisés de manière durable par l'entreprise.
+    worksheet.write(row, col_init, "Actif circulant".upper(), formats_dict["bigtitle"])
+    row += 1
+    id_total_list = []
 
-    # - **Immobilisations incorporelles (Compte 20)**
-    # - Frais d'établissement (201)
-    # - Frais de recherche et développement (203)
-    # - Concessions, brevets, licences, marques, droits et valeurs similaires (205)
-    # - Fonds commercial (206)
-    # - Autres immobilisations incorporelles (208)
+    worksheet.write(row, col_init, "Stocks et en-cours", formats_dict["bold"])
+    row += 1
+    ids = ["31", "33", "34", "35", "37", "32"]
+    for id in ids:
+        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+            worksheet, [id], row, col_init, **data, signe="-"
+        )
+    id_total_list += ids
 
-    # - **Immobilisations corporelles (Compte 21)**
-    # - Terrains (211)
-    # - Constructions (212)
-    # - Installations techniques, matériel et outillage industriels (213)
-    # - Matériel de transport (215)
-    # - Mobilier, matériel de bureau et informatique (218)
+    worksheet.write(
+        row, col_init, "Avances et acomptes versés sur commande", formats_dict["bold"]
+    )
+    row += 1
+    worksheet.write(row, col_init, "Créances", formats_dict["bold"])
+    row += 1
 
-    # - **Immobilisations financières (Compte 27)**
-    # - Participations (271)
-    # - Créances rattachées à des participations (272)
-    # - Autres créances immobilisées (275)
+    # Clients et comptes rattachés
+    ids = ["41"]
+    for id in ids:
+        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+            worksheet, [id], row, col_init, **data, signe="-"
+        )
+    id_total_list += ids
 
-    # ### 2. **Actifs Circulants (Courants)**
-    # Ces actifs sont destinés à être utilisés ou vendus dans le cadre du cycle d'exploitation normal de l'entreprise.
+    # Autres
+    ids = ["42", "43", "44", "45", "46", "47", "48", "49"]
+    for id in ids:
+        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+            worksheet, [id], row, col_init, **data, signe="-"
+        )
+    id_total_list += ids
 
-    # - **Stocks et en-cours (Compte 3)**
-    # - Matières premières et fournitures (31)
-    # - En-cours de production de biens (32)
-    # - En-cours de production de services (33)
-    # - Produits intermédiaires et finis (34)
-    # - Marchandises (35)
+    # Capital souscrit - appelé non versé
+    ids = ["104"]
+    for id in ids:
+        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+            worksheet, [id], row, col_init, **data, signe="-"
+        )
+    id_total_list += ids
 
-    # - **Créances (Compte 4)**
-    # - Clients (411)
-    # - Autres créances (418)
-    # - Sécurité sociale et autres organismes sociaux (431)
-    # - État - Subventions à recevoir (441)
-    # - État - Créances fiscales et assimilées (444)
-    # - Personnel - Avances et acomptes (462)
-    # - Débiteurs divers et créditeurs divers (467)
+    # Valeurs mobilières de placement
+    ids = ["506"]
+    for id in ids:
+        row, col = add_macro_categorie_and_detail(
+            worksheet, [id], row, col_init, **data, signe="-"
+        )
+    id_total_list += ids
 
-    # - **Placements financiers et disponibilités (Compte 5)**
-    # - Valeurs mobilières de placement (VMP) (50)
-    # - Banques (512)
-    # - Instruments de trésorerie (52)
-    # - Caisse (53)
+    # Instruments de trésorerie
+    worksheet.write(row, col_init, "Instruments de trésorerie", formats_dict["bold"])
+    row += 1
+    # Disponibilités
+    ids = ["51", "53", "56", "58"]
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ids,
+        row,
+        col_init,
+        **data,
+        label="Disponibilités",
+        signe="-",
+    )
+    id_total_list += ids
 
-    # ### Exemple de Présentation du Bilan Actif
+    # Charges constatées d'avance
+    ids = ["486"]
+    for id in ids:
+        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+            worksheet, [id], row, col_init, **data, signe="-"
+        )
+    id_total_list += ids
 
-    # | **Catégorie**                  | **Compte** | **Montant** |
-    # |--------------------------------|------------|-------------|
-    # | **Actifs Immobilisés**         |            |             |
-    # | Immobilisations incorporelles  | 20         | 50 000 €    |
-    # | Immobilisations corporelles    | 21         | 150 000 €   |
-    # | Immobilisations financières    | 27         | 30 000 €    |
-    # | **Total des immobilisations**  |            | 230 000 €   |
-    # | **Actifs Circulants**          |            |             |
-    # | Stocks et en-cours             | 3          | 40 000 €    |
-    # | Créances                       | 4          | 60 000 €    |
-    # | Placements financiers          | 50         | 20 000 €    |
-    # | Disponibilités                 | 512, 53    | 10 000 €    |
-    # | **Total des actifs circulants**|            | 130 000 €   |
-    # | **Total de l'actif**           |            | 360 000 €   |
+    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist_bilan(
+        worksheet,
+        id_total_list,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (II)",
+        signe="-",
+    )
+    row += 1
 
-    # En suivant cette structure, vous pouvez établir un bilan d'actifs comptable qui reflète fidèlement la situation financière de votre entreprise à une date donnée.
+    id_total_list = []
+
+    # Frais d'emission d'emprunts à étaler
+    ids = ["4816"]
+    for id in ids:
+        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+            worksheet, [id], row, col_init, **data, signe="-"
+        )
+    id_total_list += ids
+
+    # Prime de remboursement des obligations
+    ids = ["169"]
+    for id in ids:
+        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+            worksheet, [id], row, col_init, **data, signe="-"
+        )
+    id_total_list += ids
 
     return row, col
 

@@ -153,18 +153,21 @@ def rapatrie_file(filepath, dest_folder=DATA_PATH):
     if not isinstance(filepath, Path):
         filepath = Path(filepath)
 
-    if not filepath.is_relative_to(DATA_PATH):
+    if not filepath.is_relative_to(dest_folder):
         if filepath.is_relative_to(COMMERCIAL_ONE_DRIVE_PATH):
             parent, rel_path = truncate_path_to_parent(
                 filepath, COMMERCIAL_ONE_DRIVE_PATH
             )
-            destpath = get_unix_compatible_path(DATA_PATH / rel_path)
+            destpath = get_unix_compatible_path(dest_folder / rel_path)
         else:
-            destpath = get_unix_compatible_path(DATA_PATH / filepath.name)
+            destpath = get_unix_compatible_path(dest_folder / filepath.name)
 
-        destpath.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy(filepath, destpath)
-        LOGGER.info(f"{filepath} has been copied to {destpath}")
+        if not destpath.exists():
+            destpath.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(filepath, destpath)
+            LOGGER.info(f"{filepath} has been copied to {destpath.parent}")
+        else:
+            LOGGER.info(f"{filepath.name} already exists in {destpath}")
 
     return destpath
 

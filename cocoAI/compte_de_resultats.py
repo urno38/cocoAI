@@ -32,7 +32,7 @@ def define_formats(workbook):
         "compte": workbook.add_format(
             {"bold": False, "num_format": "#,##0.00", "font_size": 9, "italic": True}
         ),
-        "totals": workbook.add_format(
+        "totaux": workbook.add_format(
             {
                 "bold": True,
                 "font_color": "blue",
@@ -394,7 +394,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         df,
         curyear,
         refyear,
-        format=formats_dict["totals"],
+        format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="Chiffres d'affaires net",
     )
@@ -428,7 +428,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         df,
         curyear,
         refyear,
-        format=formats_dict["totals"],
+        format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="TOTAL (I)",
     )
@@ -597,7 +597,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         df,
         curyear,
         refyear,
-        format=formats_dict["totals"],
+        format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="TOTAL (II)",
         signe="-",
@@ -612,7 +612,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         "RESULTAT D'EXPLOITATION (I-II)",
         curyear_value_totalI + curyear_value_totalII,
         refyear_value_totalI + refyear_value_totalII,
-        formats_dict["totals"],
+        formats_dict["totaux"],
         row,
         col_init,
         signe="+",
@@ -722,7 +722,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         df,
         curyear,
         refyear,
-        format=formats_dict["totals"],
+        format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="TOTAL (V)",
         signe="-",
@@ -767,7 +767,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         df,
         curyear,
         refyear,
-        format=formats_dict["totals"],
+        format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="TOTAL (VI)",
         signe="-",
@@ -779,7 +779,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         "RESULTAT FINANCIER (V-VI)",
         curyear_value_totalV + curyear_value_totalVI,
         refyear_value_totalV + refyear_value_totalVI,
-        formats_dict["totals"],
+        formats_dict["totaux"],
         row,
         col_init,
         signe="+",
@@ -800,7 +800,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         + refyear_value_totalIV
         + refyear_value_totalV
         + refyear_value_totalVI,
-        formats_dict["totals"],
+        formats_dict["totaux"],
         row,
         col_init,
         signe="+",
@@ -850,7 +850,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         df,
         curyear,
         refyear,
-        format=formats_dict["totals"],
+        format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="TOTAL (VII)",
         signe="-",
@@ -903,7 +903,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         df,
         curyear,
         refyear,
-        format=formats_dict["totals"],
+        format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="TOTAL (VIII)",
         signe="-",
@@ -914,7 +914,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         "RESULTAT EXCEPTIONNEL (VII-VIII)",
         curyear_value_totalVII + curyear_value_totalVIII,
         refyear_value_totalVII + refyear_value_totalVIII,
-        formats_dict["totals"],
+        formats_dict["totaux"],
         row,
         col_init,
         signe="+",
@@ -929,7 +929,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         df,
         curyear,
         refyear,
-        format=formats_dict["totals"],
+        format=formats_dict["totaux"],
         formats_dict=formats_dict,
         # signe="-",
     )
@@ -943,7 +943,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         df,
         curyear,
         refyear,
-        format=formats_dict["totals"],
+        format=formats_dict["totaux"],
         formats_dict=formats_dict,
         # signe="-",
     )
@@ -960,7 +960,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         + refyear_value_totalIII
         + refyear_value_totalV
         + refyear_value_totalVII,
-        formats_dict["totals"],
+        formats_dict["totaux"],
         row,
         col_init,
         signe="+",
@@ -982,7 +982,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         + refyear_value_totalVIII
         + refyear_value_totalIX
         + refyear_value_totalX,
-        formats_dict["totals"],
+        formats_dict["totaux"],
         row,
         col_init,
         signe="-",
@@ -1020,7 +1020,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
             + refyear_value_totalIX
             + refyear_value_totalX
         ),
-        formats_dict["totals"],
+        formats_dict["totaux"],
         row,
         col_init,
     )

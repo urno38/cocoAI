@@ -909,17 +909,17 @@
                             description: Clients - Ventes de biens ou de prestations de services
                         4117:
                             description: Clients - Retenues de garantie
-                        413:
-                            description: Clients - Effets à recevoir
-                        416:
-                            description: Clients douteux ou litigieux
-                        418:
-                            description: Clients - Produits non encore facturés
-                            subcategories:
-                                4181:
-                                    description: Clients - Factures à établir
-                                4188:
-                                    description: Clients - Intérêts courus
+                413:
+                    description: Clients - Effets à recevoir
+                416:
+                    description: Clients douteux ou litigieux
+                418:
+                    description: Clients - Produits non encore facturés
+                    subcategories:
+                        4181:
+                            description: Clients - Factures à établir
+                        4188:
+                            description: Clients - Intérêts courus
                 419:
                     description: Clients créditeurs
                     subcategories:
