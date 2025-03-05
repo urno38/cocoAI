@@ -1004,7 +1004,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
             + curyear_value_totalVI
             + curyear_value_totalVIII
             + curyear_value_totalIX
-            + refyear_value_totalX
+            + curyear_value_totalX
         ),
         (
             refyear_value_totalI

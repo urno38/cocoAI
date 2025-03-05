@@ -87,7 +87,7 @@
                 109:
                     description: Actionnaires Capital souscrit - non appelé
         11:
-            description: Report à nouveau (solde créditeur ou débiteur)
+            description: Report à nouveau
             subcategories:
                 110:
                     description: Report à nouveau (solde créditeur)
@@ -686,7 +686,7 @@
                             description: Dépréciation du mali de fusion sur actifs financiers
 
 3:
-    description: Comptes de stocks et en-cours
+    description: Stocks et en-cours
     subcategories:
         31:
             description: Matières premières (et fournitures)

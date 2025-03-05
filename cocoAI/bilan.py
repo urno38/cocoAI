@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 import xlsxwriter
 
+from cocoAI.compte_de_resultats import add_line_CR_elementary
 from cocoAI.FEC import load_excel_data
 from common.identifiers import (
     NOM_DICT_LVL1,
@@ -328,9 +329,7 @@ def extract_df_for_CR(excel_path_list):
     return df
 
 
-def bilan_de_comptes_annuels(
-    dfd, df, workbook, row, col, refyear, curyear, sheet_name="CR"
-):
+def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name):
     # definition des formats
     formats_dict = define_formats(workbook)
 
@@ -346,8 +345,10 @@ def bilan_de_comptes_annuels(
     worksheet = workbook.add_worksheet(sheet_name)
     worksheet.freeze_panes(1, 0)
 
-    row_init = row
-    col_init = col
+    row = 0
+    col = 0
+    row_init = 0
+    col_init = 0
 
     # Let us define the width of the columns one time pour toutes
     # worksheet.set_column(0, 0, get_max_len_of_the_descriptions() / 2)
@@ -378,72 +379,119 @@ def bilan_de_comptes_annuels(
 
     worksheet.write(row, col_init, "Immobilisation incorporelles", formats_dict["bold"])
     row += 1
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["201"], row, col_init, **data, signe="-"
-    )
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["203"], row, col_init, **data, signe="-"
-    )
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["205"], row, col_init, **data, signe="-"
-    )
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["206"], row, col_init, **data, signe="-"
-    )
-    # Droit au bail enlevé
     # row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-    #     worksheet, ["207"], row, col_init, **data, signe="-"
+    #     worksheet, ["201"], row, col_init, **data, signe="-"
     # )
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    # row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    #     worksheet, ["203"], row, col_init, **data, signe="-"
+    # )
+    # row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    #     worksheet, ["205"], row, col_init, **data, signe="-"
+    # )
+    # row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    #     worksheet, ["206"], row, col_init, **data, signe="-"
+    # )
+
+    for id in ["201", "203", "205", "206", "207"]:
+        row, col = add_macro_categorie_and_detail(
+            worksheet,
+            [id],
+            row,
+            col_init,
+            **data,
+        )
+
+    row, col = add_macro_categorie_and_detail(
         worksheet,
-        ["2808", "2908"],
+        ["208", "280"],
         row,
         col_init,
         **data,
         label="Autres immobilisations incorporelles",
     )
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+
+    row, col = add_macro_categorie_and_detail(
         worksheet,
         ["237", "238"],
         row,
         col_init,
         **data,
         label="Avances et acomptes sur immobilisations corporelles",
-        signe="-",
     )
 
     worksheet.write(row, col_init, "Immobilisation corporelles", formats_dict["bold"])
     row += 1
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["211"], row, col_init, **data, signe="-"
+
+    for id in ["211", "212", "213", "215", "218", "231"]:
+        row, col = add_macro_categorie_and_detail(
+            worksheet,
+            [id],
+            row,
+            col_init,
+            **data,
+        )
+
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["2145", "2814"],
+        row,
+        col_init,
+        **data,
+        label="Constructions",
     )
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["212"], row, col_init, **data, signe="-"
+
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["2154", "2815"],
+        row,
+        col_init,
+        **data,
+        label="Installations tech. et outillages industriels",
+        signe="-",
     )
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["213"], row, col_init, **data, signe="-"
+
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["218", "2818"],
+        row,
+        col_init,
+        **data,
+        label="Autres immobilisations corporelles",
+        signe="-",
     )
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["215"], row, col_init, **data, signe="-"
-    )
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["218"], row, col_init, **data, signe="-"
-    )
+
     row, col, curyear_value, refyear_value = add_line_idlist_bilan(
         worksheet, ["231"], row, col_init, **data, signe="-"
     )
 
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["237", "238"],
+        row,
+        col_init,
+        **data,
+        label="Avances et acomptes",
+        signe="-",
+    )
+
     worksheet.write(row, col_init, "Immobilisations financières", formats_dict["bold"])
     row += 1
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    row, col = add_macro_categorie_and_detail(
         worksheet, ["271"], row, col_init, **data, signe="-"
     )
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    row, col = add_macro_categorie_and_detail(
         worksheet, ["272"], row, col_init, **data, signe="-"
     )
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet, ["275"], row, col_init, **data, signe="-"
-    )
+
+    for id in ["266", "267", "273", "274", "275"]:
+        row, col = add_macro_categorie_and_detail(
+            worksheet,
+            [id],
+            row,
+            col_init,
+            **data,
+            signe="-",
+        )
 
     idlist = ["2"]
     row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist_bilan(
@@ -466,40 +514,49 @@ def bilan_de_comptes_annuels(
     row += 1
     id_total_list = []
 
-    worksheet.write(row, col_init, "Stocks et en-cours", formats_dict["bold"])
-    row += 1
-    ids = ["31", "33", "34", "35", "37", "32"]
-    for id in ids:
-        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-            worksheet, [id], row, col_init, **data, signe="-"
-        )
+    # worksheet.write(row, col_init, "Stocks et en-cours", formats_dict["bold"])
+    # row += 1
+    ids = ["3"]
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ids, row, col_init, **data, signe="-"
+    )
     id_total_list += ids
 
-    worksheet.write(
-        row, col_init, "Avances et acomptes versés sur commande", formats_dict["bold"]
+    # Avances et acomptes versés sur commande
+    ids = ["4091"]
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ids, row, col_init, **data, signe="-"
     )
-    row += 1
+    id_total_list += ids
+
     worksheet.write(row, col_init, "Créances", formats_dict["bold"])
     row += 1
 
     # Clients et comptes rattachés
     ids = ["41"]
     for id in ids:
-        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+        row, col = add_macro_categorie_and_detail(
             worksheet, [id], row, col_init, **data, signe="-"
         )
     id_total_list += ids
 
+    # TODO : complique, je ne retombe pas sur mes pattes
     # Autres
-    ids = ["42", "43", "44", "45", "46", "47", "48", "49"]
-    for id in ids:
-        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-            worksheet, [id], row, col_init, **data, signe="-"
-        )
+    ids = ["40", "42", "43", "44", "45", "46", "47", "48", "49"]
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ids,
+        row,
+        col_init,
+        **data,
+        label="Autres",
+    )
     id_total_list += ids
 
     # Capital souscrit - appelé non versé
-    ids = ["104"]
+    # source des comptes
+    # https://www.compta-online.com/actif-circulant-notion-et-utilisation-ao4349
+    ids = ["4562"]
     for id in ids:
         row, col, curyear_value, refyear_value = add_line_idlist_bilan(
             worksheet, [id], row, col_init, **data, signe="-"
@@ -538,7 +595,7 @@ def bilan_de_comptes_annuels(
         )
     id_total_list += ids
 
-    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist_bilan(
+    row, col, curyear_value_totalII, refyear_value_totalII = add_line_idlist_bilan(
         worksheet,
         id_total_list,
         row,
@@ -559,20 +616,142 @@ def bilan_de_comptes_annuels(
     # Frais d'emission d'emprunts à étaler
     ids = ["4816"]
     for id in ids:
-        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-            worksheet, [id], row, col_init, **data, signe="-"
+        row, col, curyear_value_totalIII, refyear_value_totalIII = (
+            add_line_idlist_bilan(worksheet, [id], row, col_init, **data, signe="-")
         )
     id_total_list += ids
 
     # Prime de remboursement des obligations
     ids = ["169"]
     for id in ids:
-        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+        row, col, curyear_value_totalIV, refyear_value_totalIV = add_line_idlist_bilan(
             worksheet, [id], row, col_init, **data, signe="-"
         )
     id_total_list += ids
 
-    return row, col
+    # Ecarts de conversion actif
+    ids = ["476", "477"]
+    row, col, curyear_value_totalV, refyear_value_totalV = add_line_idlist_bilan(
+        worksheet,
+        ids,
+        row,
+        col_init,
+        **data,
+        label="Ecart de conversion actif",
+        signe="-",
+    )
+    id_total_list += ids
+
+    LOGGER.info("TOTAL GENERAL (I à V)")
+    row, col = add_line_CR_elementary(
+        worksheet,
+        "TOTAL GENERAL (I à V)",
+        (
+            curyear_value_totalI
+            + curyear_value_totalII
+            + curyear_value_totalIII
+            + curyear_value_totalIV
+            + curyear_value_totalV
+        ),
+        (
+            refyear_value_totalI
+            + refyear_value_totalII
+            + refyear_value_totalIII
+            + refyear_value_totalIV
+            + refyear_value_totalV
+        ),
+        formats_dict["totaux"],
+        row,
+        col_init,
+    )
+
+    return workbook
+
+
+def bilan_passif(dfd, df, workbook, refyear, curyear, sheet_name):
+    # definition des formats
+    formats_dict = define_formats(workbook)
+
+    data = {
+        "dfd": dfd,
+        "df": df,
+        "curyear": curyear,
+        "refyear": refyear,
+        "format": formats_dict["normal"],
+        "formats_dict": formats_dict,
+    }  # data qui ne bougeront jamais, pour rendre les signatures plus courtes
+
+    worksheet = workbook.add_worksheet(sheet_name)
+    worksheet.freeze_panes(1, 0)
+
+    row = 0
+    col = 0
+    row_init = 0
+    col_init = 0
+
+    # Let us define the width of the columns one time pour toutes
+    # worksheet.set_column(0, 0, get_max_len_of_the_descriptions() / 2)
+    # col_format = workbook.add_format({"bg_color": "#BCE3F1"})
+    worksheet.set_column(0, 0, 40)
+    worksheet.set_column(1, 1, 15)
+    worksheet.set_column(2, 2, 15)
+    worksheet.set_column(3, 3, 20)
+    worksheet.set_column(4, 4, 20)
+
+    # ENTETES DE PREMIERE LIGNE
+    worksheet.write(row, col, "Bilan passif de comptes de résultats")
+    col += 1
+    cell_format = workbook.add_format({"bold": False, "align": "center"})
+    worksheet.write(row, col, f"Année {int(curyear)}", cell_format)
+    col += 1
+    worksheet.write(row, col, f"Année {int(refyear)}", cell_format)
+    col += 1
+    worksheet.write(row, col, f"Variation absolue", cell_format)
+    col += 1
+    worksheet.write(row, col, f"Variation %", cell_format)
+    col += 1
+    row += 1
+    row += 1
+
+    worksheet.write(row, col_init, "Capitaux propres".upper(), formats_dict["bigtitle"])
+    row += 1
+    id_total_list = []
+
+    ids = ["10"]
+    row, col = add_macro_categorie_and_detail(worksheet, ids, row, col_init, **data)
+    id_total_list += ids
+
+    ids = ["11"]
+    row, col = add_macro_categorie_and_detail(worksheet, ids, row, col_init, **data)
+    id_total_list += ids
+
+    for id in ["12", "13", "14"]:
+        row, col = add_macro_categorie_and_detail(
+            worksheet,
+            [id],
+            row,
+            col_init,
+            **data,
+        )
+        id_total_list += [id]
+
+    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist_bilan(
+        worksheet,
+        id_total_list,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (I)",
+        signe="-",
+    )
+    row += 1
+
+    return workbook
 
 
 def main(excel_path_list, test=False):
@@ -609,13 +788,15 @@ def main(excel_path_list, test=False):
     row = 0
     col = 0
 
-    sheet_name = "Bilan des comptes annuels"
+    sheet_name = "Bilan actif"
     refyear = 2022
     curyear = 2023
-    LOGGER.info("Let us pick up the bilan de comptes annuel")
-    row, col = bilan_de_comptes_annuels(
-        dfd, df, workbook, row, col, refyear, curyear, sheet_name
-    )
+    LOGGER.info("Let us pick up the bilan actif")
+    workbook = bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name)
+
+    sheet_name = "Bilan passif"
+    LOGGER.info("Let us pick up the bilan passif")
+    workbook = bilan_passif(dfd, df, workbook, refyear, curyear, sheet_name)
 
     LOGGER.info(f"On ferme le fichier {xlsx_path.resolve()} ! ")
     if test:

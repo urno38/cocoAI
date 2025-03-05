@@ -10,7 +10,8 @@ CHIEN_QUI_FUME_PATH = (
 
 # je rapatrie les fichiers qui m'interessent
 # la routine copie les fichiers dans le dossier data
-# ne pas hesiter à mettre des chemin qui pointent vers le ONEdrive de comptoirs et commerces, ils seront copiés vers data avant d'être interprétés
+# ne pas hesiter à mettre des chem
+# in qui pointent vers le ONEdrive de comptoirs et commerces, ils seront copiés vers data avant d'être interprétés
 rapatrie_file(CHIEN_QUI_FUME_PATH / "2022 - GALLA - GL.xlsx")
 rapatrie_file(CHIEN_QUI_FUME_PATH / "2023 - GALLA - GL.xlsx")
 [rapatrie_file(f) for f in CHIEN_QUI_FUME_PATH.glob("*GALLA - BILAN*.pdf")]
