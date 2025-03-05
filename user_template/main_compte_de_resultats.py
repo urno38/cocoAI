@@ -9,7 +9,10 @@ CHIEN_QUI_FUME_PATH = (
 )
 
 # je rapatrie les fichiers qui m'interessent
-rapatrie_file()
+# la routine copie les fichiers dans le dossier data
+rapatrie_file(CHIEN_QUI_FUME_PATH / "2022 - GALLA - GL.xlsx")
+rapatrie_file(CHIEN_QUI_FUME_PATH / "2023 - GALLA - GL.xlsx")
+[rapatrie_file(f) for f in CHIEN_QUI_FUME_PATH.glob("*GALLA - BILAN*.pdf")]
 
 
 # mettre ici tous les fichiers xls qui sont concernés par l'analyse pour les comptes de résultats
