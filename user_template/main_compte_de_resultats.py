@@ -10,31 +10,17 @@ CHIEN_QUI_FUME_PATH = (
 
 # je rapatrie les fichiers qui m'interessent
 # la routine copie les fichiers dans le dossier data
+# ne pas hesiter à mettre des chemin qui pointent vers le ONEdrive de comptoirs et commerces, ils seront copiés vers data avant d'être interprétés
 rapatrie_file(CHIEN_QUI_FUME_PATH / "2022 - GALLA - GL.xlsx")
 rapatrie_file(CHIEN_QUI_FUME_PATH / "2023 - GALLA - GL.xlsx")
 [rapatrie_file(f) for f in CHIEN_QUI_FUME_PATH.glob("*GALLA - BILAN*.pdf")]
 
 
 # mettre ici tous les fichiers xls qui sont concernés par l'analyse pour les comptes de résultats
-# ne pas hesiter à mettre des chemin qui pointent vers le ONEdrive de comptoirs et commerces, ils seront copiés vers data avant d'être interprétés
-
 
 excel_path_list = [
-    (
-        COMMERCIAL_ONE_DRIVE_PATH
-        / "2 - DOSSIERS à l'ETUDE"
-        / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
-        / "3. DOCUMENTATION FINANCIÈRE"
-        / "2022 - GALLA - GL.xlsx"
-    ),
-    (
-        COMMERCIAL_ONE_DRIVE_PATH
-        / "2 - DOSSIERS à l'ETUDE"
-        / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
-        / "3. DOCUMENTATION FINANCIÈRE"
-        / "2023 - GALLA - GL.xlsx"
-    ),
+    CHIEN_QUI_FUME_PATH / "2022 - GALLA - GL.xlsx",
+    CHIEN_QUI_FUME_PATH / "2023 - GALLA - GL.xlsx",
 ]
-
 
 main(excel_path_list)
