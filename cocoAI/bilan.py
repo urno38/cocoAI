@@ -540,7 +540,7 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name):
         )
     id_total_list += ids
 
-    # TODO : reprendre ici demain
+    # TODO : reprendre ici demain matin
     # Autres
     ids = ["40", "42", "43", "44", "45", "46", "47", "48", "49"]
     row, col = add_macro_categorie_and_detail(
