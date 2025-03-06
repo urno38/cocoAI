@@ -1,356 +1,24 @@
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 import xlsxwriter
 
-from cocoAI.compte_de_resultats import add_line_CR_elementary
-from cocoAI.FEC import load_excel_data
-from common.identifiers import (
-    NOM_DICT_LVL1,
-    NOM_DICT_LVL2,
-    NOM_DICT_LVL3,
-    NOM_DICT_LVL4,
-    get_official_nomenclature,
+from common.FEC import (
+    add_line_elementary,
+    add_line_idlist,
+    add_macro_categorie_and_detail,
+    define_formats,
+    export_raw_data,
+    extract_df_FEC,
 )
 from common.logconfig import LOGGER
-from common.path import COMMERCIAL_ONE_DRIVE_PATH, WORK_PATH, rapatrie_file
+from common.path import COMMERCIAL_ONE_DRIVE_PATH, WORK_PATH
 
 
-def calcule_balance_cred_moins_deb(df):
-    return df["Crédit"].sum() - df["Débit"].sum()
+def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
 
+    LOGGER.info("Let us pick up the bilan actif")
 
-def define_formats(workbook):
-    formats_dict = {
-        "bigtitle": workbook.add_format(
-            {"bold": True, "text_wrap": True, "num_format": "#,##0.00"}
-        ),
-        "title": workbook.add_format(
-            {"bold": False, "text_wrap": True, "num_format": "#,##0.00"}
-        ),
-        "bold": workbook.add_format({"bold": True, "num_format": "#,##0.00"}),
-        "normal": workbook.add_format({"bold": False, "num_format": "#,##0.00"}),
-        "compte": workbook.add_format(
-            {"bold": False, "num_format": "#,##0.00", "font_size": 9, "italic": True}
-        ),
-        "totaux": workbook.add_format(
-            {
-                "bold": True,
-                "font_color": "blue",
-                "num_format": "#,##0.00",
-                "text_wrap": True,
-                # "bottom": 2,
-                # "top": 2,
-            }
-        ),
-        "row_intercalaire": workbook.add_format(
-            {
-                "bold": False,
-                "num_format": "#,##0.00",
-            }
-        ),
-    }
-    return formats_dict
-
-
-def get_unique_label_in_df(df, identifiant, type="compte"):
-
-    if type == "compte":
-        series_du_label = df.query(f"Compte=='{identifiant}'")[
-            "Intitulé"
-        ].drop_duplicates()
-        LOGGER.debug(identifiant)
-        LOGGER.debug(series_du_label)
-        # sys.exit()
-        if len(series_du_label) == 1:
-            LOGGER.debug(series_du_label)
-            return series_du_label.iat[0]
-        elif len(series_du_label) > 1:
-            LOGGER.debug(
-                f"plusieurs labels pour le Compte {identifiant}, je prends l ID du compte"
-            )
-            return str(identifiant).strip()
-        else:
-            LOGGER.debug(series_du_label)
-            raise ValueError(f"pas d ecriture comptable pour le compte {identifiant}")
-    elif type == "idlvl3":
-        series_du_label = df.query(f"idlvl3=='{identifiant}'")[
-            "Intitulé"
-        ].drop_duplicates()
-        if len(series_du_label) == 1:
-            LOGGER.debug(series_du_label)
-            return series_du_label.iat[0]
-        elif len(series_du_label) > 1:
-            LOGGER.debug(
-                f"plusieurs labels pour l idlvl3 {identifiant}, je prends l ID du compte"
-            )
-            return str(identifiant).strip()
-        else:
-            LOGGER.debug(series_du_label)
-            raise ValueError(f"pas d ecriture comptable pour l'idlvl3 {identifiant}")
-    else:
-        raise ValueError("not implemented")
-
-
-def add_line_bilan_elementary(
-    worksheet,
-    txt,
-    curvalue,
-    refvalue,
-    format,
-    beginning_row,
-    beginning_col,
-    signe="+",
-):
-    # print(worksheet, txt, curvalue, refvalue, format, beginning_row, beginning_col)
-
-    if signe not in ["+", "-", ""]:
-        raise ValueError("not implemented")
-    if signe == "-":
-        refvalue = (-1) * refvalue
-        curvalue = (-1) * curvalue
-
-    row = beginning_row
-    col = beginning_col
-
-    # worksheet.write(row, col, signe + txt, format)
-    worksheet.write(row, col, txt, format)  # no sign
-    col += 1
-
-    format.set_bg_color("#BCE3F1")  # curyear value
-    if curvalue != 0:
-        format.set_align("right")
-        worksheet.write_number(row, col, curvalue, format)
-    else:
-        format.set_align("right")
-        worksheet.write(row, col, "-", format)
-        format.set_align("left")
-    col += 1
-
-    format.set_bg_color("#BCE3F1")  # refyear value
-    if refvalue != 0:
-        format.set_align("right")
-        worksheet.write_number(row, col, refvalue, format)
-    else:
-        format.set_align("right")
-        worksheet.write(row, col, "-", format)
-        format.set_align("left")
-    col += 1
-    format.set_bg_color("#FFFFFF")  # blanc
-
-    if curvalue != 0 and refvalue != 0:
-        format.set_align("right")
-        worksheet.write_number(row, col, float(curvalue) - float(refvalue), format)
-    col += 1
-    if refvalue != 0 and curvalue != 0:
-        format.set_align("right")
-        worksheet.write_number(
-            row, col, (float(curvalue) / float(refvalue) - 1) * 100, format
-        )
-    else:
-        format.set_align("right")
-        worksheet.write(row, col, "-", format)
-        format.set_align("left")
-        # pass
-    row += 1
-    return row, col
-
-
-def add_line_compte_bilan(
-    worksheet,
-    compte,
-    beginning_row,
-    beginning_col,
-    dfd,
-    df,
-    curyear,
-    refyear,
-    format=None,
-    formats_dict=None,
-    LOGGER_msg=None,
-    signe="+",
-):
-
-    label = f"{compte} {get_unique_label_in_df(df,compte)}"
-    LOGGER.info(label if LOGGER_msg is None else LOGGER_msg)
-
-    curyear_value = calcule_balance_cred_moins_deb(
-        filtre_avant_15_janvier(dfd[int(curyear)], curyear).query(
-            f"Compte == '{compte}'"
-        )
-    )
-    refyear_value = calcule_balance_cred_moins_deb(
-        filtre_avant_15_janvier(dfd[int(refyear)], refyear).query(
-            f"Compte == '{compte}'"
-        )
-    )
-    # print(signe)
-    row, col = add_line_bilan_elementary(
-        worksheet,
-        f"    {label}",
-        curyear_value,
-        refyear_value,
-        formats_dict["compte"],
-        beginning_row,
-        beginning_col,
-        signe=signe,
-    )
-    return row, col
-
-
-def filtre_avant_15_janvier(df, year):
-    # fonction pour filtrer les ecritures comptables du 1er janvier
-    # pour éviter
-    # cf discussion avec AB
-    date_seuil = datetime.strptime(f"15/01/{int(year)}", "%d/%m/%Y")
-    return df[df["Date"] < date_seuil]
-
-
-def add_line_idlist_bilan(
-    worksheet,
-    idlist,
-    beginning_row,
-    beginning_col,
-    dfd,
-    df,
-    curyear,
-    refyear,
-    format=None,
-    formats_dict=None,
-    label=None,
-    LOGGER_msg=None,
-    signe="+",
-):
-
-    if len(idlist) == 1 and label is None:
-        label = get_official_nomenclature(idlist[0])
-    else:
-        LOGGER.info(
-            "je concatene tous les id " + " ".join(idlist)
-            if LOGGER_msg is None
-            else LOGGER_msg
-        )
-        if label is None:
-            raise ValueError("label must be provided")
-
-    curyear_value = 0
-    refyear_value = 0
-    for id in idlist:
-        if len(id) == 1:
-            curyear_value += calcule_balance_cred_moins_deb(
-                filtre_avant_15_janvier(dfd[int(curyear)], curyear).query(
-                    f"classe == '{id}'"
-                )
-            )
-            refyear_value += calcule_balance_cred_moins_deb(
-                filtre_avant_15_janvier(dfd[int(refyear)], refyear).query(
-                    f"classe == '{id}'"
-                )
-            )
-        else:
-            curyear_value += calcule_balance_cred_moins_deb(
-                filtre_avant_15_janvier(dfd[int(curyear)], curyear).query(
-                    f"idlvl{len(id)} == '{id}'"
-                )
-            )
-            refyear_value += calcule_balance_cred_moins_deb(
-                filtre_avant_15_janvier(dfd[int(refyear)], refyear).query(
-                    f"idlvl{len(id)} == '{id}'"
-                )
-            )
-
-    row, col = add_line_bilan_elementary(
-        worksheet,
-        "  " + label,
-        curyear_value,
-        refyear_value,
-        format,
-        beginning_row,
-        beginning_col,
-        signe=signe,
-    )
-    return row, col, curyear_value, refyear_value
-
-
-def add_macro_categorie_and_detail(
-    worksheet,
-    idlist,
-    beginning_row,
-    beginning_col,
-    dfd,
-    df,
-    curyear,
-    refyear,
-    format=None,
-    formats_dict=None,
-    label=None,
-    LOGGER_msg=None,
-    signe="+",
-):
-
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
-        worksheet,
-        idlist,
-        beginning_row,
-        beginning_col,
-        dfd,
-        df,
-        curyear,
-        refyear,
-        format=formats_dict["title"],
-        formats_dict=formats_dict,
-        label=label,
-        signe=signe,
-    )
-
-    for idk in idlist:
-        for compte in (
-            df[df.Compte.str.startswith(idk)]["Compte"].drop_duplicates().values
-        ):
-            row, col = add_line_compte_bilan(
-                worksheet,
-                compte,
-                row,
-                beginning_col,
-                dfd,
-                df,
-                curyear,
-                refyear,
-                formats_dict["normal"],
-                formats_dict=formats_dict,
-                signe=signe,
-            )
-
-    return row, col
-
-
-def extract_df_for_CR(excel_path_list):
-    df = load_excel_data(excel_path_list)
-    df["classe"] = df["Compte"].apply(lambda x: str(x[0]))
-    df["idlvl2"] = df["Compte"].apply(lambda x: str(x[:2]))
-    df["idlvl3"] = df["Compte"].apply(lambda x: str(x[:3]))
-    df["idlvl4"] = df["Compte"].apply(lambda x: str(x[:4]))
-    df["idlvl5"] = df["Compte"].apply(lambda x: str(x[:5]))
-    df["idlvl6"] = df["Compte"].apply(lambda x: str(x[:6]))
-    df["Date"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%M/%Y"))
-    df["year"] = df["Date"].apply(lambda x: x.year)
-    df["descriptionclasse"] = df["classe"].apply(
-        lambda x: NOM_DICT_LVL1[x] if x in NOM_DICT_LVL1.keys() else None
-    )
-    df["descriptionlvl2"] = df["idlvl2"].apply(
-        lambda x: NOM_DICT_LVL2[x] if x in NOM_DICT_LVL2.keys() else None
-    )
-    df["descriptionlvl3"] = df["idlvl3"].apply(
-        lambda x: NOM_DICT_LVL3[x] if x in NOM_DICT_LVL3.keys() else None
-    )
-    df["descriptionlvl4"] = df["idlvl4"].apply(
-        lambda x: NOM_DICT_LVL4[x] if x in NOM_DICT_LVL4.keys() else None
-    )
-    return df
-
-
-def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name):
     # definition des formats
     formats_dict = define_formats(workbook)
 
@@ -400,16 +68,16 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name):
 
     worksheet.write(row, col_init, "Immobilisation incorporelles", formats_dict["bold"])
     row += 1
-    # row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    # row, col, curyear_value, refyear_value = add_line_idlist(
     #     worksheet, ["201"], row, col_init, **data, signe="-"
     # )
-    # row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    # row, col, curyear_value, refyear_value = add_line_idlist(
     #     worksheet, ["203"], row, col_init, **data, signe="-"
     # )
-    # row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    # row, col, curyear_value, refyear_value = add_line_idlist(
     #     worksheet, ["205"], row, col_init, **data, signe="-"
     # )
-    # row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    # row, col, curyear_value, refyear_value = add_line_idlist(
     #     worksheet, ["206"], row, col_init, **data, signe="-"
     # )
 
@@ -481,7 +149,7 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name):
         signe="-",
     )
 
-    row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+    row, col, curyear_value, refyear_value = add_line_idlist(
         worksheet, ["231"], row, col_init, **data, signe="-"
     )
 
@@ -515,7 +183,7 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name):
         )
 
     idlist = ["2"]
-    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist_bilan(
+    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist(
         worksheet,
         idlist,
         row,
@@ -579,7 +247,7 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name):
     # https://www.compta-online.com/actif-circulant-notion-et-utilisation-ao4349
     ids = ["4562"]
     for id in ids:
-        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+        row, col, curyear_value, refyear_value = add_line_idlist(
             worksheet, [id], row, col_init, **data, signe="-"
         )
     id_total_list += ids
@@ -611,12 +279,12 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name):
     # Charges constatées d'avance
     ids = ["486"]
     for id in ids:
-        row, col, curyear_value, refyear_value = add_line_idlist_bilan(
+        row, col, curyear_value, refyear_value = add_line_idlist(
             worksheet, [id], row, col_init, **data, signe="-"
         )
     id_total_list += ids
 
-    row, col, curyear_value_totalII, refyear_value_totalII = add_line_idlist_bilan(
+    row, col, curyear_value_totalII, refyear_value_totalII = add_line_idlist(
         worksheet,
         id_total_list,
         row,
@@ -637,22 +305,22 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name):
     # Frais d'emission d'emprunts à étaler
     ids = ["4816"]
     for id in ids:
-        row, col, curyear_value_totalIII, refyear_value_totalIII = (
-            add_line_idlist_bilan(worksheet, [id], row, col_init, **data, signe="-")
+        row, col, curyear_value_totalIII, refyear_value_totalIII = add_line_idlist(
+            worksheet, [id], row, col_init, **data, signe="-"
         )
     id_total_list += ids
 
     # Prime de remboursement des obligations
     ids = ["169"]
     for id in ids:
-        row, col, curyear_value_totalIV, refyear_value_totalIV = add_line_idlist_bilan(
+        row, col, curyear_value_totalIV, refyear_value_totalIV = add_line_idlist(
             worksheet, [id], row, col_init, **data, signe="-"
         )
     id_total_list += ids
 
     # Ecarts de conversion actif
     ids = ["476", "477"]
-    row, col, curyear_value_totalV, refyear_value_totalV = add_line_idlist_bilan(
+    row, col, curyear_value_totalV, refyear_value_totalV = add_line_idlist(
         worksheet,
         ids,
         row,
@@ -664,7 +332,8 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name):
     id_total_list += ids
 
     LOGGER.info("TOTAL GENERAL (I à V)")
-    row, col = add_line_CR_elementary(
+
+    row, col = add_line_elementary(
         worksheet,
         "TOTAL GENERAL (I à V)",
         (
@@ -689,7 +358,19 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name):
     return workbook
 
 
-def bilan_passif(dfd, df, workbook, refyear, curyear, sheet_name):
+def bilan_passif(
+    dfd,
+    df,
+    workbook,
+    refyear,
+    curyear,
+    benefice_total_curyear,
+    benefice_total_refyear,
+    sheet_name="Bilan passif",
+):
+
+    LOGGER.info("Let us pick up the bilan passif")
+
     # definition des formats
     formats_dict = define_formats(workbook)
 
@@ -746,7 +427,18 @@ def bilan_passif(dfd, df, workbook, refyear, curyear, sheet_name):
     row, col = add_macro_categorie_and_detail(worksheet, ids, row, col_init, **data)
     id_total_list += ids
 
-    for id in ["12", "13", "14"]:
+    # Attention pour la ligne Résultats de l'exercice bénéfice ou pertes, je reporte le obtenu dans les soldes intermédiaires de gestion, le bénéfice ou la perte totale
+    row, col = add_line_elementary(
+        worksheet,
+        "Résultat de l'exercice (bénéfice ou perte)",
+        benefice_total_curyear,
+        benefice_total_refyear,
+        formats_dict["normal"],
+        row,
+        col_init,
+    )
+
+    for id in ["13", "14"]:
         row, col = add_macro_categorie_and_detail(
             worksheet,
             [id],
@@ -756,7 +448,7 @@ def bilan_passif(dfd, df, workbook, refyear, curyear, sheet_name):
         )
         id_total_list += [id]
 
-    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist_bilan(
+    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist(
         worksheet,
         id_total_list,
         row,
@@ -772,13 +464,725 @@ def bilan_passif(dfd, df, workbook, refyear, curyear, sheet_name):
     )
     row += 1
 
+    ids = ["164"]
+    row, col = add_macro_categorie_and_detail(worksheet, ids, row, col_init, **data)
+    id_total_list += ids
+
     return workbook
+
+
+def compte_de_resultats(
+    dfd, df, workbook, row, col, refyear, curyear, sheet_name="Compte de résultats"
+):
+    # definition des formats
+    formats_dict = define_formats(workbook)
+
+    data = {
+        "dfd": dfd,
+        "df": df,
+        "curyear": curyear,
+        "refyear": refyear,
+        "format": formats_dict["normal"],
+        "formats_dict": formats_dict,
+    }  # data qui ne bougeront jamais, pour rendre les signatures plus courtes
+
+    worksheet = workbook.add_worksheet(sheet_name)
+    worksheet.freeze_panes(1, 0)
+
+    row_init = row
+    col_init = col
+
+    # Let us define the width of the columns one time pour toutes
+    # worksheet.set_column(0, 0, get_max_len_of_the_descriptions() / 2)
+    # col_format = workbook.add_format({"bg_color": "#BCE3F1"})
+    worksheet.set_column(0, 0, 40)
+    worksheet.set_column(1, 1, 15)
+    worksheet.set_column(2, 2, 15)
+    worksheet.set_column(3, 3, 20)
+    worksheet.set_column(4, 4, 20)
+
+    # ENTETES DE PREMIERE LIGNE
+    worksheet.write(row, col, "Compte de résultats détaillés")
+    col += 1
+    cell_format = workbook.add_format({"bold": False, "align": "center"})
+    worksheet.write(row, col, f"Année {int(curyear)}", cell_format)
+    col += 1
+    worksheet.write(row, col, f"Année {int(refyear)}", cell_format)
+    col += 1
+    worksheet.write(row, col, f"Variation absolue", cell_format)
+    col += 1
+    worksheet.write(row, col, f"Variation %", cell_format)
+    col += 1
+    row += 1
+    row += 1
+
+    # Produits d'exploitation
+    worksheet.write(row, col_init, "Produits d'exploitation", formats_dict["bold"])
+    row += 1
+    # Ventes de marchandises
+    row, col = add_macro_categorie_and_detail(worksheet, ["707"], row, col_init, **data)
+    # Production vendue biens
+    row, col = add_macro_categorie_and_detail(worksheet, ["701"], row, col_init, **data)
+    # Production vendue services
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["706", "708"],
+        row,
+        col_init,
+        **data,
+        label="Production vendue services",
+    )
+    idlist = ["70"]
+    row, col, curyear_value_CA, refyear_value_CA = add_line_idlist(
+        worksheet,
+        idlist,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="Chiffres d'affaires net",
+    )
+    row += 1
+
+    # TOTAL I
+    # Production stockée
+    row, col = add_macro_categorie_and_detail(worksheet, ["71"], row, col_init, **data)
+    # Production immobilisée
+    row, col = add_macro_categorie_and_detail(worksheet, ["72"], row, col_init, **data)
+    # subventions d exploitation recues
+    row, col = add_macro_categorie_and_detail(worksheet, ["74"], row, col_init, **data)
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["781"],
+        row,
+        col_init,
+        **data,
+        label="Reprises sur amortissements, dépréciations et provisions, transferts de charges",
+    )
+    # autres produits
+    row, col = add_macro_categorie_and_detail(worksheet, ["75"], row, col_init, **data)
+    idlist = ["70", "71", "72", "74", "75", "78", "79"]
+    # idlist = ["7"]
+    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist(
+        worksheet,
+        idlist,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (I)",
+    )
+    row += 1
+
+    # Charges d'exploitation
+    worksheet.write(row, col_init, "Charges d'exploitation", formats_dict["bold"])
+    row += 1
+    # Achats de marchandises
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["6037"],
+        row,
+        col_init,
+        **data,
+        signe="-",
+    )
+    # Achats de marchandises
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["607"],
+        row,
+        col_init,
+        **data,
+        signe="-",
+    )
+    # Variation de stock
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["603"],
+        row,
+        col_init,
+        **data,
+        signe="-",
+    )
+    # Achats de matières premières et autres approvisionnements
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["601"],
+        row,
+        col_init,
+        **data,
+        label="Achats de matières premières et autres approvisionnements",
+        signe="-",
+    )
+    # Autres achats et charges externes
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["602", "604", "605", "606", "608", "609", "61", "62"],
+        row,
+        col_init,
+        **data,
+        label="Autres achats et charges externes",
+        signe="-",
+    )
+
+    # Impots, taxes et versements assimiles
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["63"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+    )
+
+    # Salaires et traitements
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["641", "644"],
+        row,
+        col_init,
+        label="Salaires et traitements",
+        signe="-",
+        **data,
+    )
+    # Charges sociales
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["645", "646", "647", "648"],
+        row,
+        col_init,
+        label="Charges sociales",
+        signe="-",
+        **data,
+    )
+    # Autres charges de gestions courantes
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["65"],
+        row,
+        col_init,
+        # label="Charges sociales",
+        signe="-",
+        **data,
+    )
+    # Charges exceptionnelles
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["67"],
+        row,
+        col_init,
+        # label="Charges sociales",
+        signe="-",
+        **data,
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["681"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+    )
+    # row, col = add_macro_categorie_and_detail(
+    #     worksheet,
+    #     ["6812"],
+    #     row,
+    #     col_init,
+    #     signe="-",
+    #     **data,
+    # )
+    # # Dotations pour dépréciations des immobilisations incorporelles et corporelles
+    # row, col = add_macro_categorie_and_detail(
+    #     worksheet,
+    #     ["6816"],
+    #     row,
+    #     col_init,
+    #     signe="-",
+    #     **data,
+    # )
+    # #  Dotations aux dépréciations des actifs circulants
+    # row, col = add_macro_categorie_and_detail(
+    #     worksheet,
+    #     ["6817"],
+    #     row,
+    #     col_init,
+    #     signe="-",
+    #     **data,
+    # )
+    # # Dotations aux provisions pour risques et charges
+    # row, col = add_macro_categorie_and_detail(
+    #     worksheet,
+    #     ["6865"],
+    #     row,
+    #     col_init,
+    #     signe="-",
+    #     **data,
+    # )
+    # Autres charges
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["65"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+    )
+    idlist = ["60", "61", "62", "63", "64", "65", "681"]
+    row, col, curyear_value_totalII, refyear_value_totalII = add_line_idlist(
+        worksheet,
+        idlist,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (II)",
+        signe="-",
+    )
+    # row += 1
+
+    # Resultats d exploitation (I-II)
+    # attention, II est deja negatif
+
+    row, col = add_line_elementary(
+        worksheet,
+        "RESULTAT D'EXPLOITATION (I-II)",
+        curyear_value_totalI + curyear_value_totalII,
+        refyear_value_totalI + refyear_value_totalII,
+        formats_dict["totaux"],
+        row,
+        col_init,
+        signe="+",
+    )
+    row += 1
+
+    # Bénéfices attribués ou pertes tranférées
+    (
+        row,
+        col,
+        curyear_value_totalIII,
+        refyear_value_totalIII,
+    ) = add_line_idlist(
+        worksheet,
+        ["655"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+        label="Bénéfices attribués ou pertes tranférées (III)",
+    )
+
+    # Perte supportée ou bénéfice transféré
+    row, col, curyear_value_totalIV, refyear_value_totalIV = add_line_idlist(
+        worksheet,
+        ["755"],
+        row,
+        col_init,
+        signe="-",
+        **data,
+        label="Perte supportée ou bénéfice transféré (IV)",
+    )
+
+    row += 1
+
+    # Produits financiers
+    worksheet.write(row, col_init, "Produits financiers", formats_dict["bold"])
+    row += 1
+    # Produits financiers de participation
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["761"],
+        row,
+        col_init,
+        **data,
+    )
+    # Produits autres valeurs mobilières et créances actif immobilisé
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["762", "763", "764"],
+        row,
+        col_init,
+        **data,
+        label="Produits autres valeurs mobilières et créances actif immobilisé",
+    )
+    #  Autres intérêts et produits assimilés
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["768"],
+        row,
+        col_init,
+        **data,
+        label="Autres intérêts et produits assimilés",
+    )
+    #  Autres intérêts et produits assimilés
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["765"],
+        row,
+        col_init,
+        **data,
+        label="Autres intérêts et produits assimilés",
+    )
+
+    # Différence positives de change
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["766"],
+        row,
+        col_init,
+        **data,
+    )
+    #  Produits nets sur cessions de valeurs mobilières de placement
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["767"],
+        row,
+        col_init,
+        **data,
+    )
+    #  Produits nets sur cessions de valeurs mobilières de placement
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["786"],
+        row,
+        col_init,
+        **data,
+    )
+
+    # idlist = ["60", "61", "62", "63", "64", "65", "681"]
+    row, col, curyear_value_totalV, refyear_value_totalV = add_line_idlist(
+        worksheet,
+        ["76", "786"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (V)",
+        signe="-",
+    )
+    row += 1
+
+    # Charges financières
+    worksheet.write(row, col_init, "Charges financières", formats_dict["bold"])
+    row += 1
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["664", "665"],
+        row,
+        col_init,
+        **data,
+        label="Dotations financières aux amortissements, dépréciations et provisions",
+        signe="-",
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ["661"], row, col_init, **data, signe="-"
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ["666"], row, col_init, **data, signe="-"
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ["667"], row, col_init, **data, signe="-"
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ["668"], row, col_init, **data, signe="-"
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet, ["686"], row, col_init, **data, signe="-"
+    )
+
+    # idlist = ["60", "61", "62", "63", "64", "65", "681"]
+    row, col, curyear_value_totalVI, refyear_value_totalVI = add_line_idlist(
+        worksheet,
+        ["66", "686"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (VI)",
+        signe="-",
+    )
+    row += 1
+
+    row, col = add_line_elementary(
+        worksheet,
+        "RESULTAT FINANCIER (V-VI)",
+        curyear_value_totalV + curyear_value_totalVI,
+        refyear_value_totalV + refyear_value_totalVI,
+        formats_dict["totaux"],
+        row,
+        col_init,
+        signe="+",
+    )
+
+    row, col = add_line_elementary(
+        worksheet,
+        "RESULTAT COURANT AVANT IMPOTS (I-II+III-IV+V-VI)",
+        curyear_value_totalI
+        + curyear_value_totalII
+        + curyear_value_totalIII
+        + curyear_value_totalIV
+        + curyear_value_totalV
+        + curyear_value_totalVI,
+        refyear_value_totalI
+        + refyear_value_totalII
+        + refyear_value_totalIII
+        + refyear_value_totalIV
+        + refyear_value_totalV
+        + refyear_value_totalVI,
+        formats_dict["totaux"],
+        row,
+        col_init,
+        signe="+",
+    )
+
+    row += 1
+    # Produits exceptionnels
+    worksheet.write(row, col_init, "Produits exceptionnels", formats_dict["bold"])
+    LOGGER.info("Produits exceptionnels")
+    row += 1
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["771"],
+        row,
+        col_init,
+        **data,
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["772"],
+        row,
+        col_init,
+        **data,
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["774", "775", "777", "778"],
+        row,
+        col_init,
+        **data,
+        label="Produits exceptionnels sur opérations en capital",
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["787"],
+        row,
+        col_init,
+        **data,
+    )
+
+    row, col, curyear_value_totalVII, refyear_value_totalVII = add_line_idlist(
+        worksheet,
+        ["77", "787"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (VII)",
+        signe="-",
+    )
+    row += 1
+
+    # Charges exceptionnelles
+    worksheet.write(row, col_init, "Charges exceptionnelles", formats_dict["bold"])
+    row += 1
+    LOGGER.info("Charges exceptionnelles")
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["671"],
+        row,
+        col_init,
+        **data,
+        signe="-",
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["672"],
+        row,
+        col_init,
+        **data,
+        signe="-",
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["674", "675", "677", "678"],
+        row,
+        col_init,
+        **data,
+        label="Charges exceptionnelles sur opérations en capital",
+        signe="-",
+    )
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["687"],
+        row,
+        col_init,
+        **data,
+        signe="-",
+    )
+    row, col, curyear_value_totalVIII, refyear_value_totalVIII = add_line_idlist(
+        worksheet,
+        ["67", "687"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (VIII)",
+        signe="-",
+    )
+
+    row, col = add_line_elementary(
+        worksheet,
+        "RESULTAT EXCEPTIONNEL (VII-VIII)",
+        curyear_value_totalVII + curyear_value_totalVIII,
+        refyear_value_totalVII + refyear_value_totalVIII,
+        formats_dict["totaux"],
+        row,
+        col_init,
+        signe="+",
+    )
+
+    row, col, curyear_value_totalIX, refyear_value_totalIX = add_line_idlist(
+        worksheet,
+        ["691"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        # signe="-",
+    )
+
+    row, col, curyear_value_totalX, refyear_value_totalX = add_line_idlist(
+        worksheet,
+        ["695"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        # signe="-",
+    )
+
+    LOGGER.info("TOTAL DES PRODUITS")
+    row, col = add_line_elementary(
+        worksheet,
+        "TOTAL DES PRODUITS",
+        curyear_value_totalI
+        + curyear_value_totalIII
+        + curyear_value_totalV
+        + curyear_value_totalVII,
+        refyear_value_totalI
+        + refyear_value_totalIII
+        + refyear_value_totalV
+        + refyear_value_totalVII,
+        formats_dict["totaux"],
+        row,
+        col_init,
+        signe="+",
+    )
+
+    LOGGER.info("TOTAL DES CHARGES")
+    row, col = add_line_elementary(
+        worksheet,
+        "TOTAL DES CHARGES",
+        curyear_value_totalII
+        + curyear_value_totalIV
+        + curyear_value_totalVI
+        + curyear_value_totalVIII
+        + curyear_value_totalIX
+        + curyear_value_totalX,
+        refyear_value_totalII
+        + refyear_value_totalIV
+        + refyear_value_totalVI
+        + refyear_value_totalVIII
+        + refyear_value_totalIX
+        + refyear_value_totalX,
+        formats_dict["totaux"],
+        row,
+        col_init,
+        signe="-",
+    )
+
+    LOGGER.info("BENEFICE OU PERTES = (TOTAL DES PRODUITS - TOTAL DES CHARGES)")
+
+    benefice_curyear = (
+        curyear_value_totalI
+        + curyear_value_totalIII
+        + curyear_value_totalV
+        + curyear_value_totalVII
+    ) + (
+        curyear_value_totalII
+        + curyear_value_totalIV
+        + curyear_value_totalVI
+        + curyear_value_totalVIII
+        + curyear_value_totalIX
+        + curyear_value_totalX
+    )
+
+    benefice_refyear = (
+        refyear_value_totalI
+        + refyear_value_totalIII
+        + refyear_value_totalV
+        + refyear_value_totalVII
+    ) + (
+        refyear_value_totalII
+        + refyear_value_totalIV
+        + refyear_value_totalVI
+        + refyear_value_totalVIII
+        + refyear_value_totalIX
+        + refyear_value_totalX
+    )
+
+    row, col = add_line_elementary(
+        worksheet,
+        "BENEFICE OU PERTES = (TOTAL DES PRODUITS - TOTAL DES CHARGES)",
+        benefice_curyear,
+        benefice_refyear,
+        formats_dict["totaux"],
+        row,
+        col_init,
+    )
+
+    return row, col, benefice_curyear, benefice_refyear
 
 
 def main(excel_path_list, test=False):
 
-    excel_path_list = [rapatrie_file(f) for f in excel_path_list]
-    df = extract_df_for_CR(excel_path_list)
+    df = extract_df_FEC(excel_path_list)
+
     xlsx_path = Path(WORK_PATH / "Bilan_detaille.xlsx")
     LOGGER.info(f"On ouvre le fichier {xlsx_path.resolve()} ! ")
 
@@ -790,18 +1194,10 @@ def main(excel_path_list, test=False):
             engine="xlsxwriter",
             engine_kwargs={"options": engine_options},
         )
-        export_columns = ["Compte", "Intitulé", "Date", "Journal"]
-        sorted_columns = export_columns + [
-            c for c in df.columns if c not in export_columns
-        ]
-
-        df[sorted_columns].to_excel(writer, sheet_name="raw data")
-        # Get the xlsxwriter objects from the dataframe writer object.
+        writer = export_raw_data(df, writer)
         workbook = writer.book
-        # worksheet = writer.sheets['Sheet1']
     else:
         workbook = xlsxwriter.Workbook(xlsx_path, engine_options)
-        # worksheet = workbook.add_worksheet()
 
     # je cree un dictionnaire qui va servir de colonnes pour mon excel
     dfd = {y: df[df.year == y] for y in df["year"].drop_duplicates()}
@@ -809,15 +1205,21 @@ def main(excel_path_list, test=False):
     row = 0
     col = 0
 
-    sheet_name = "Bilan actif"
     refyear = 2022
     curyear = 2023
-    LOGGER.info("Let us pick up the bilan actif")
-    # workbook = bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name)
-
-    sheet_name = "Bilan passif"
-    LOGGER.info("Let us pick up the bilan passif")
-    workbook = bilan_passif(dfd, df, workbook, refyear, curyear, sheet_name)
+    row, col, benefice_total_curyear, benefice_total_refyear = compte_de_resultats(
+        dfd, df, workbook, row, col, refyear, curyear
+    )
+    workbook = bilan_actif(dfd, df, workbook, refyear, curyear)
+    workbook = bilan_passif(
+        dfd,
+        df,
+        workbook,
+        refyear,
+        curyear,
+        benefice_total_curyear,
+        benefice_total_refyear,
+    )
 
     LOGGER.info(f"On ferme le fichier {xlsx_path.resolve()} ! ")
     if test:
@@ -846,4 +1248,4 @@ if __name__ == "__main__":
         ),
     ]
 
-    main(excel_path_list, test=True)
+    main(excel_path_list, test=False)
