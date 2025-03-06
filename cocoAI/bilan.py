@@ -813,7 +813,7 @@ def main(excel_path_list, test=False):
     refyear = 2022
     curyear = 2023
     LOGGER.info("Let us pick up the bilan actif")
-    workbook = bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name)
+    # workbook = bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name)
 
     sheet_name = "Bilan passif"
     LOGGER.info("Let us pick up the bilan passif")
