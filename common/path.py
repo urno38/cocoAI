@@ -29,6 +29,7 @@ else:
 COCOAI_PATH = DOCUMENTS_PATH / "cocoAI"
 DATA_PATH = COCOAI_PATH / "data"
 WORK_PATH = COCOAI_PATH / "work"
+TMP_PATH = COCOAI_PATH / "tmp"
 OUTPUT_PATH = COCOAI_PATH / "work" / "output"
 COMMON_PATH = COCOAI_PATH / "common"
 DATABANK_PATH = COMMON_PATH / "databank.yaml"
@@ -167,7 +168,7 @@ def rapatrie_file(filepath, dest_folder=DATA_PATH):
             shutil.copy(filepath, destpath)
             LOGGER.info(f"{filepath} has been copied to {destpath.parent}")
         else:
-            LOGGER.info(f"{filepath.name} already exists in {destpath}")
+            LOGGER.info(f"{filepath.name} already exists in {destpath.parent.name}")
 
     return destpath
 

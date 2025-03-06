@@ -72,4 +72,7 @@ output.json
 
 #fichier sensible
 common/keys.py
+
 .venv/
+tmp/*
+presentation_beamer*

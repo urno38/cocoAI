@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import xlsxwriter
 
-from cocoAI.FEC import load_excel_data
+from common.FEC import load_excel_data
 from common.logconfig import LOGGER
 from common.path import DATA_PATH, WORK_PATH
 

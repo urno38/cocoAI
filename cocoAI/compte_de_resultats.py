@@ -1,331 +1,22 @@
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 import xlsxwriter
 
-from cocoAI.FEC import load_excel_data
-from common.identifiers import (
-    NOM_DICT_LVL1,
-    NOM_DICT_LVL2,
-    NOM_DICT_LVL3,
-    NOM_DICT_LVL4,
-    get_official_nomenclature,
+from common.FEC import (
+    add_line_elementary,
+    add_line_idlist,
+    add_macro_categorie_and_detail,
+    define_formats,
+    extract_df_FEC,
 )
 from common.logconfig import LOGGER
-from common.path import COMMERCIAL_ONE_DRIVE_PATH, WORK_PATH, rapatrie_file
+from common.path import COMMERCIAL_ONE_DRIVE_PATH, WORK_PATH
 
 
-def calcule_balance_cred_moins_deb(df):
-    # pour rendre le code compact
-    return df["Crédit"].sum() - df["Débit"].sum()
-
-
-def define_formats(workbook):
-
-    formats_dict = {
-        "title": workbook.add_format(
-            {"bold": False, "text_wrap": True, "num_format": "#,##0.00"}
-        ),
-        "bold": workbook.add_format({"bold": True, "num_format": "#,##0.00"}),
-        "normal": workbook.add_format({"bold": False, "num_format": "#,##0.00"}),
-        "compte": workbook.add_format(
-            {"bold": False, "num_format": "#,##0.00", "font_size": 9, "italic": True}
-        ),
-        "totaux": workbook.add_format(
-            {
-                "bold": True,
-                "font_color": "blue",
-                "num_format": "#,##0.00",
-                "text_wrap": True,
-                # "bottom": 2,
-                # "top": 2,
-            }
-        ),
-        "row_intercalaire": workbook.add_format(
-            {
-                "bold": False,
-                "num_format": "#,##0.00",
-            }
-        ),
-    }
-    return formats_dict
-
-
-def get_unique_label_in_df(df, identifiant, type="compte"):
-
-    if type == "compte":
-        series_du_label = df.query(f"Compte=='{identifiant}'")[
-            "Intitulé"
-        ].drop_duplicates()
-        LOGGER.debug(identifiant)
-        LOGGER.debug(series_du_label)
-        # sys.exit()
-        if len(series_du_label) == 1:
-            LOGGER.debug(series_du_label)
-            return series_du_label.iat[0]
-        elif len(series_du_label) > 1:
-            LOGGER.debug(
-                f"plusieurs labels pour le Compte {identifiant}, je prends l ID du compte"
-            )
-            return str(identifiant).strip()
-        else:
-            LOGGER.debug(series_du_label)
-            raise ValueError(f"pas d ecriture comptable pour le compte {identifiant}")
-    elif type == "idlvl3":
-        series_du_label = df.query(f"idlvl3=='{identifiant}'")[
-            "Intitulé"
-        ].drop_duplicates()
-        if len(series_du_label) == 1:
-            LOGGER.debug(series_du_label)
-            return series_du_label.iat[0]
-        elif len(series_du_label) > 1:
-            LOGGER.debug(
-                f"plusieurs labels pour l idlvl3 {identifiant}, je prends l ID du compte"
-            )
-            return str(identifiant).strip()
-        else:
-            LOGGER.debug(series_du_label)
-            raise ValueError(f"pas d ecriture comptable pour l'idlvl3 {identifiant}")
-    else:
-        raise ValueError("not implemented")
-
-
-def add_line_CR_elementary(
-    worksheet,
-    txt,
-    curvalue,
-    refvalue,
-    format,
-    beginning_row,
-    beginning_col,
-    signe="+",
+def compte_de_resultats(
+    dfd, df, workbook, row, col, refyear, curyear, sheet_name="Compte de résultats"
 ):
-    # print(worksheet, txt, curvalue, refvalue, format, beginning_row, beginning_col)
-
-    if signe not in ["+", "-", ""]:
-        raise ValueError("not implemented")
-    if signe == "-":
-        refvalue = (-1) * refvalue
-        curvalue = (-1) * curvalue
-
-    row = beginning_row
-    col = beginning_col
-
-    # worksheet.write(row, col, signe + txt, format)
-    worksheet.write(row, col, txt, format)  # no sign
-    col += 1
-
-    format.set_bg_color("#BCE3F1")  # curyear value
-    if curvalue != 0:
-        format.set_align("right")
-        worksheet.write_number(row, col, curvalue, format)
-    else:
-        format.set_align("right")
-        worksheet.write(row, col, "-", format)
-        format.set_align("left")
-    col += 1
-
-    format.set_bg_color("#BCE3F1")  # refyear value
-    if refvalue != 0:
-        format.set_align("right")
-        worksheet.write_number(row, col, refvalue, format)
-    else:
-        format.set_align("right")
-        worksheet.write(row, col, "-", format)
-        format.set_align("left")
-    col += 1
-    format.set_bg_color("#FFFFFF")  # blanc
-
-    if curvalue != 0 and refvalue != 0:
-        format.set_align("right")
-        worksheet.write_number(row, col, float(curvalue) - float(refvalue), format)
-    col += 1
-    if refvalue != 0 and curvalue != 0:
-        format.set_align("right")
-        worksheet.write_number(
-            row, col, (float(curvalue) / float(refvalue) - 1) * 100, format
-        )
-    else:
-        format.set_align("right")
-        worksheet.write(row, col, "-", format)
-        format.set_align("left")
-        # pass
-    row += 1
-    return row, col
-
-
-def add_line_compte_CR(
-    worksheet,
-    compte,
-    beginning_row,
-    beginning_col,
-    dfd,
-    df,
-    curyear,
-    refyear,
-    format=None,
-    formats_dict=None,
-    LOGGER_msg=None,
-    signe="+",
-):
-
-    label = f"{compte} {get_unique_label_in_df(df,compte)}"
-    LOGGER.info(label if LOGGER_msg is None else LOGGER_msg)
-
-    curyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(curyear)].query(f"Compte == '{compte}'")
-    )
-    refyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(refyear)].query(f"Compte == '{compte}'")
-    )
-    # print(signe)
-    row, col = add_line_CR_elementary(
-        worksheet,
-        f"    {label}",
-        curyear_value,
-        refyear_value,
-        formats_dict["compte"],
-        beginning_row,
-        beginning_col,
-        signe=signe,
-    )
-    return row, col
-
-
-def add_line_idlist_CR(
-    worksheet,
-    idlist,
-    beginning_row,
-    beginning_col,
-    dfd,
-    df,
-    curyear,
-    refyear,
-    format=None,
-    formats_dict=None,
-    label=None,
-    LOGGER_msg=None,
-    signe="+",
-):
-
-    if len(idlist) == 1 and label is None:
-        label = get_official_nomenclature(idlist[0])
-    else:
-        LOGGER.info(
-            "je concatene tous les id " + " ".join(idlist)
-            if LOGGER_msg is None
-            else LOGGER_msg
-        )
-
-    curyear_value = 0
-    refyear_value = 0
-    for id in idlist:
-        if len(id) == 1:
-            curyear_value += calcule_balance_cred_moins_deb(
-                dfd[int(curyear)].query(f"classe == '{id}'")
-            )
-            refyear_value += calcule_balance_cred_moins_deb(
-                dfd[int(refyear)].query(f"classe == '{id}'")
-            )
-        else:
-            curyear_value += calcule_balance_cred_moins_deb(
-                dfd[int(curyear)].query(f"idlvl{len(id)} == '{id}'")
-            )
-            refyear_value += calcule_balance_cred_moins_deb(
-                dfd[int(refyear)].query(f"idlvl{len(id)} == '{id}'")
-            )
-
-    row, col = add_line_CR_elementary(
-        worksheet,
-        "  " + label,
-        curyear_value,
-        refyear_value,
-        format,
-        beginning_row,
-        beginning_col,
-        signe=signe,
-    )
-    return row, col, curyear_value, refyear_value
-
-
-def add_macro_categorie_and_detail(
-    worksheet,
-    idlist,
-    beginning_row,
-    beginning_col,
-    dfd,
-    df,
-    curyear,
-    refyear,
-    format=None,
-    formats_dict=None,
-    label=None,
-    LOGGER_msg=None,
-    signe="+",
-):
-
-    row, col, curyear_value, refyear_value = add_line_idlist_CR(
-        worksheet,
-        idlist,
-        beginning_row,
-        beginning_col,
-        dfd,
-        df,
-        curyear,
-        refyear,
-        format=formats_dict["title"],
-        formats_dict=formats_dict,
-        label=label,
-        signe=signe,
-    )
-
-    for idk in idlist:
-        for compte in (
-            df[df.Compte.str.startswith(idk)]["Compte"].drop_duplicates().values
-        ):
-            row, col = add_line_compte_CR(
-                worksheet,
-                compte,
-                row,
-                beginning_col,
-                dfd,
-                df,
-                curyear,
-                refyear,
-                formats_dict["normal"],
-                formats_dict=formats_dict,
-                signe=signe,
-            )
-
-    return row, col
-
-
-def extract_df_for_CR(excel_path_list):
-    df = load_excel_data(excel_path_list)
-    df["classe"] = df["Compte"].apply(lambda x: str(x[0]))
-    df["idlvl2"] = df["Compte"].apply(lambda x: str(x[:2]))
-    df["idlvl3"] = df["Compte"].apply(lambda x: str(x[:3]))
-    df["idlvl4"] = df["Compte"].apply(lambda x: str(x[:4]))
-    df["idlvl5"] = df["Compte"].apply(lambda x: str(x[:5]))
-    df["idlvl6"] = df["Compte"].apply(lambda x: str(x[:6]))
-    df["year"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%M/%Y").year)
-    df["descriptionclasse"] = df["classe"].apply(
-        lambda x: NOM_DICT_LVL1[x] if x in NOM_DICT_LVL1.keys() else None
-    )
-    df["descriptionlvl2"] = df["idlvl2"].apply(
-        lambda x: NOM_DICT_LVL2[x] if x in NOM_DICT_LVL2.keys() else None
-    )
-    df["descriptionlvl3"] = df["idlvl3"].apply(
-        lambda x: NOM_DICT_LVL3[x] if x in NOM_DICT_LVL3.keys() else None
-    )
-    df["descriptionlvl4"] = df["idlvl4"].apply(
-        lambda x: NOM_DICT_LVL4[x] if x in NOM_DICT_LVL4.keys() else None
-    )
-    return df
-
-
-def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_name="CR"):
     # definition des formats
     formats_dict = define_formats(workbook)
 
@@ -385,7 +76,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         label="Production vendue services",
     )
     idlist = ["70"]
-    row, col, curyear_value_CA, refyear_value_CA = add_line_idlist_CR(
+    row, col, curyear_value_CA, refyear_value_CA = add_line_idlist(
         worksheet,
         idlist,
         row,
@@ -419,7 +110,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     row, col = add_macro_categorie_and_detail(worksheet, ["75"], row, col_init, **data)
     idlist = ["70", "71", "72", "74", "75", "78", "79"]
     # idlist = ["7"]
-    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist_CR(
+    row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist(
         worksheet,
         idlist,
         row,
@@ -588,7 +279,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         **data,
     )
     idlist = ["60", "61", "62", "63", "64", "65", "681"]
-    row, col, curyear_value_totalII, refyear_value_totalII = add_line_idlist_CR(
+    row, col, curyear_value_totalII, refyear_value_totalII = add_line_idlist(
         worksheet,
         idlist,
         row,
@@ -607,7 +298,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     # Resultats d exploitation (I-II)
     # attention, II est deja negatif
 
-    row, col = add_line_CR_elementary(
+    row, col = add_line_elementary(
         worksheet,
         "RESULTAT D'EXPLOITATION (I-II)",
         curyear_value_totalI + curyear_value_totalII,
@@ -625,7 +316,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         col,
         curyear_value_totalIII,
         refyear_value_totalIII,
-    ) = add_line_idlist_CR(
+    ) = add_line_idlist(
         worksheet,
         ["655"],
         row,
@@ -636,7 +327,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     )
 
     # Perte supportée ou bénéfice transféré
-    row, col, curyear_value_totalIV, refyear_value_totalIV = add_line_idlist_CR(
+    row, col, curyear_value_totalIV, refyear_value_totalIV = add_line_idlist(
         worksheet,
         ["755"],
         row,
@@ -713,7 +404,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     )
 
     # idlist = ["60", "61", "62", "63", "64", "65", "681"]
-    row, col, curyear_value_totalV, refyear_value_totalV = add_line_idlist_CR(
+    row, col, curyear_value_totalV, refyear_value_totalV = add_line_idlist(
         worksheet,
         ["76", "786"],
         row,
@@ -758,7 +449,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     )
 
     # idlist = ["60", "61", "62", "63", "64", "65", "681"]
-    row, col, curyear_value_totalVI, refyear_value_totalVI = add_line_idlist_CR(
+    row, col, curyear_value_totalVI, refyear_value_totalVI = add_line_idlist(
         worksheet,
         ["66", "686"],
         row,
@@ -774,7 +465,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     )
     row += 1
 
-    row, col = add_line_CR_elementary(
+    row, col = add_line_elementary(
         worksheet,
         "RESULTAT FINANCIER (V-VI)",
         curyear_value_totalV + curyear_value_totalVI,
@@ -785,7 +476,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         signe="+",
     )
 
-    row, col = add_line_CR_elementary(
+    row, col = add_line_elementary(
         worksheet,
         "RESULTAT COURANT AVANT IMPOTS (I-II+III-IV+V-VI)",
         curyear_value_totalI
@@ -809,7 +500,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     row += 1
     # Produits exceptionnels
     worksheet.write(row, col_init, "Produits exceptionnels", formats_dict["bold"])
-    LOGGER.info("Produits exceptionnels")
+    LOGGER.debug("Produits exceptionnels")
     row += 1
     row, col = add_macro_categorie_and_detail(
         worksheet,
@@ -841,7 +532,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         **data,
     )
 
-    row, col, curyear_value_totalVII, refyear_value_totalVII = add_line_idlist_CR(
+    row, col, curyear_value_totalVII, refyear_value_totalVII = add_line_idlist(
         worksheet,
         ["77", "787"],
         row,
@@ -860,7 +551,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
     # Charges exceptionnelles
     worksheet.write(row, col_init, "Charges exceptionnelles", formats_dict["bold"])
     row += 1
-    LOGGER.info("Charges exceptionnelles")
+    LOGGER.debug("Charges exceptionnelles")
     row, col = add_macro_categorie_and_detail(
         worksheet,
         ["671"],
@@ -894,7 +585,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         **data,
         signe="-",
     )
-    row, col, curyear_value_totalVIII, refyear_value_totalVIII = add_line_idlist_CR(
+    row, col, curyear_value_totalVIII, refyear_value_totalVIII = add_line_idlist(
         worksheet,
         ["67", "687"],
         row,
@@ -909,7 +600,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         signe="-",
     )
 
-    row, col = add_line_CR_elementary(
+    row, col = add_line_elementary(
         worksheet,
         "RESULTAT EXCEPTIONNEL (VII-VIII)",
         curyear_value_totalVII + curyear_value_totalVIII,
@@ -920,7 +611,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         signe="+",
     )
 
-    row, col, curyear_value_totalIX, refyear_value_totalIX = add_line_idlist_CR(
+    row, col, curyear_value_totalIX, refyear_value_totalIX = add_line_idlist(
         worksheet,
         ["691"],
         row,
@@ -934,7 +625,7 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         # signe="-",
     )
 
-    row, col, curyear_value_totalX, refyear_value_totalX = add_line_idlist_CR(
+    row, col, curyear_value_totalX, refyear_value_totalX = add_line_idlist(
         worksheet,
         ["695"],
         row,
@@ -948,8 +639,8 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         # signe="-",
     )
 
-    LOGGER.info("TOTAL DES PRODUITS")
-    row, col = add_line_CR_elementary(
+    LOGGER.debug("TOTAL DES PRODUITS")
+    row, col = add_line_elementary(
         worksheet,
         "TOTAL DES PRODUITS",
         curyear_value_totalI
@@ -966,8 +657,8 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         signe="+",
     )
 
-    LOGGER.info("TOTAL DES CHARGES")
-    row, col = add_line_CR_elementary(
+    LOGGER.debug("TOTAL DES CHARGES")
+    row, col = add_line_elementary(
         worksheet,
         "TOTAL DES CHARGES",
         curyear_value_totalII
@@ -988,50 +679,52 @@ def compte_de_resultats(dfd, df, workbook, row, col, refyear, curyear, sheet_nam
         signe="-",
     )
 
-    LOGGER.info("BENEFICE OU PERTES = (TOTAL DES PRODUITS - TOTAL DES CHARGES)")
-    row, col = add_line_CR_elementary(
+    LOGGER.debug("BENEFICE OU PERTES = (TOTAL DES PRODUITS - TOTAL DES CHARGES)")
+
+    benefice_curyear = (
+        curyear_value_totalI
+        + curyear_value_totalIII
+        + curyear_value_totalV
+        + curyear_value_totalVII
+    ) + (
+        curyear_value_totalII
+        + curyear_value_totalIV
+        + curyear_value_totalVI
+        + curyear_value_totalVIII
+        + curyear_value_totalIX
+        + curyear_value_totalX
+    )
+
+    benefice_refyear = (
+        refyear_value_totalI
+        + refyear_value_totalIII
+        + refyear_value_totalV
+        + refyear_value_totalVII
+    ) + (
+        refyear_value_totalII
+        + refyear_value_totalIV
+        + refyear_value_totalVI
+        + refyear_value_totalVIII
+        + refyear_value_totalIX
+        + refyear_value_totalX
+    )
+
+    row, col = add_line_elementary(
         worksheet,
         "BENEFICE OU PERTES = (TOTAL DES PRODUITS - TOTAL DES CHARGES)",
-        (
-            curyear_value_totalI
-            + curyear_value_totalIII
-            + curyear_value_totalV
-            + curyear_value_totalVII
-        )
-        + (
-            curyear_value_totalII
-            + curyear_value_totalIV
-            + curyear_value_totalVI
-            + curyear_value_totalVIII
-            + curyear_value_totalIX
-            + curyear_value_totalX
-        ),
-        (
-            refyear_value_totalI
-            + refyear_value_totalIII
-            + refyear_value_totalV
-            + refyear_value_totalVII
-        )
-        + (
-            refyear_value_totalII
-            + refyear_value_totalIV
-            + refyear_value_totalVI
-            + refyear_value_totalVIII
-            + refyear_value_totalIX
-            + refyear_value_totalX
-        ),
+        benefice_curyear,
+        benefice_refyear,
         formats_dict["totaux"],
         row,
         col_init,
     )
 
-    return row, col
+    return row, col, benefice_curyear, benefice_refyear
 
 
 def main(excel_path_list, test=False):
 
-    excel_path_list = [rapatrie_file(f) for f in excel_path_list]
-    df = extract_df_for_CR(excel_path_list)
+    df = extract_df_FEC(excel_path_list)
     xlsx_path = Path(WORK_PATH / "Compte_de_resultats_detailles.xlsx")
     LOGGER.info(f"On ouvre le fichier {xlsx_path.resolve()} ! ")
 
@@ -1066,7 +759,7 @@ def main(excel_path_list, test=False):
     refyear = 2022
     curyear = 2023
     LOGGER.info("Let us pick up the CR")
-    row, col = compte_de_resultats(
+    row, col, benefice_curyear, benefice_refyear = compte_de_resultats(
         dfd, df, workbook, row, col, refyear, curyear, sheet_name
     )
 

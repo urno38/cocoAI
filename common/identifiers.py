@@ -192,3 +192,24 @@ if __name__ == "__main__":
     # df = load_nomenclature()
     # print(df)
     pprint(NOM_DICT_LVL3)
+
+
+def get_query_from_id_list(id_list):
+    for i, id in enumerate(id_list):
+        if len(id) == 1:
+            local_query = f"classe=='{id}'"
+        elif len(id) == 2:
+            local_query = f"idlvl2=='{id}'"
+        elif len(id) == 3:
+            local_query = f"idlvl3=='{id}'"
+        elif len(id) == 4:
+            local_query = f"idlvl4=='{id}'"
+        else:
+            raise ValueError("not implemented")
+        if i == 0:
+            query = local_query
+        else:
+            query += " or " + local_query
+    LOGGER.debug("on filtre avec la query suivante")
+    LOGGER.debug(query)
+    return query
