@@ -72,3 +72,4 @@ output.json
 
 #fichier sensible
 common/keys.py
+.venv/

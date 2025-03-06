@@ -176,10 +176,14 @@ def add_line_compte_bilan(
     LOGGER.info(label if LOGGER_msg is None else LOGGER_msg)
 
     curyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(curyear)].query(f"Compte == '{compte}'")
+        filtre_avant_15_janvier(dfd[int(curyear)], curyear).query(
+            f"Compte == '{compte}'"
+        )
     )
     refyear_value = calcule_balance_cred_moins_deb(
-        dfd[int(refyear)].query(f"Compte == '{compte}'")
+        filtre_avant_15_janvier(dfd[int(refyear)], refyear).query(
+            f"Compte == '{compte}'"
+        )
     )
     # print(signe)
     row, col = add_line_bilan_elementary(
@@ -193,6 +197,14 @@ def add_line_compte_bilan(
         signe=signe,
     )
     return row, col
+
+
+def filtre_avant_15_janvier(df, year):
+    # fonction pour filtrer les ecritures comptables du 1er janvier
+    # pour éviter
+    # cf discussion avec AB
+    date_seuil = datetime.strptime(f"15/01/{int(year)}", "%d/%m/%Y")
+    return df[df["Date"] < date_seuil]
 
 
 def add_line_idlist_bilan(
@@ -227,17 +239,25 @@ def add_line_idlist_bilan(
     for id in idlist:
         if len(id) == 1:
             curyear_value += calcule_balance_cred_moins_deb(
-                dfd[int(curyear)].query(f"classe == '{id}'")
+                filtre_avant_15_janvier(dfd[int(curyear)], curyear).query(
+                    f"classe == '{id}'"
+                )
             )
             refyear_value += calcule_balance_cred_moins_deb(
-                dfd[int(refyear)].query(f"classe == '{id}'")
+                filtre_avant_15_janvier(dfd[int(refyear)], refyear).query(
+                    f"classe == '{id}'"
+                )
             )
         else:
             curyear_value += calcule_balance_cred_moins_deb(
-                dfd[int(curyear)].query(f"idlvl{len(id)} == '{id}'")
+                filtre_avant_15_janvier(dfd[int(curyear)], curyear).query(
+                    f"idlvl{len(id)} == '{id}'"
+                )
             )
             refyear_value += calcule_balance_cred_moins_deb(
-                dfd[int(refyear)].query(f"idlvl{len(id)} == '{id}'")
+                filtre_avant_15_janvier(dfd[int(refyear)], refyear).query(
+                    f"idlvl{len(id)} == '{id}'"
+                )
             )
 
     row, col = add_line_bilan_elementary(
@@ -313,7 +333,8 @@ def extract_df_for_CR(excel_path_list):
     df["idlvl4"] = df["Compte"].apply(lambda x: str(x[:4]))
     df["idlvl5"] = df["Compte"].apply(lambda x: str(x[:5]))
     df["idlvl6"] = df["Compte"].apply(lambda x: str(x[:6]))
-    df["year"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%M/%Y").year)
+    df["Date"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%M/%Y"))
+    df["year"] = df["Date"].apply(lambda x: x.year)
     df["descriptionclasse"] = df["classe"].apply(
         lambda x: NOM_DICT_LVL1[x] if x in NOM_DICT_LVL1.keys() else None
     )

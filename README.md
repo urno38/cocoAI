@@ -20,6 +20,7 @@
 - les bénéficiaires indirects ont un diagramme à améliorer : pointillés et sans les holdings intermédiaires
 - résoudre tous les TODO
 - faire une IHM simple pour chacun des items
+- présenter les avantages de mettre en place une procédure ou pas
 
 ## Questions
 
