@@ -863,26 +863,26 @@
                             description: Fournisseurs - Achats de biens et prestations de services
                         4017:
                             description: Fournisseurs - Retenues de garantie
-                        403:
-                            description: Fournisseurs - Effets à payer
-                        404:
+                403:
+                    description: Fournisseurs - Effets à payer
+                404:
+                    description: Fournisseurs d'immobilisations
+                    subcategories:
+                        4041:
+                            description: Fournisseurs - Achats d'immobilisations
+                        4047:
+                            description: Fournisseurs d'immobilisations - Retenues de garantie
+                405:
+                    description: Fournisseurs d'immobilisations - Effets à payer
+                408:
+                    description: Fournisseurs - Factures non parvenues
+                    subcategories:
+                        4081:
+                            description: Fournisseurs
+                        4084:
                             description: Fournisseurs d'immobilisations
-                            subcategories:
-                                4041:
-                                    description: Fournisseurs - Achats d'immobilisations
-                                4047:
-                                    description: Fournisseurs d'immobilisations - Retenues de garantie
-                        405:
-                            description: Fournisseurs d'immobilisations - Effets à payer
-                        408:
-                            description: Fournisseurs - Factures non parvenues
-                            subcategories:
-                                4081:
-                                    description: Fournisseurs
-                                4084:
-                                    description: Fournisseurs d'immobilisations
-                                4088:
-                                    description: Fournisseurs - Intérêts courus
+                        4088:
+                            description: Fournisseurs - Intérêts courus
                 409:
                     description: Fournisseurs débiteurs
                     subcategories:

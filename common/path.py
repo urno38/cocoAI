@@ -167,7 +167,7 @@ def rapatrie_file(filepath, dest_folder=DATA_PATH):
             shutil.copy(filepath, destpath)
             LOGGER.info(f"{filepath} has been copied to {destpath.parent}")
         else:
-            LOGGER.info(f"{filepath.name} already exists in {destpath}")
+            LOGGER.info(f"{filepath.name} already exists in {destpath.parent.name}")
 
     return destpath
 

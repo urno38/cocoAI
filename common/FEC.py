@@ -213,14 +213,6 @@ def generate_short_summary(excel_path_list):
     return
 
 
-def main(excel_path_list):
-    # dfnom = load_nomenclature()
-    # generate_short_summary(excel_path_list)
-    df = extract_df_FEC(excel_path_list)
-    export_FEC_summary(df, WORK_PATH / "FEC_Summary.xlsx")
-    return
-
-
 def extract_df_FEC(excel_path_list):
     excel_path_list = [rapatrie_file(f) for f in excel_path_list]
     df = load_excel_data(excel_path_list)
@@ -290,22 +282,6 @@ def export_FEC_summary(df, output_path):
     return
 
 
-if __name__ == "__main__":
-
-    CHIEN_QUI_FUME_PATH = (
-        COMMERCIAL_ONE_DRIVE_PATH
-        / "2 - DOSSIERS à l'ETUDE"
-        / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
-        / "3. DOCUMENTATION FINANCIÈRE"
-    )
-
-    excel_path_list = [
-        CHIEN_QUI_FUME_PATH / "2022 - GALLA - GL.xlsx",
-        CHIEN_QUI_FUME_PATH / "2023 - GALLA - GL.xlsx",
-    ]
-    main(excel_path_list)
-
-
 def add_line_compte(
     worksheet,
     compte,
@@ -320,7 +296,6 @@ def add_line_compte(
     LOGGER_msg=None,
     signe="+",
 ):
-
     label = f"{compte} {get_unique_label_in_df(df,compte)}"
     LOGGER.info(label if LOGGER_msg is None else LOGGER_msg)
 
@@ -330,7 +305,6 @@ def add_line_compte(
     refyear_value = calcule_balance_cred_moins_deb(
         dfd[int(refyear)].query(f"Compte == '{compte}'")
     )
-    # print(signe)
     row, col = add_line_elementary(
         worksheet,
         f"    {label}",
@@ -554,7 +528,6 @@ def add_macro_categorie_and_detail(
 
 
 def get_unique_label_in_df(df, identifiant, type="compte"):
-
     if type == "compte":
         series_du_label = df.query(f"Compte=='{identifiant}'")[
             "Intitulé"
@@ -590,3 +563,30 @@ def get_unique_label_in_df(df, identifiant, type="compte"):
             raise ValueError(f"pas d ecriture comptable pour l'idlvl3 {identifiant}")
     else:
         raise ValueError("not implemented")
+
+
+def main(excel_path_list):
+
+    # dfnom = load_nomenclature()
+    # generate_short_summary(excel_path_list)
+    df = extract_df_FEC(excel_path_list)
+
+    export_FEC_summary(df, WORK_PATH / "FEC_Summary.xlsx")
+    return
+
+
+if __name__ == "__main__":
+
+    CHIEN_QUI_FUME_PATH = (
+        COMMERCIAL_ONE_DRIVE_PATH
+        / "2 - DOSSIERS à l'ETUDE"
+        / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
+        / "3. DOCUMENTATION FINANCIÈRE"
+    )
+
+    excel_path_list = [
+        CHIEN_QUI_FUME_PATH / "2022 - GALLA - GL.xlsx",
+        CHIEN_QUI_FUME_PATH / "2023 - GALLA - GL.xlsx",
+    ]
+
+    main(excel_path_list)

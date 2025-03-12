@@ -1,3 +1,4 @@
+import copy
 from pathlib import Path
 
 import pandas as pd
@@ -464,9 +465,139 @@ def bilan_passif(
     )
     row += 1
 
-    ids = ["164"]
-    row, col = add_macro_categorie_and_detail(worksheet, ids, row, col_init, **data)
+    worksheet.write(
+        row, col_init, "Autres fonds propres".upper(), formats_dict["bigtitle"]
+    )
+    row += 1
+    id_total_list = []
+
+    ids = ["167"]
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ids,
+        row,
+        col_init,
+        **data,
+    )
     id_total_list += ids
+
+    row, col, curyear_value_totalIbis, refyear_value_totalIbis = add_line_idlist(
+        worksheet,
+        id_total_list,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (I bis)",
+        signe="-",
+    )
+    row += 1
+
+    worksheet.write(
+        row,
+        col_init,
+        "Provisions pour risques et charges".upper(),
+        formats_dict["bigtitle"],
+    )
+    row += 1
+    id_total_list = []
+
+    ids = ["15"]
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ids,
+        row,
+        col_init,
+        **data,
+    )
+    id_total_list += ids
+
+    row, col, curyear_value_totalII, refyear_value_totalII = add_line_idlist(
+        worksheet,
+        id_total_list,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (II)",
+        signe="-",
+    )
+    row += 1
+
+    worksheet.write(
+        row,
+        col_init,
+        "Emprunts et dettes".upper(),
+        formats_dict["bigtitle"],
+    )
+    row += 1
+    id_total_list = []
+
+    ids = [
+        "161",
+        "162",
+        "163",
+        "164",
+        "167",
+        "168",
+        "401",
+        "408",
+        "421",
+        "424",
+        "425",
+        "427",
+        "428",
+        "43",
+        "44",
+    ]
+    for id in ids:
+        row, col = add_macro_categorie_and_detail(
+            worksheet,
+            [id],
+            row,
+            col_init,
+            **data,
+        )
+    id_total_list += ids
+
+    # je n'ai pas affiché les instruments de trésorerie, vu avec Antonin
+
+    ids = [
+        "487",
+    ]
+    for id in ids:
+        row, col = add_macro_categorie_and_detail(
+            worksheet,
+            [id],
+            row,
+            col_init,
+            **data,
+        )
+    id_total_list += ids
+
+    row, col, curyear_value_totalIII, refyear_value_totalIII = add_line_idlist(
+        worksheet,
+        id_total_list,
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["totaux"],
+        formats_dict=formats_dict,
+        label="TOTAL (III)",
+        signe="-",
+    )
+    row += 1
 
     return workbook
 
@@ -1182,6 +1313,9 @@ def compte_de_resultats(
 def main(excel_path_list, test=False):
 
     df = extract_df_FEC(excel_path_list)
+
+    global dfdrop
+    dfdrop = copy.copy(df)
 
     xlsx_path = Path(WORK_PATH / "Bilan_detaille.xlsx")
     LOGGER.info(f"On ouvre le fichier {xlsx_path.resolve()} ! ")
