@@ -1,6 +1,7 @@
 import copy
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import xlsxwriter
 
@@ -8,12 +9,14 @@ from common.FEC import (
     add_line_elementary,
     add_line_idlist,
     add_macro_categorie_and_detail,
+    calcule_balance_cred_moins_deb,
     define_formats,
     export_raw_data,
     extract_df_FEC,
 )
+from common.identifiers import get_official_nomenclature
 from common.logconfig import LOGGER
-from common.path import COMMERCIAL_ONE_DRIVE_PATH, WORK_PATH
+from common.path import COMMERCIAL_ONE_DRIVE_PATH, TMP_PATH, WORK_PATH
 
 
 def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
@@ -50,7 +53,7 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
     worksheet.set_column(4, 4, 20)
 
     # ENTETES DE PREMIERE LIGNE
-    worksheet.write(row, col, "Bilan de comptes de résultats")
+    worksheet.write(row, col, "Bilan actif détaillé")
     col += 1
     cell_format = workbook.add_format({"bold": False, "align": "center"})
     worksheet.write(row, col, f"Année {int(curyear)}", cell_format)
@@ -69,18 +72,6 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
 
     worksheet.write(row, col_init, "Immobilisation incorporelles", formats_dict["bold"])
     row += 1
-    # row, col, curyear_value, refyear_value = add_line_idlist(
-    #     worksheet, ["201"], row, col_init, **data, signe="-"
-    # )
-    # row, col, curyear_value, refyear_value = add_line_idlist(
-    #     worksheet, ["203"], row, col_init, **data, signe="-"
-    # )
-    # row, col, curyear_value, refyear_value = add_line_idlist(
-    #     worksheet, ["205"], row, col_init, **data, signe="-"
-    # )
-    # row, col, curyear_value, refyear_value = add_line_idlist(
-    #     worksheet, ["206"], row, col_init, **data, signe="-"
-    # )
 
     for id in ["201", "203", "205", "206", "207"]:
         row, col = add_macro_categorie_and_detail(
@@ -230,7 +221,6 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         )
     id_total_list += ids
 
-    # TODO : reprendre ici demain
     # Autres
     ids = ["40", "42", "43", "44", "45", "46", "47", "48", "49"]
     row, col = add_macro_categorie_and_detail(
@@ -301,7 +291,7 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
     )
     row += 1
 
-    id_total_list = []
+    # id_total_list = []
 
     # Frais d'emission d'emprunts à étaler
     ids = ["4816"]
@@ -309,7 +299,7 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         row, col, curyear_value_totalIII, refyear_value_totalIII = add_line_idlist(
             worksheet, [id], row, col_init, **data, signe="-"
         )
-    id_total_list += ids
+    # id_total_list += ids
 
     # Prime de remboursement des obligations
     ids = ["169"]
@@ -317,7 +307,7 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         row, col, curyear_value_totalIV, refyear_value_totalIV = add_line_idlist(
             worksheet, [id], row, col_init, **data, signe="-"
         )
-    id_total_list += ids
+    # id_total_list += ids
 
     # Ecarts de conversion actif
     ids = ["476", "477"]
@@ -330,7 +320,7 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         label="Ecart de conversion actif",
         signe="-",
     )
-    id_total_list += ids
+    # id_total_list += ids
 
     LOGGER.info("TOTAL GENERAL (I à V)")
 
@@ -354,6 +344,7 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         formats_dict["totaux"],
         row,
         col_init,
+        signe="-",
     )
 
     return workbook
@@ -402,7 +393,7 @@ def bilan_passif(
     worksheet.set_column(4, 4, 20)
 
     # ENTETES DE PREMIERE LIGNE
-    worksheet.write(row, col, "Bilan passif de comptes de résultats")
+    worksheet.write(row, col, "Bilan passif détaillé")
     col += 1
     cell_format = workbook.add_format({"bold": False, "align": "center"})
     worksheet.write(row, col, f"Année {int(curyear)}", cell_format)
@@ -429,6 +420,7 @@ def bilan_passif(
     id_total_list += ids
 
     # Attention pour la ligne Résultats de l'exercice bénéfice ou pertes, je reporte le obtenu dans les soldes intermédiaires de gestion, le bénéfice ou la perte totale
+    # du coup, je ne tiens pas compte de 12000
     row, col = add_line_elementary(
         worksheet,
         "Résultat de l'exercice (bénéfice ou perte)",
@@ -572,6 +564,7 @@ def bilan_passif(
 
     ids = [
         "487",
+        "448",
     ]
     for id in ids:
         row, col = add_macro_categorie_and_detail(
@@ -599,6 +592,251 @@ def bilan_passif(
     )
     row += 1
 
+    ids = [
+        "487",
+    ]
+    row, col, curyear_value_totalIV, refyear_value_totalIV = add_line_idlist(
+        worksheet,
+        ids,
+        row,
+        col_init,
+        **data,
+        label="Ecart de conversion passif (IV)",
+        signe="-",
+    )
+    id_total_list += ids
+
+    LOGGER.info("TOTAL GENERAL (I à IV)")
+
+    row, col = add_line_elementary(
+        worksheet,
+        "TOTAL GENERAL (I à IV)",
+        (
+            curyear_value_totalI
+            + curyear_value_totalII
+            + curyear_value_totalIII
+            + curyear_value_totalIV
+        ),
+        (
+            refyear_value_totalI
+            + refyear_value_totalII
+            + refyear_value_totalIII
+            + refyear_value_totalIV
+        ),
+        formats_dict["totaux"],
+        row,
+        col_init,
+        signe="-",
+    )
+
+    return workbook
+
+
+def display_ligne_simplifie(
+    worksheet, row, col, df, query, liste_annees_croissante, format, label, signe="-"
+):
+    worksheet.write(row, col, label, format)
+    col += 1
+
+    for year in liste_annees_croissante:
+        if signe == "-":
+            number = (-1) * calcule_balance_cred_moins_deb(
+                df[df.year == year].query(query)
+            )
+        else:
+            number = calcule_balance_cred_moins_deb(df[df.year == year].query(query))
+        worksheet.write(
+            row,
+            col,
+            number,
+            format,
+        )
+        col += 1
+    return worksheet, row, col
+
+
+def bilan_simplifie(df, workbook, sheet_name="Bilan simplifié"):
+    # definition des formats
+    formats_dict = define_formats(workbook)
+
+    # minyear = df["year"].min()
+    # maxyear = df["year"].max()
+    liste_annees_croissante = df["year"].drop_duplicates().sort_values()
+
+    worksheet = workbook.add_worksheet(sheet_name)
+
+    # je dilate mes colonnes
+    col = 0
+    worksheet.set_column(col, col, 40)
+    for nbilans in range(2):
+        col += 1
+        for ncol in range(len(liste_annees_croissante)):
+            col += 1
+            worksheet.set_column(col, col, 15)
+
+    row = 0
+    col = 0
+    worksheet.write(row, col, "BILAN")
+    row += 1
+    worksheet.write(row, col, "ACTIF")
+    col += 1
+    for year in liste_annees_croissante:
+        worksheet.write(row, col, int(year))
+        col += 1
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'idlvl2=="20"',
+        liste_annees_croissante,
+        formats_dict["normal"],
+        get_official_nomenclature("20"),
+    )
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'idlvl2=="21"',
+        liste_annees_croissante,
+        formats_dict["normal"],
+        get_official_nomenclature("21"),
+    )
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'idlvl2=="27"',
+        liste_annees_croissante,
+        formats_dict["normal"],
+        get_official_nomenclature("27"),
+    )
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'idlvl2=="28"',
+        liste_annees_croissante,
+        formats_dict["normal"],
+        get_official_nomenclature("28"),
+    )
+    row += 1
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'idlvl2=="20" or idlvl2=="21" or idlvl2=="27" or idlvl2=="28"',
+        liste_annees_croissante,
+        formats_dict["bold"],
+        "Actif net immobilisé".upper(),
+        signe="-",
+    )
+
+    row += 1
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'classe=="3"',
+        liste_annees_croissante,
+        formats_dict["normal"],
+        get_official_nomenclature("3"),
+    )
+
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'idlvl4=="4091"',
+        liste_annees_croissante,
+        formats_dict["normal"],
+        get_official_nomenclature("4091"),
+    )
+
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'idlvl2=="42" or idlvl2=="43" or idlvl2=="44" or idlvl2=="45"',
+        liste_annees_croissante,
+        formats_dict["normal"],
+        "Autres créances",
+    )
+
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'idlvl2=="41"',
+        liste_annees_croissante,
+        formats_dict["normal"],
+        "Créances clients",
+    )
+
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'classe=="5"',
+        liste_annees_croissante,
+        formats_dict["normal"],
+        "Trésorerie",
+    )
+
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'idlvl3=="486"',
+        liste_annees_croissante,
+        formats_dict["normal"],
+        get_official_nomenclature("486"),
+    )
+
+    row += 1
+    # col = 0
+    worksheet, row, col = display_ligne_simplifie(
+        worksheet,
+        row,
+        0,
+        df,
+        'classe =="3" or idlvl4=="4091"or idlvl2=="41" or idlvl2=="42" or idlvl2=="43" or idlvl2=="44" or idlvl2=="45" or idlvl3=="486" or classe=="5"',
+        liste_annees_croissante,
+        formats_dict["bold"],
+        "ACTIF CIRCULANT".upper(),
+    )
     return workbook
 
 
@@ -1355,11 +1593,34 @@ def main(excel_path_list, test=False):
         benefice_total_refyear,
     )
 
+    workbook = bilan_simplifie(df, workbook)
+
     LOGGER.info(f"On ferme le fichier {xlsx_path.resolve()} ! ")
     if test:
         workbook.close()
     else:
         writer.close()
+    return
+
+
+def edit_comptes_not_used(excel_path_list):
+    dfa = pd.read_csv(
+        TMP_PATH / "used_comptes.csv",
+        header=None,
+    )
+    dfa["Compte"] = dfa.iloc[:, 0].apply(lambda x: str(x).strip())
+
+    dfb = extract_df_FEC(excel_path_list)
+    dfb["Compte"] = dfb["Compte"].apply(lambda x: str(x).strip())
+
+    np.savetxt(
+        TMP_PATH / "used_comptes.txt",
+        sorted(list(set(dfa["Compte"].values))),
+        fmt="%s",
+    )
+    unique_comptes = set(dfb["Compte"].values).difference(set(dfa["Compte"].values))
+    np.savetxt(TMP_PATH / "unique_comptes.txt", sorted(list(unique_comptes)), fmt="%s")
+    LOGGER.info(f"Les comptes non utilisés sont dans {TMP_PATH / 'unique_comptes.txt'}")
     return
 
 
@@ -1382,4 +1643,5 @@ if __name__ == "__main__":
         ),
     ]
 
-    main(excel_path_list, test=False)
+    main(excel_path_list, test=True)
+    edit_comptes_not_used(excel_path_list)

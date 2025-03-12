@@ -29,6 +29,7 @@ else:
 COCOAI_PATH = DOCUMENTS_PATH / "cocoAI"
 DATA_PATH = COCOAI_PATH / "data"
 WORK_PATH = COCOAI_PATH / "work"
+TMP_PATH = COCOAI_PATH / "tmp"
 OUTPUT_PATH = COCOAI_PATH / "work" / "output"
 COMMON_PATH = COCOAI_PATH / "common"
 DATABANK_PATH = COMMON_PATH / "databank.yaml"

@@ -10,9 +10,22 @@ from common.identifiers import (
     NOM_DICT_LVL3,
     NOM_DICT_LVL4,
     get_official_nomenclature,
+    load_nomenclature,
 )
 from common.logconfig import LOGGER
-from common.path import COMMERCIAL_ONE_DRIVE_PATH, WORK_PATH, rapatrie_file
+from common.path import (
+    COMMERCIAL_ONE_DRIVE_PATH,
+    TMP_PATH,
+    WORK_PATH,
+    create_parent_directory,
+    rapatrie_file,
+)
+
+
+def inscrire_compte_dans_tmp_fichier(df, tmp_path=TMP_PATH / "used_comptes.csv"):
+    create_parent_directory(tmp_path)
+    df.to_csv(tmp_path, header=False, index=False, mode="a")
+    return
 
 
 def generer_bilan_excel(fichier_excel):
@@ -216,13 +229,14 @@ def generate_short_summary(excel_path_list):
 def extract_df_FEC(excel_path_list):
     excel_path_list = [rapatrie_file(f) for f in excel_path_list]
     df = load_excel_data(excel_path_list)
+    df["Compte"] = df["Compte"].apply(lambda x: str(x).strip())
     df["classe"] = df["Compte"].apply(lambda x: str(x[0]))
     df["idlvl2"] = df["Compte"].apply(lambda x: str(x[:2]))
     df["idlvl3"] = df["Compte"].apply(lambda x: str(x[:3]))
     df["idlvl4"] = df["Compte"].apply(lambda x: str(x[:4]))
     df["idlvl5"] = df["Compte"].apply(lambda x: str(x[:5]))
     df["idlvl6"] = df["Compte"].apply(lambda x: str(x[:6]))
-    df["Date"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%M/%Y"))
+    df["Date"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%m/%Y"))
     df["year"] = df["Date"].apply(lambda x: x.year)
     df["descriptionclasse"] = df["classe"].apply(
         lambda x: NOM_DICT_LVL1[x] if x in NOM_DICT_LVL1.keys() else None
@@ -237,6 +251,14 @@ def extract_df_FEC(excel_path_list):
         lambda x: NOM_DICT_LVL4[x] if x in NOM_DICT_LVL4.keys() else None
     )
     df["credit-debit"] = df["Crédit"] - df["Débit"]
+
+    LOGGER.info("ATTENTION! patch pour le chien qui fume")
+    # tous les intitulés de compte commençant par S sont transférés dans le compte 421100
+    for compte in df[df.Compte.str.startswith("S")]["Compte"].drop_duplicates():
+        df.loc[df.Compte == compte, "Compte"] = "421100"
+
+    LOGGER.info(f"Les données comptables ont été chargées avec succès.")
+
     return df
 
 
@@ -305,6 +327,7 @@ def add_line_compte(
     refyear_value = calcule_balance_cred_moins_deb(
         dfd[int(refyear)].query(f"Compte == '{compte}'")
     )
+
     row, col = add_line_elementary(
         worksheet,
         f"    {label}",
@@ -413,7 +436,8 @@ def define_formats(workbook):
 
 
 def calcule_balance_cred_moins_deb(df):
-    # pour rendre le code compact
+    # pour garder trace de ce qui a été interprété
+    inscrire_compte_dans_tmp_fichier(df)
     return df["Crédit"].sum() - df["Débit"].sum()
 
 
@@ -534,7 +558,6 @@ def get_unique_label_in_df(df, identifiant, type="compte"):
         ].drop_duplicates()
         LOGGER.debug(identifiant)
         LOGGER.debug(series_du_label)
-        # sys.exit()
         if len(series_du_label) == 1:
             LOGGER.debug(series_du_label)
             return series_du_label.iat[0]
@@ -566,9 +589,8 @@ def get_unique_label_in_df(df, identifiant, type="compte"):
 
 
 def main(excel_path_list):
-
-    # dfnom = load_nomenclature()
-    # generate_short_summary(excel_path_list)
+    dfnom = load_nomenclature()
+    generate_short_summary(excel_path_list)
     df = extract_df_FEC(excel_path_list)
 
     export_FEC_summary(df, WORK_PATH / "FEC_Summary.xlsx")
