@@ -1,5 +1,4 @@
 import json
-import logging
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -7,6 +6,7 @@ import requests
 
 from common.convert import json_to_yaml, load_yaml_to_dict
 from common.identifiers import pick_id
+from common.logconfig import LOGGER
 from common.path import OPENDATA_PARIS_URL, WORK_PATH, create_parent_directory
 
 
@@ -21,7 +21,7 @@ def export_request(response, outputfile_path):
     yaml_outputfile_path = outputfile_path.with_suffix(".yaml")
     write_request_to_json(response, outputfile_path)
     json_to_yaml(outputfile_path, yaml_outputfile_path)
-    logging.debug(f"Data has been written to {yaml_outputfile_path}")
+    LOGGER.debug(f"Data has been written to {yaml_outputfile_path}")
     return
 
 
@@ -33,7 +33,7 @@ def make_request_with_api_key(
 ):
     # check if the file already exists, then we do not recreate it
     if outputfile_path.with_suffix(".yaml").exists():
-        logging.debug(
+        LOGGER.debug(
             f'result already available in {outputfile_path.with_suffix(".yaml")}'
         )
         return
@@ -47,11 +47,11 @@ def make_request_with_api_key(
         response = requests.get(url)
 
     if response.status_code == 200:
-        logging.info("Request successful!")
+        LOGGER.info("Request successful!")
         create_parent_directory(outputfile_path)
         export_request(response, outputfile_path)
     else:
-        logging.debug(response.text)
+        LOGGER.debug(response.text)
         raise ValueError(f"Request failed with status code {response.status_code}")
     return response
 
@@ -66,7 +66,7 @@ def main():
 
     # params = {"siren": siren, "degre": 4}
     # url = f"{PAPPERS_API_URL}/entreprise/cartographie?&{urlencode(params)}"
-    # logging.info(url)
+    # LOGGER.info(url)
     # response = make_request_with_api_key(url, json_cartopath)
     # dicarto = load_yaml_to_dict(json_cartopath.with_suffix(".yaml"))
     # ##########
@@ -79,7 +79,7 @@ def main():
     # if json_terrassespath.exists():
     #     os.remove(json_terrassespath)
     url = f"{OPENDATA_PARIS_URL}/catalog/datasets/terrasses-autorisations/records?&{urlencode(params)}"
-    logging.info(url)
+    LOGGER.info(url)
     response = make_request_with_api_key(url, json_terrassespath)
     di = load_yaml_to_dict(json_terrassespath.with_suffix(".yaml"))
 

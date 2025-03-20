@@ -1,30 +1,21 @@
 from mistralai import Mistral
 
-from cocoAI.terrasse import extract_terrace_info_from_siret
-from common.convert import (
-    add_header_to_beamer_markdown,
-    convert_beamer_to_pdf,
-    convert_markdown_to_docx,
-    convert_markdown_to_latex,
-    convert_markdown_to_pdf,
-)
 from common.keys import MISTRAL_API_KEY
 from common.logconfig import LOGGER
 
 
 def analyse_api_key(key):
     # returns all the infos necessary
+    # TODO
     return
 
 
 def request_Mistral(api_key, prompt, model="mistral-large-latest"):
-    # TODO : plugger choix du modele le plus recent
 
     analyse_api_key(api_key)
 
     LOGGER.debug("Let us ask Mistral")
     LOGGER.debug(f"model {model}")
-    # LOGGER.debug(f"prompt {prompt}")
 
     client = Mistral(api_key=api_key)
     try:
@@ -45,15 +36,7 @@ def request_Mistral(api_key, prompt, model="mistral-large-latest"):
     return chat_response
 
 
-def analyse_api_key(key):
-
-    return
-
-
 def request_Mistral(api_key, prompt, model="mistral-large-latest"):
-    # TODO : plugger choix du modele le plus recent
-
-    analyse_api_key(api_key)
 
     LOGGER.debug("Let us ask Mistral")
     LOGGER.debug(f"model {model}")
@@ -123,26 +106,40 @@ def get_summary_from_dict(dictionary, output_path):
 
 def main():
 
-    etablissement = "LE_JARDIN_DE_ROME"
-    terrace_output_path, di = extract_terrace_info_from_siret(etablissement)
-    file_path = get_summary_from_dict(di, terrace_output_path)
+    #######
+    # pour l etablissement LE JARDIN DE ROME
+    #######
 
-    summary_mdpath = file_path.with_suffix(".md")
-    summary_texpath = file_path.with_suffix(".tex")
-    summary_docxpath = file_path.with_suffix(".docx")
-    summary_pdfpath = file_path.with_suffix(".pdf")
+    # etablissement = "LE_JARDIN_DE_ROME"
+    # siret = pick_id(etablissement, "siret")
+    # terrace_output_path, di = extract_terrace_info_from_siret(
+    #     siret=siret, etablissement=etablissement
+    # )
+    # file_path = get_summary_from_dict(di, terrace_output_path)
 
-    convert_markdown_to_latex(summary_mdpath, summary_texpath)
-    convert_markdown_to_docx(summary_mdpath, summary_docxpath)
-    convert_markdown_to_pdf(summary_mdpath, summary_pdfpath)
-    convert_markdown_to_latex(summary_mdpath, summary_texpath)
+    # summary_mdpath = file_path.with_suffix(".md")
+    # summary_texpath = file_path.with_suffix(".tex")
+    # summary_docxpath = file_path.with_suffix(".docx")
+    # summary_pdfpath = file_path.with_suffix(".pdf")
+    # beamer_path = file_path.with_name("beamer.tex")
 
-    beamer_path = add_header_to_beamer_markdown(
-        summary_mdpath, title=f"Résumé des terrasses de l'établissement {etablissement}"
-    )
+    # convert_markdown_to_latex(summary_mdpath, summary_texpath)
+    # convert_markdown_to_docx(summary_mdpath, summary_docxpath)
+    # convert_markdown_to_pdf(summary_mdpath, summary_pdfpath)
+    # convert_markdown_to_latex(summary_mdpath, summary_texpath)
 
-    beamer_pdfpath = beamer_path.with_suffix(".pdf")
-    convert_beamer_to_pdf(beamer_path, beamer_pdfpath, engine="pypandoc")
+    # add_header_to_beamer_markdown(
+    #     summary_mdpath,
+    #     beamer_path,
+    #     title=f"Résumé des terrasses de l'établissement {etablissement}",
+    # )
+
+    # beamer_pdfpath = beamer_path.with_suffix(".pdf")
+    # convert_beamer_to_pdf(beamer_path, beamer_pdfpath, engine="pypandoc")
+
+    #######
+    # pour les bulletins de salaire
+    #######
 
     return
 

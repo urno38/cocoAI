@@ -223,7 +223,7 @@ def remove_unique_level_headers_and_code_blocks(file_path):
         lines = file.readlines()
 
     # Dictionaries to count occurr,ences of each header level
-    header_count = {"#": 0, "##": 0, "###": 0}
+    header_count = {"#": 0, "##": 0, "###": 0, "####": 0}
 
     # Identify headers and count their occurrences
     for line in lines:

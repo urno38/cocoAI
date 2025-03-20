@@ -1,6 +1,5 @@
 from cocoAI.terrasse import (
     extract_terrace_info_from_siret,
-    get_infos_terrasses_etablissement,
 )
 from common.AI_API import get_summary_from_dict
 from common.convert import (

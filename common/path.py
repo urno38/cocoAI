@@ -71,6 +71,7 @@ def obtain_output_folder(label, kind, number):
         path = OUTPUT_PATH / f"{kind}_{label}_{number}"
     create_parent_directory(path)
     path.mkdir(exist_ok=True)
+    LOGGER.debug(f"output folder is {path}")
     return path
 
 
@@ -153,6 +154,8 @@ def rapatrie_file(filepath, dest_folder=DATA_PATH):
 
     if not isinstance(filepath, Path):
         filepath = Path(filepath)
+
+    assert filepath.is_file()
 
     if not filepath.is_relative_to(dest_folder):
         if filepath.is_relative_to(COMMERCIAL_ONE_DRIVE_PATH):
