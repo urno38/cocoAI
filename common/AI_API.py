@@ -4,15 +4,7 @@ from common.keys import MISTRAL_API_KEY
 from common.logconfig import LOGGER
 
 
-def analyse_api_key(key):
-    # returns all the infos necessary
-    # TODO
-    return
-
-
 def request_Mistral(api_key, prompt, model="mistral-large-latest"):
-
-    analyse_api_key(api_key)
 
     LOGGER.debug("Let us ask Mistral")
     LOGGER.debug(f"model {model}")

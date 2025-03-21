@@ -23,9 +23,6 @@ pdf_path = (
 )
 pdf_file = rapatrie_file(pdf_path)
 
-# TODO : reprendre ici
-
-
 # Upload PDF file to Mistral's OCR service
 uploaded_file = client.files.upload(
     file={
