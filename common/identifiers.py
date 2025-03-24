@@ -4,7 +4,11 @@ import pandas as pd
 
 from common.convert import dict_to_yaml_file, load_yaml_to_dict
 from common.logconfig import LOGGER
-from common.path import COMMON_PATH, DATABANK_PATH, make_unix_compatible
+from common.path import (
+    COMMON_PATH,
+    DATABANK_PATH,
+    make_unix_compatible,
+)
 
 
 def pick_id(name, kind="siren"):
@@ -32,9 +36,13 @@ def write_databank(di: dict, databank_path=DATABANK_PATH):
     return
 
 
-def load_siren_in_databank(entreprise, siren):
+def load_siren_in_databank(entreprise, siren, make_unix_compatible=False):
+
+    if make_unix_compatible:
+        entreprise = make_unix_compatible(entreprise)
+
     databank_di = load_databank()
-    databank_di["siren"][make_unix_compatible(entreprise)] = siren
+    databank_di["siren"][entreprise] = siren
     write_databank(databank_di)
     LOGGER.info(f"siren {siren} loaded in databank")
     return databank_di
@@ -183,17 +191,6 @@ def get_official_nomenclature(id):
         raise ValueError("not implemented")
 
 
-if __name__ == "__main__":
-    pass
-    # from common.logconfig import LOGGER
-
-    # LOGGER.info(f'GALLA {pick_id("GALLA", kind="siren")}')
-    # LOGGER.info(f'LE_JARDIN_DE_ROME {pick_id("LE_JARDIN_DE_ROME", kind="siret")}')
-    # df = load_nomenclature()
-    # print(df)
-    pprint(NOM_DICT_LVL3)
-
-
 def get_query_from_id_list(id_list):
     for i, id in enumerate(id_list):
         if len(id) == 1:
@@ -213,3 +210,14 @@ def get_query_from_id_list(id_list):
     LOGGER.debug("on filtre avec la query suivante")
     LOGGER.debug(query)
     return query
+
+
+if __name__ == "__main__":
+    pass
+    # from common.logconfig import LOGGER
+
+    # LOGGER.info(f'GALLA {pick_id("GALLA", kind="siren")}')
+    # LOGGER.info(f'LE_JARDIN_DE_ROME {pick_id("LE_JARDIN_DE_ROME", kind="siret")}')
+    # df = load_nomenclature()
+    # print(df)
+    pprint(NOM_DICT_LVL3)

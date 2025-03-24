@@ -1,12 +1,122 @@
-# Import required libraries
 import json
+import re
 
-from IPython.display import Markdown, display
-from mistralai import DocumentURLChunk, Mistral
-from mistralai.models import OCRResponse
+import pandas as pd
+from mistralai import Mistral
 
-from common.keys import MISTRAL_API_KEY
+from common.keys import MISTRAL_API_KEY_PAYANTE
 from common.path import COMMERCIAL_ONE_DRIVE_PATH, rapatrie_file
+
+
+def mrkd2json(inp):
+    lines = inp.split("\n")
+    ret = []
+    keys = []
+    for i, l in enumerate(lines):
+        if i == 0:
+            keys = [_i.strip() for _i in l.split("|")]
+        elif i == 1:
+            continue
+        else:
+            ret.append(
+                {
+                    keys[_i]: v.strip()
+                    for _i, v in enumerate(l.split("|"))
+                    if _i > 0 and _i < len(keys) - 1
+                }
+            )
+    return json.dumps(ret, indent=4)
+
+
+def replace_figures(text):
+    # Regular expression pattern to match figures in the form $number$
+    pattern = re.compile(r"\$(-?[0-9]+(\.[0-9]+)?)\$")
+
+    # Replace the matched pattern with just the number
+    replaced_text = pattern.sub(r"\1", text)
+
+    return replaced_text
+
+
+def process_pdf_by_Mistral(pdf_path):
+    client = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
+    uploaded_pdf = client.files.upload(
+        file={
+            "file_name": pdf_file_path.name,
+            "content": open(pdf_file_path, "rb"),
+        },
+        purpose="ocr",
+    )
+    client.files.retrieve(file_id=uploaded_pdf.id)
+    signed_url = client.files.get_signed_url(file_id=uploaded_pdf.id)
+
+    client2 = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
+    ocr_response = client2.ocr.process(
+        model="mistral-ocr-latest",
+        document={
+            "type": "document_url",
+            "document_url": signed_url.url,
+        },
+    )
+    return ocr_response
+
+
+def mrkd2df(inp):
+    lines = inp.split("\n")
+    ret = []
+    keys = []
+    for i, l in enumerate(lines):
+        if i == 0:
+            keys = [_i.strip() for _i in l.split("|")]
+        elif i == 1:
+            continue
+        else:
+            ret.append(
+                {
+                    keys[_i]: v.strip()
+                    for _i, v in enumerate(l.split("|"))
+                    if _i > 0 and _i < len(keys) - 1
+                }
+            )
+    # return pd.DataFrame.from_dict(json.dumps(ret, indent = 4))
+    return pd.DataFrame.from_dict(ret)
+
+
+def extract_markdown_tables(text):
+    # Regular expression pattern to match Markdown tables with optional alignment
+    table_pattern = re.compile(r"(\|.*\|\n\|[-:| ]+\|\n(\|.*\|*\n?)+)", re.MULTILINE)
+
+    # Find all matches of the pattern in the text
+    tables = table_pattern.findall(text)
+
+    # Extract the full table strings from the matches
+    extracted_tables = [match[0] for match in tables]
+
+    return extracted_tables
+
+
+from mistralai import Mistral, TextChunk
+
+
+def get_request(request):
+    client = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
+
+    # Get structured response from model
+    chat_response = client.chat.complete(
+        model="ministral-8b-latest",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    TextChunk(text=request),
+                ],
+            }
+        ],
+        response_format={"type": "json_object"},
+        temperature=0,
+    )
+    return chat_response.choices[0].message.content
+
 
 CHIEN_QUI_FUME_PATH = (
     COMMERCIAL_ONE_DRIVE_PATH
@@ -15,87 +125,22 @@ CHIEN_QUI_FUME_PATH = (
 )
 
 
-api_key = MISTRAL_API_KEY  # Replace with your API key
-client = Mistral(api_key=api_key)
+# pdf_path = Path(r"C:\Users\lvolat\Desktop\Echeancier def 240507 MAISON MULOT SAS.pdf")
+SOCIAL = list(CHIEN_QUI_FUME_PATH.glob("*SOCIAL*"))[0]
+PAIE = SOCIAL / "PAIE 10"
+pdf_path = list(PAIE.glob("*Djiedji*"))[0]
+pdf_file_path = rapatrie_file(pdf_path)
+ocr_response = process_pdf_by_Mistral(pdf_file_path)
+response_dict = json.loads(ocr_response.model_dump_json())
 
-pdf_path = (
-    CHIEN_QUI_FUME_PATH / "3. DOCUMENTATION FINANCIÈRE" / "2022 - GALLA - BILAN.pdf"
-)
-pdf_file = rapatrie_file(pdf_path)
+# display(Markdown(response_dict["pages"][0]["markdown"]))
+ocr_markdown = response_dict["pages"][0]["markdown"]
+ocr_markdown = replace_figures(ocr_markdown)
 
-# Upload PDF file to Mistral's OCR service
-uploaded_file = client.files.upload(
-    file={
-        "file_name": pdf_file.stem,
-        "content": pdf_file.read_bytes(),
-    },
-    purpose="ocr",
-)
-
-# Get URL for the uploaded file
-signed_url = client.files.get_signed_url(file_id=uploaded_file.id, expiry=1)
-
-# Process PDF with OCR, including embedded images
-pdf_response = client.ocr.process(
-    document=DocumentURLChunk(document_url=signed_url.url),
-    model="mistral-ocr-latest",
-    include_image_base64=True,
+request = (
+    f"Voici le bulletin de salaire en markdown:\n\n{ocr_markdown}\n.\n"
+    "Extrais toutes ces informations au format pandas"
 )
 
-# Convert response to JSON format
-response_dict = json.loads(pdf_response.model_dump_json())
-
-print(json.dumps(response_dict, indent=4)[0:1000])  # check the first 1000 characters
-
-
-def replace_images_in_markdown(markdown_str: str, images_dict: dict) -> str:
-    """
-    Replace image placeholders in markdown with base64-encoded images.
-
-    Args:
-        markdown_str: Markdown text containing image placeholders
-        images_dict: Dictionary mapping image IDs to base64 strings
-
-    Returns:
-        Markdown text with images replaced by base64 data
-    """
-    for img_name, base64_str in images_dict.items():
-        markdown_str = markdown_str.replace(
-            f"![{img_name}]({img_name})", f"![{img_name}]({base64_str})"
-        )
-    return markdown_str
-
-
-def get_combined_markdown(ocr_response: OCRResponse) -> str:
-    """
-    Combine OCR text and images into a single markdown document.
-
-    Args:
-        ocr_response: Response from OCR processing containing text and images
-
-    Returns:
-        Combined markdown string with embedded images
-    """
-    markdowns: list[str] = []
-    # Extract images from page
-    for page in ocr_response.pages:
-        image_data = {}
-        for img in page.images:
-            image_data[img.id] = img.image_base64
-        # Replace image placeholders with actual images
-        markdowns.append(replace_images_in_markdown(page.markdown, image_data))
-
-    return "\n\n".join(markdowns)
-
-
-# Display combined markdowns and images
-display(Markdown(get_combined_markdown(pdf_response)))
-
-
-def main():
-
-    return
-
-
-if __name__ == "__main__":
-    main()
+tables = extract_markdown_tables(ocr_markdown)
+content = get_request(request)

@@ -10,22 +10,23 @@ from common.logconfig import LOGGER
 # definition du path vers le one drive comptoirs et commerces
 if getpass.getuser() == "lvolat":
     USER_PATH = Path(r"C:\Users") / getpass.getuser()
-    DOCUMENTS_PATH = USER_PATH / "Documents"
-    COMMERCIAL_ONE_DRIVE_PATH = (
-        USER_PATH / "COMPTOIRS ET COMMERCES" / "COMMERCIAL - Documents"
-    )
     PROGRAMFILES_PATH = Path(r"C:\Program Files")
     TESSERACT_EXE_PATH = PROGRAMFILES_PATH / "Tesseract-OCR" / "tesseract.exe"
 elif getpass.getuser() == "antoninbertuol":
     USER_PATH = Path("/Users/") / getpass.getuser()
-    DOCUMENTS_PATH = USER_PATH / "Documents"
-    COMMERCIAL_ONE_DRIVE_PATH = (
-        USER_PATH / "COMPTOIRS ET COMMERCES" / "COMMERCIAL - Documents"
-    )
 else:
-    raise ValueError("not implemented, please write all the paths concerning the user")
+    raise ValueError("not implemented, please write the paths concerning the user")
 
 
+DOCUMENTS_PATH = USER_PATH / "Documents"
+DESKTOP_PATH = USER_PATH / "Desktop"
+
+# One Drive
+COMPTOIRS_ET_COMMERCES_PATH = USER_PATH / "COMPTOIRS ET COMMERCES"
+COMMERCIAL_ONE_DRIVE_PATH = COMPTOIRS_ET_COMMERCES_PATH / "COMMERCIAL - Documents"
+DATALAKE_PATH = COMPTOIRS_ET_COMMERCES_PATH / "DATALAKE - Documents de vente au détail"
+
+# CocoAI
 COCOAI_PATH = DOCUMENTS_PATH / "cocoAI"
 DATA_PATH = COCOAI_PATH / "data"
 WORK_PATH = COCOAI_PATH / "work"
@@ -97,7 +98,7 @@ def make_unix_compatible(name):
     # Remove invalid characters for Unix
     name = re.sub(r"[^a-zA-Z0-9._-]", "", name)
     name = re.sub("_+", "_", name)
-    name = name.strip()
+    name = re.sub("_-_", "_", name)
     return name
 
 

@@ -208,7 +208,7 @@ def main(siren, entreprise):
     return output_folder_path
 
 
-def get_all_siret_from_a_siren(siren):
+def get_infos_from_a_siren(siren: int):
     # je produis les donnees PAPPERS
     yaml_list = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))
     if yaml_list != []:
@@ -218,7 +218,6 @@ def get_all_siret_from_a_siren(siren):
         else:  # len(yaml_list) == 1
             pass
     else:  # len(yaml_list) == 0
-
         # if the output folder does not exist then I recreate it
         fake_output_folder_path = main(siren=siren, entreprise="entreprise")
 
@@ -247,12 +246,11 @@ def get_all_siret_from_a_siren(siren):
 
         load_siren_in_databank(entreprise_name, siren)
 
-        # TODO : surcharger la base des identifiers avec les siren et les siret
-
     yaml_list = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))
     yaml_path = yaml_list[0]
     LOGGER.info(f"Le yaml trouve est {yaml_path}")
     di = load_yaml_to_dict(yaml_path)
+    entreprise_name = make_unix_compatible(di["denomination"])
 
     sirets = [int(et["siret"]) for et in di["etablissements"]]
 
@@ -263,11 +261,11 @@ def get_all_siret_from_a_siren(siren):
         if et["siret"] not in databank["siret"].keys():
             load_siret_in_databank(et["enseigne"], et["siret"])
 
-    return sirets
+    return siren, entreprise_name, sirets, di["etablissements"]
 
 
 if __name__ == "__main__":
 
     # main(pick_id("GALLA", kind="siren"), "GALLA")
 
-    get_all_siret_from_a_siren(652014754)
+    siren, entreprise_name, sirets, etablissements = get_infos_from_a_siren(310130323)
