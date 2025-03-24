@@ -1,6 +1,5 @@
 import os
 import re
-import shutil
 from urllib.parse import urlencode
 
 import mermaid as mmd
@@ -236,7 +235,7 @@ def get_infos_from_a_siren(siren: int):
             LOGGER.error(
                 f"{real_output_folder_path} exists but does not contain output.yaml then I delete it"
             )
-            shutil.remove(real_output_folder_path)
+            os.remove(real_output_folder_path)
 
         LOGGER.info(
             f"then rename {fake_output_folder_path} to {real_output_folder_path}"
