@@ -1,14 +1,20 @@
 import io
+import json
 import os
-from pathlib import Path
 
 import fitz
 import pytesseract
 import requests
 from PIL import Image
 
-from common.logconfig import LOGGER, configure_logger
-from common.path import DATA_PATH, TESSERACT_EXE_PATH, create_parent_directory
+from cocoAI.salaire import get_ministral_answer, process_pdf_by_Mistral
+from common.logconfig import LOGGER
+from common.path import (
+    COMMERCIAL_ONE_DRIVE_PATH,
+    TESSERACT_EXE_PATH,
+    create_parent_directory,
+    rapatrie_file,
+)
 
 if os.name == "nt":
     pytesseract.pytesseract.tesseract_cmd = str(TESSERACT_EXE_PATH)
@@ -134,10 +140,174 @@ def download_pdf(url, save_path):
         LOGGER.error(f"Failed to download PDF. Status code: {response.status_code}")
 
 
+def request_file_nature():
+
+    types_possibles = [
+        ("un bail commercial", "BAUX - QUITTANCE"),
+        ("une quittance de loyer", "BAUX - QUITTANCE"),
+        ("une taxe fonciere", "BAUX - QUITTANCE"),
+        ("un appel de charges de copropriété", "BAUX - QUITTANCE"),
+        (
+            "une attestation de vigilance et de régularité",
+            "DOCUMENTATION_FINANCIERE/ATTESTATIONS DE REGULARITE IMPOTS URSSAF",
+        ),
+        (
+            "une attestation d'urssaf",
+            "DOCUMENTATION_FINANCIERE/ATTESTATIONS DE REGULARITE IMPOTS URSSAF",
+        ),
+        ("un document financier", "DOCUMENTATION_FINANCIERE/BILANS - CA"),
+        (
+            "une attestation de chiffres d'affaires",
+            "DOCUMENTATION_FINANCIERE/BILANS - CA",
+        ),
+        ("un document issu de la comptabilité", "DOCUMENTATION_FINANCIERE/BILANS - CA"),
+        ("un tableau financier", "DOCUMENTATION_FINANCIERE/BILANS - CA"),
+        (
+            "un tableau d'amortissement d'emprunt bancaire",
+            "DOCUMENTATION_FINANCIERE/BILANS - CA",
+        ),
+        (
+            "une attestation de compte courant d'associés",
+            "DOCUMENTATION_FINANCIERE/COMPTES COURANTS",
+        ),
+        (
+            "un document concernant un diagnostic amiante",
+            "DOCUMENTATION_FINANCIERE/DIAGNOSTICS",
+        ),
+        (
+            "un document concernant un diagnostic énergétique",
+            "DOCUMENTATION_FINANCIERE/DIAGNOSTICS",
+        ),
+        (
+            "un document concernant un diagnostic termites",
+            "DOCUMENTATION_FINANCIERE/DIAGNOSTICS",
+        ),
+        ("un document concernant un emprunt", "DOCUMENTATION_FINANCIERE/EMPRUNTS"),
+        ("un document concernant les emprunts", "DOCUMENTATION_FINANCIERE/EMPRUNTS"),
+        ("un acte de vente signé", "JURIDIQUE_CORPORATE/ACTES SIGNES"),
+        ("une autorisation bénéficiaire", "JURIDIQUE_CORPORATE/CORPORATE"),
+        (
+            "un compte rendu de conseil de surveillance ou d'organe de contrôle de la société",
+            "JURIDIQUE_CORPORATE/CORPORATE",
+        ),
+        ("un PV d'Assemblée Générale", "JURIDIQUE_CORPORATE/CORPORATE"),
+        ("un PV de décision de l'associé unique", "JURIDIQUE_CORPORATE/CORPORATE"),
+        (
+            "un document juridique lié à l'administration de la société",
+            "JURIDIQUE_CORPORATE/CORPORATE",
+        ),
+        (
+            "tous les états d'inscription du fond de commerce",
+            "JURIDIQUE_CORPORATE/ETATS DES INSCRIPTIONS",
+        ),
+        (
+            "un document qui définit le K bis",
+            "JURIDIQUE_CORPORATE/K BIS - INSEE - STATUTS",
+        ),
+        ("un document INSEE", "JURIDIQUE_CORPORATE/K BIS - INSEE - STATUTS"),
+        ("un statut", "JURIDIQUE_CORPORATE/K BIS - INSEE - STATUTS"),
+        ("un document concernant les litiges", "JURIDIQUE_CORPORATE/LITIGES"),
+        (
+            "un registre qui définit l'origine des propriétés des titres",
+            "JURIDIQUE_CORPORATE/ORIGINE DE PROPRIETE DES TITRES",
+        ),
+        (
+            "un registre qui définit l'origine de propriété du fonds social",
+            "JURIDIQUE_CORPORATE/ORIGINE DE PROPRIETE DU FONDS",
+        ),
+        (
+            "un registre de nantissement des titres",
+            "JURIDIQUE_CORPORATE/REGISTRES NANTISSEMENT DES TITRES",
+        ),
+        (
+            "une attestation de régularité d'assurance",
+            "JURIDIQUE_EXPLOITATION_ET_CONTRATS/ASSURANCE",
+        ),
+        (
+            "attestation de conformité de caisse",
+            "JURIDIQUE_EXPLOITATION_ET_CONTRATS/CAISSE",
+        ),
+        (
+            "un contrat de crédit-bail",
+            "JURIDIQUE_EXPLOITATION_ET_CONTRATS/CONTRATS CREDITS BAUX",
+        ),
+        (
+            "un contrat de location longue durée",
+            "JURIDIQUE_EXPLOITATION_ET_CONTRATS/CONTRATS CREDITS BAUX",
+        ),
+        (
+            "un contrat fournisseurs",
+            "JURIDIQUE_EXPLOITATION_ET_CONTRATS/CONTRATS FOURNISSEURS",
+        ),
+        ("un document licence IV", "JURIDIQUE_EXPLOITATION_ET_CONTRATS/LICENCE IV"),
+        (
+            "un document concernant la terrasse ou la voirie",
+            "JURIDIQUE_EXPLOITATION_ET_CONTRATS/TERRASSE - VOIRIE",
+        ),
+        (
+            "un document concernant l'urbanisme",
+            "JURIDIQUE_EXPLOITATION_ET_CONTRATS/URBANISME",
+        ),
+        ("un bulletin de paie", "SOCIAL/BULLETINS PAIE"),
+        ("un bulletin de salaire", "SOCIAL/BULLETINS PAIE"),
+        ("un contrat de travail", "SOCIAL/CONTRATS DE TRAVAIL"),
+        ("un document de cotisations", "SOCIAL/COTISATIONS"),
+        ("une lettre de démission", "SOCIAL/DEMISSIONS"),
+        ("une liste du personnel", "SOCIAL/LISTE DU PERSONNEL"),
+        (
+            "un document qui concerne la mutuelle d'entreprise mais qui n'est pas un bulletin de salaire",
+            "SOCIAL/MUTUELLE - PREVOYANCE",
+        ),
+        (
+            "un document qui concerne la prévoyance d'entreprise mais qui n'est pas un bulletin de salaire",
+            "SOCIAL/MUTUELLE - PREVOYANCE",
+        ),
+    ]
+
+    # Trier la liste selon la partie après le slash dans la deuxième chaîne de caractères
+    # types_possibles_tries = sorted(types_possibles, key=lambda x: x[1].split('/')[-1] if '/' in x[1] else x[1])
+
+    request = "Soit un dictionnaire python di. Est ce que le document joint est :\n"
+    for type, key in types_possibles:
+        request += " - "
+        request += (
+            f"{type} ? si oui, alors mets la clé '{key}' du dictionnaire di à True\n"
+        )
+
+    request += "Ne renvoie que le dictionnaire di sous forme json sans commentaires"
+
+    return request
+
+
+def main(salaire_path):
+
+    pdf_file_path = rapatrie_file(salaire_path)
+    print(pdf_file_path)
+
+    ocr_response = process_pdf_by_Mistral(pdf_file_path)
+    response_dict = json.loads(ocr_response.model_dump_json())
+
+    ocr_markdown = response_dict["pages"][0]["markdown"]
+
+    request = request_file_nature() + "\n\n\n" + ocr_markdown
+
+    request_file = pdf_file_path.with_suffix(".request")
+    with open(request_file, "w") as f:
+        f.write(request)
+        LOGGER.debug(f"request exported to {request_file}")
+
+    json_dict = get_ministral_answer(request)
+
+    response_dict2 = json.loads(json_dict)
+    json_path = pdf_file_path.with_suffix(".json")
+    with open(json_path, "w", encoding="utf-8") as f:
+        f.write(json.dumps(response_dict2, ensure_ascii=False))
+        print(json_path.resolve())
+
+
 # Example usage
 if __name__ == "__main__":
 
-    logger = configure_logger()
     # test extraction images d'un pdf
     # pdf_path = r"c:\Users\lvolat\Downloads\328311052_004.pdf"
     # output_dir = "extracted_images2"
@@ -159,5 +329,22 @@ if __name__ == "__main__":
     # download_pdf(pdf_url, save_location)
 
     # test scan de pdf
-    pdf_path = list(DATA_PATH.glob("*GILBERTE*/*BAIL*pdf"))[0]
-    output_path, text = convert_pdf_to_ascii(pdf_path, Path("result.txt"))
+    pdf_path = list(COMMERCIAL_ONE_DRIVE_PATH.rglob("*GILBERTE*/*BAIL*pdf"))[0]
+    # print(pdf_path)
+
+    # output_path, text = convert_pdf_to_ascii(pdf_path, Path("result.txt"))
+
+    CHIEN_QUI_FUME_PATH = (
+        COMMERCIAL_ONE_DRIVE_PATH
+        / "2 - DOSSIERS à l'ETUDE"
+        / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
+    )
+
+    SOCIAL = list(CHIEN_QUI_FUME_PATH.glob("*SOCIAL*"))[0]
+    PAIE = SOCIAL / "PAIE 10"
+    salaires_list = list(PAIE.glob("*Dernier*")) + list(PAIE.glob("*Normal*"))
+
+    # salaires_list =
+
+    for salaire_path in [salaires_list[3]]:
+        main(salaire_path)

@@ -3,6 +3,7 @@ from pathlib import Path
 import yaml
 
 from cocoAI.company import get_infos_from_a_siren
+from common.logconfig import LOGGER
 from common.path import COMMON_PATH, DATALAKE_PATH, make_unix_compatible
 
 
@@ -23,11 +24,11 @@ def create_folder_structure_from_yaml(yaml_file, dest_folder):
             folder_path = Path(dest_folder) / make_unix_compatible(folder)
             # folder_path = get_unix_compatible_path(folder_path)
             folder_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {folder_path}")
+            LOGGER.info(f"Created directory: {folder_path}")
 
-        print(f"Folder structure created in {dest_folder}")
+        LOGGER.info(f"Folder structure created in {dest_folder}")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        LOGGER.info(f"An error occurred: {e}")
 
 
 def create_complete_folder_tree(siren):
@@ -35,8 +36,12 @@ def create_complete_folder_tree(siren):
     root_yaml_file = COMMON_PATH / "folder_structure.yaml"
     dest_folder = DATALAKE_PATH / entreprise_name
 
-    print(etablissements)
     for et in etablissements:
+        if et["enseigne"] is None:
+            LOGGER.debug(et)
+            LOGGER.warning(f"{et["siret"]} n a pas de nom d etablissement dans pappers")
+            LOGGER.warning("probablement un siege de holding")
+            continue
         enseigne = make_unix_compatible(et["enseigne"])
         for path in [
             dest_folder / enseigne,

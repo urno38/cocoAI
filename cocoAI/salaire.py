@@ -2,7 +2,7 @@ import json
 import re
 
 import pandas as pd
-from mistralai import Mistral
+from mistralai import Mistral, TextChunk
 
 from common.keys import MISTRAL_API_KEY_PAYANTE
 from common.path import COMMERCIAL_ONE_DRIVE_PATH, rapatrie_file
@@ -42,8 +42,8 @@ def process_pdf_by_Mistral(pdf_path):
     client = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
     uploaded_pdf = client.files.upload(
         file={
-            "file_name": pdf_file_path.name,
-            "content": open(pdf_file_path, "rb"),
+            "file_name": pdf_path.name,
+            "content": open(pdf_path, "rb"),
         },
         purpose="ocr",
     )
@@ -68,16 +68,22 @@ def mrkd2df(inp):
     for i, l in enumerate(lines):
         if i == 0:
             keys = [_i.strip() for _i in l.split("|")]
+            # print(keys)
+            # print(len(keys))
         elif i == 1:
             continue
         else:
+            # print(l)
+            # print(l.split("|"))
+            # print(len(l.split("|")))
             ret.append(
                 {
                     keys[_i]: v.strip()
                     for _i, v in enumerate(l.split("|"))
-                    if _i > 0 and _i < len(keys) - 1
+                    if _i < len(keys)
                 }
             )
+    # print(json.dumps(ret, indent = 4))
     # return pd.DataFrame.from_dict(json.dumps(ret, indent = 4))
     return pd.DataFrame.from_dict(ret)
 
@@ -95,10 +101,7 @@ def extract_markdown_tables(text):
     return extracted_tables
 
 
-from mistralai import Mistral, TextChunk
-
-
-def get_request(request):
+def get_ministral_answer(request):
     client = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
 
     # Get structured response from model
@@ -118,29 +121,47 @@ def get_request(request):
     return chat_response.choices[0].message.content
 
 
-CHIEN_QUI_FUME_PATH = (
-    COMMERCIAL_ONE_DRIVE_PATH
-    / "2 - DOSSIERS à l'ETUDE"
-    / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
-)
+def main(salaire_path):
+
+    pdf_file_path = rapatrie_file(salaire_path)
+
+    ocr_response = process_pdf_by_Mistral(pdf_file_path)
+    response_dict = json.loads(ocr_response.model_dump_json())
+
+    ocr_markdown = response_dict["pages"][0]["markdown"]
+    ocr_markdown = replace_figures(ocr_markdown)
+
+    request = (
+        f"Voici le bulletin de salaire en markdown:\n\n{ocr_markdown}\n.\n"
+        "Extrais toutes les informations au format pandas"
+    )
+
+    tables = extract_markdown_tables(ocr_markdown)
+    content = get_ministral_answer(request)
+    df = mrkd2df(tables[0])
+
+    response_dict2 = json.loads(content)
+    json_path = pdf_file_path.with_suffix(".json")
+    with open(json_path, "w", encoding="utf-8") as f:
+        f.write(json.dumps(response_dict2, ensure_ascii=False))
+        print(json_path.resolve())
+        # print(json_path)
+        # print(df.columns)
 
 
-# pdf_path = Path(r"C:\Users\lvolat\Desktop\Echeancier def 240507 MAISON MULOT SAS.pdf")
-SOCIAL = list(CHIEN_QUI_FUME_PATH.glob("*SOCIAL*"))[0]
-PAIE = SOCIAL / "PAIE 10"
-pdf_path = list(PAIE.glob("*Djiedji*"))[0]
-pdf_file_path = rapatrie_file(pdf_path)
-ocr_response = process_pdf_by_Mistral(pdf_file_path)
-response_dict = json.loads(ocr_response.model_dump_json())
+if __name__ == "__main__":
 
-# display(Markdown(response_dict["pages"][0]["markdown"]))
-ocr_markdown = response_dict["pages"][0]["markdown"]
-ocr_markdown = replace_figures(ocr_markdown)
+    CHIEN_QUI_FUME_PATH = (
+        COMMERCIAL_ONE_DRIVE_PATH
+        / "2 - DOSSIERS à l'ETUDE"
+        / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
+    )
 
-request = (
-    f"Voici le bulletin de salaire en markdown:\n\n{ocr_markdown}\n.\n"
-    "Extrais toutes ces informations au format pandas"
-)
+    # pdf_path = Path(r"C:\Users\lvolat\Desktop\Echeancier def 240507 MAISON MULOT SAS.pdf")
+    SOCIAL = list(CHIEN_QUI_FUME_PATH.glob("*SOCIAL*"))[0]
+    PAIE = SOCIAL / "PAIE 10"
 
-tables = extract_markdown_tables(ocr_markdown)
-content = get_request(request)
+    salaires_list = list(PAIE.glob("*Dernier*")) + list(PAIE.glob("*Normal*"))
+
+    for salaire_path in [salaires_list[3]]:
+        main(salaire_path)

@@ -255,12 +255,29 @@ def get_infos_from_a_siren(siren: int):
 
     databank = load_databank()
 
+    LOGGER.debug(di["etablissements"])
     for et in di["etablissements"]:
+        if et["enseigne"] is None:
+            LOGGER.warning(f"{et["siret"]} n a pas de nom d etablissement dans pappers")
+            LOGGER.warning("probablement un siege de holding")
+            continue
+        # LOGGER.warning(f"{di["etablissements"]}")
         print(f"etablissement {et['enseigne']} de siret {et['siret']}")
         if et["siret"] not in databank["siret"].keys():
             load_siret_in_databank(et["enseigne"], et["siret"])
 
     return siren, entreprise_name, sirets, di["etablissements"]
+
+
+def get_infos_from_a_siret(siret: int):
+    siret = str(siret)
+    siren = int(str(siret)[:-5])
+    siren, entreprise_name, sirets, etablissements = get_infos_from_a_siren(siren)
+    for et in etablissements:
+        if et["siret"] == siret:
+            return et
+    LOGGER.debug("siret not found in Pappers")
+    raise ValueError("siret not found in Pappers")
 
 
 if __name__ == "__main__":
