@@ -14,7 +14,7 @@ from common.identifiers import (
 )
 from common.logconfig import LOGGER
 from common.path import (
-    COMMERCIAL_ONE_DRIVE_PATH,
+    COMMERCIAL_DOCUMENTS_PATH,
     TMP_PATH,
     WORK_PATH,
     create_parent_directory,
@@ -606,7 +606,7 @@ def main(excel_path_list):
 if __name__ == "__main__":
 
     CHIEN_QUI_FUME_PATH = (
-        COMMERCIAL_ONE_DRIVE_PATH
+        COMMERCIAL_DOCUMENTS_PATH
         / "2 - DOSSIERS à l'ETUDE"
         / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
         / "3. DOCUMENTATION FINANCIÈRE"

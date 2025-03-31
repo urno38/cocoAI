@@ -3,7 +3,10 @@ import logging
 import os
 import re
 import shutil
+import subprocess
 from pathlib import Path
+
+from PIL import Image, UnidentifiedImageError
 
 from common.logconfig import LOGGER
 
@@ -23,8 +26,8 @@ DESKTOP_PATH = USER_PATH / "Desktop"
 
 # One Drive
 COMPTOIRS_ET_COMMERCES_PATH = USER_PATH / "COMPTOIRS ET COMMERCES"
-COMMERCIAL_ONE_DRIVE_PATH = COMPTOIRS_ET_COMMERCES_PATH / "COMMERCIAL - Documents"
-DATALAKE_PATH = COMPTOIRS_ET_COMMERCES_PATH / "DATALAKE - Documents de vente au détail"
+COMMERCIAL_DOCUMENTS_PATH = COMPTOIRS_ET_COMMERCES_PATH / "COMMERCIAL - Documents"
+DATALAKE_PATH = COMPTOIRS_ET_COMMERCES_PATH / "DATALAKE - Documents"
 
 # CocoAI
 COCOAI_PATH = DOCUMENTS_PATH / "cocoAI"
@@ -57,10 +60,10 @@ def create_parent_directory(path):
 
     if not parent_dir.exists():
         parent_dir.mkdir(parents=True)
-        logging.info(f"Created parent directory: {parent_dir}")
+        logging.debug(f"Created parent directory: {parent_dir}")
     else:
         pass
-        # logging.info(f"Parent directory already exists: {parent_dir}")
+        # logging.debug(f"Parent directory already exists: {parent_dir}")
 
     return
 
@@ -95,9 +98,14 @@ def make_unix_compatible(name):
     name = name.replace(" ", "_")
     name = name.replace(")", "")
     name = name.replace("(", "")
+    name = name.replace(". ", "_")
+    name = name.replace("é", "e")
+    name = name.replace("è", "e")
+    name = name.replace("à", "a")
     # Remove invalid characters for Unix
-    name = re.sub(r"[^a-zA-Z0-9._-]", "", name)
+    # name = re.sub(r"[^a-zA-Z0-9._-]", "", name)
     name = re.sub("_+", "_", name)
+    name = re.sub("-+", "-", name)
     name = re.sub("_-_", "_", name)
     return name
 
@@ -152,16 +160,16 @@ def truncate_path_to_parent(path, parent_path):
 
 
 def rapatrie_file(filepath, dest_folder=DATA_PATH):
-
+    LOGGER.info(f"source file {filepath}")
     if not isinstance(filepath, Path):
         filepath = Path(filepath)
 
     assert filepath.is_file()
 
     if not filepath.is_relative_to(dest_folder):
-        if filepath.is_relative_to(COMMERCIAL_ONE_DRIVE_PATH):
+        if filepath.is_relative_to(COMMERCIAL_DOCUMENTS_PATH):
             parent, rel_path = truncate_path_to_parent(
-                filepath, COMMERCIAL_ONE_DRIVE_PATH
+                filepath, COMMERCIAL_DOCUMENTS_PATH
             )
             destpath = get_unix_compatible_path(dest_folder / rel_path)
         else:
@@ -170,11 +178,37 @@ def rapatrie_file(filepath, dest_folder=DATA_PATH):
         if not destpath.exists():
             destpath.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(filepath, destpath)
-            LOGGER.info(f"{filepath} has been copied to {destpath.parent}")
+            LOGGER.debug(f"{filepath} has been copied to {destpath.parent}")
         else:
-            LOGGER.info(f"{filepath.name} already exists in {destpath.parent.name}")
-
+            LOGGER.debug(f"{filepath.name} already exists in {destpath.parent.name}")
+    LOGGER.info(f"work file {destpath}")
     return destpath
+
+
+def is_photo(file_path):
+    try:
+        # Attempt to open the file as an image
+        with Image.open(file_path) as img:
+            # If successful, it is likely a photo
+            return True
+    except (UnidentifiedImageError, IOError):
+        # If an error occurs, it is not a photo
+        return False
+
+
+def is_video(file_path):
+    try:
+        # Use ffmpeg to probe the file
+        result = subprocess.run(
+            ["ffmpeg", "-i", file_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        # Check the output for video stream information
+        return "Video:" in result.stderr
+    except Exception as e:
+        return False
 
 
 if __name__ == "__main__":
@@ -192,9 +226,25 @@ if __name__ == "__main__":
     #     )
     # )
     # print(chemin_compatible)
-    filepath = Path(
-        r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\COMMERCIAL - Documents\2 - DOSSIERS à l'ETUDE\CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF\3. DOCUMENTATION FINANCIÈRE\2022 - GALLA - GL.xlsx"
-    ).resolve()
-    print(filepath)
-    print(COMMERCIAL_ONE_DRIVE_PATH)
-    new_file_path = rapatrie_file(filepath)
+    # filepath = Path(
+    #     r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\COMMERCIAL - Documents\2 - DOSSIERS à l'ETUDE\CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF\3. DOCUMENTATION FINANCIÈRE\2022 - GALLA - GL.xlsx"
+    # ).resolve()
+    # print(filepath)
+    # print(COMMERCIAL_DOCUMENTS_PATH)
+    # new_file_path = rapatrie_file(filepath)
+
+    # # check if a file is a photo
+    # # Example usage
+    # if is_photo(filepath):
+    #     print(f"{filepath} is a photo.")
+    # else:
+    #     print(f"{filepath} is not a photo.")
+
+    # Example usage
+    file_path = Path(
+        r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\COMMERCIAL - Documents\2 - DOSSIERS à l'ETUDE\BISTROT VALOIS (Le) - 75001 PARIS - 1 Bis Place de VALOIS\12. PHOTOS\IMG_1400.mov"
+    )
+    if is_video(file_path):
+        print(f"{file_path} is a video.")
+    else:
+        print(f"{file_path} is not a video.")

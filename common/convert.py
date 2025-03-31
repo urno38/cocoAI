@@ -161,7 +161,7 @@ def load_yaml_to_dict(yaml_file_path):
     with open(yaml_file_path, "r", encoding="utf-8") as yaml_file:
         data = yaml.safe_load(yaml_file)
     # test_pappers_data_compliance(data)
-    LOGGER.info(str(yaml_file_path) + " loaded")
+    LOGGER.debug(str(yaml_file_path) + " loaded")
     return data
 
 
@@ -333,7 +333,7 @@ def dict_to_yaml_file(data, filename):
         yaml.dump(
             data, file, default_flow_style=False, sort_keys=False, allow_unicode=True
         )
-    LOGGER.info(f"Dictionnaire exported in {filename}")
+    LOGGER.debug(f"Dictionnaire exported in {filename}")
     return
 
 
@@ -354,7 +354,7 @@ def clean_and_export_file(input_file_path, en_tete="```yaml", fin="```"):
     with open(output_file_path, "w", encoding="utf-8") as file:
         file.writelines(lines)
 
-    print(f"Fichier nettoyé et exporté vers {output_file_path}")
+    LOGGER.info(f"Fichier nettoyé et exporté vers {output_file_path}")
 
     return output_file_path
 

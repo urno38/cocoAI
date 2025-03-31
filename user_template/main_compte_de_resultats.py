@@ -1,8 +1,8 @@
 from cocoAI.compte_de_resultats import main
-from common.path import COMMERCIAL_ONE_DRIVE_PATH, rapatrie_file
+from common.path import COMMERCIAL_DOCUMENTS_PATH, rapatrie_file
 
 CHIEN_QUI_FUME_PATH = (
-    COMMERCIAL_ONE_DRIVE_PATH
+    COMMERCIAL_DOCUMENTS_PATH
     / "2 - DOSSIERS à l'ETUDE"
     / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
     / "3. DOCUMENTATION FINANCIÈRE"

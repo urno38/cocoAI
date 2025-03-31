@@ -4,53 +4,41 @@ from common.keys import MISTRAL_API_KEY
 from common.logconfig import LOGGER
 
 
-def request_Mistral(api_key, prompt, model="mistral-large-latest"):
+def ask_Mistral(api_key, prompt, model="mistral-large-latest", json_only=True):
 
     LOGGER.debug("Let us ask Mistral")
     LOGGER.debug(f"model {model}")
 
     client = Mistral(api_key=api_key)
     try:
-        chat_response = client.chat.complete(
-            model=model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
+        if json_only:
+            chat_response = client.chat.complete(
+                model=model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                response_format={
+                    "type": "json_object",
                 },
-            ],
-        )
+            )
+        else:
+            chat_response = client.chat.complete(
+                model=model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+            )
+        LOGGER.debug(f"the answer is {chat_response.choices[0].message.content}")
     except:
-        print(chat_response)
-
-    LOGGER.debug("Mistral did answer!")
+        LOGGER.warning(chat_response)
 
     return chat_response
-
-
-def request_Mistral(api_key, prompt, model="mistral-large-latest"):
-
-    LOGGER.debug("Let us ask Mistral")
-    LOGGER.debug(f"model {model}")
-    # LOGGER.debug(f"prompt {prompt}")
-
-    client = Mistral(api_key=api_key)
-
-    chat_response = client.chat.complete(
-        model=model,
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            },
-        ],
-    )
-
-    LOGGER.debug("Mistral did answer!")
-
-    return chat_response
-
-    return
 
 
 def generate_summary_with_mistral(dict_data, api_key=MISTRAL_API_KEY):
@@ -73,7 +61,7 @@ def generate_summary_with_mistral(dict_data, api_key=MISTRAL_API_KEY):
 
     # Ajouter une instruction pour générer un résumé
     prompt += "Générez un résumé cohérent basé sur ces informations. Ecris le en format markdown. Fais en sorte que chacune des parties du résumé contiennent peu de texte."
-    chat_response = request_Mistral(api_key, prompt)
+    chat_response = ask_Mistral(api_key, prompt)
 
     return chat_response.choices[0].message.content
 

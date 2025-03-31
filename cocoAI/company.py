@@ -59,7 +59,7 @@ def create_beneficiaires_effectifs_diagram(yaml_path):
     nodes = [Node("MIALANE")]
     links = []
     if di["beneficiaires_effectifs"] != []:
-        LOGGER.info("il existe des beneficiaires effectifs")
+        LOGGER.debug("il existe des beneficiaires effectifs")
         for i, beneff in enumerate(di["beneficiaires_effectifs"]):
             # pLOGGER.info(beneff)
             LOGGER.debug(beneff["prenom_usuel"], beneff["nom_usage"])
@@ -79,7 +79,7 @@ def create_beneficiaires_effectifs_diagram(yaml_path):
                 )
             )
     else:
-        LOGGER.info("pas de beneficiaires effectifs")
+        LOGGER.debug("pas de beneficiaires effectifs")
         return
 
     nodes.append(Node(di["denomination"]))
@@ -94,8 +94,8 @@ def create_beneficiaires_effectifs_diagram(yaml_path):
     chart = mmd.Mermaid(flowchart)
     chart.to_png(yaml_path.parent / "flowchart.png")
     chart.to_svg(yaml_path.parent / "flowchart.svg")
-    LOGGER.info(f"Produced {yaml_path.parent / 'flowchart.png'}")
-    LOGGER.info(f"Produced {yaml_path.parent / 'flowchart.svg'}")
+    LOGGER.debug(f"Produced {yaml_path.parent / 'flowchart.png'}")
+    LOGGER.debug(f"Produced {yaml_path.parent / 'flowchart.svg'}")
     return
 
 
@@ -237,7 +237,7 @@ def get_infos_from_a_siren(siren: int):
             )
             os.remove(real_output_folder_path)
 
-        LOGGER.info(
+        LOGGER.debug(
             f"then rename {fake_output_folder_path} to {real_output_folder_path}"
         )
 
@@ -247,7 +247,7 @@ def get_infos_from_a_siren(siren: int):
 
     yaml_list = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))
     yaml_path = yaml_list[0]
-    LOGGER.info(f"Le yaml trouve est {yaml_path}")
+    LOGGER.debug(f"Le yaml trouve est {yaml_path}")
     di = load_yaml_to_dict(yaml_path)
     entreprise_name = make_unix_compatible(di["denomination"])
 
@@ -262,7 +262,7 @@ def get_infos_from_a_siren(siren: int):
             LOGGER.warning("probablement un siege de holding")
             continue
         # LOGGER.warning(f"{di["etablissements"]}")
-        print(f"etablissement {et['enseigne']} de siret {et['siret']}")
+        LOGGER.debug(f"etablissement {et['enseigne']} de siret {et['siret']}")
         if et["siret"] not in databank["siret"].keys():
             load_siret_in_databank(et["enseigne"], et["siret"])
 
@@ -275,7 +275,7 @@ def get_infos_from_a_siret(siret: int):
     siren, entreprise_name, sirets, etablissements = get_infos_from_a_siren(siren)
     for et in etablissements:
         if et["siret"] == siret:
-            return et
+            return entreprise_name, et["enseigne"]
     LOGGER.debug("siret not found in Pappers")
     raise ValueError("siret not found in Pappers")
 

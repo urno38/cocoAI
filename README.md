@@ -25,6 +25,11 @@
 vérifier avec les bilans In Extenso du bilan 2022 disponible en
 file:///C:/Users/lvolat/Documents/cocoAI/data/2_-*DOSSIERS_lETUDE/CHIEN_QUI_FUME_Le*-*75001_PARIS*-_33_Rue_du_PONT-NEUF/3.*DOCUMENTATION_FINANCIRE/2022*-*GALLA*-_BILAN.pdf
 
+02/04/2025
+  #TODO : maintenant
+ il peut y avoir plusieurs KBIS corrects dans le dossier donc faire une requete entreprise.gouv.fr pour verifier que l entreprise existe puis stocker les fichiers temporaires dans la base et creer l arborescence
+    cf extract_KBIS.py
+
 ## Questions
 
 - changer les colonnes du bilan actif et du bilan passif net au 31/12/2023

@@ -11,7 +11,7 @@ from common.FEC import (
     extract_df_FEC,
 )
 from common.logconfig import LOGGER
-from common.path import COMMERCIAL_ONE_DRIVE_PATH, WORK_PATH
+from common.path import COMMERCIAL_DOCUMENTS_PATH, WORK_PATH
 
 
 def compte_de_resultats(
@@ -775,14 +775,14 @@ if __name__ == "__main__":
 
     excel_path_list = [
         (
-            COMMERCIAL_ONE_DRIVE_PATH
+            COMMERCIAL_DOCUMENTS_PATH
             / "2 - DOSSIERS à l'ETUDE"
             / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
             / "3. DOCUMENTATION FINANCIÈRE"
             / "2022 - GALLA - GL.xlsx"
         ),
         (
-            COMMERCIAL_ONE_DRIVE_PATH
+            COMMERCIAL_DOCUMENTS_PATH
             / "2 - DOSSIERS à l'ETUDE"
             / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
             / "3. DOCUMENTATION FINANCIÈRE"

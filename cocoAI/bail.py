@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from common.AI_API import request_Mistral
+from common.AI_API import ask_Mistral
 from common.convert import clean_and_export_file, convert_markdown_to_beamer
-from common.keys import MISTRAL_API_KEY
+from common.keys import MISTRAL_API_KEY, MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
 from common.path import obtain_output_folder, rapatrie_file, rename_file_unix_compatible
 from common.pdf_document import convert_pdf_to_ascii
@@ -59,8 +59,8 @@ def interpret_bail_with_sentences(bail_path, output_mdpath):
 
     prompt = text + request
     #  model="mistral-embed"  Our state-of-the-art semantic for extracting representation of text extracts
-    response = request_Mistral(
-        api_key=MISTRAL_API_KEY, prompt=prompt, model="mistral-large-latest"
+    response = ask_Mistral(
+        api_key=MISTRAL_API_KEY_PAYANTE, prompt=prompt, model="mistral-large-latest"
     )
     txt = response.choices[0].message.content
     LOGGER.debug("reponse")
@@ -94,8 +94,8 @@ def interpret_bail_with_output_yaml(bail_path, output_mdpath):
     LOGGER.info(request)
 
     #  model="mistral-embed"  Our state-of-the-art semantic for extracting representation of text extracts
-    response = request_Mistral(
-        api_key=MISTRAL_API_KEY, prompt=prompt, model="mistral-large-latest"
+    response = ask_Mistral(
+        api_key=MISTRAL_API_KEY_PAYANTE, prompt=prompt, model="mistral-large-latest"
     )
     txt = response.choices[0].message.content
     LOGGER.debug("reponse")
@@ -223,8 +223,8 @@ date_signature:
 
     prompt = text + request
     #  model="mistral-embed"  Our state-of-the-art semantic for extracting representation of text extracts
-    response = request_Mistral(
-        api_key=MISTRAL_API_KEY, prompt=prompt, model="mistral-large-latest"
+    response = ask_Mistral(
+        api_key=MISTRAL_API_KEY_PAYANTE, prompt=prompt, model="mistral-large-latest"
     )
     txt = response.choices[0].message.content
     LOGGER.debug("reponse")
@@ -256,8 +256,8 @@ def global_request_bail(bail_path, output_mdpath):
 
     prompt = text + request
     #  model="mistral-embed"  Our state-of-the-art semantic for extracting representation of text extracts
-    response = request_Mistral(
-        api_key=MISTRAL_API_KEY, prompt=prompt, model="mistral-large-latest"
+    response = ask_Mistral(
+        api_key=MISTRAL_API_KEY_PAYANTE, prompt=prompt, model="mistral-large-latest"
     )
     txt = response.choices[0].message.content
     LOGGER.debug("reponse")

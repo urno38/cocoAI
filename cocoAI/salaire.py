@@ -2,10 +2,12 @@ import json
 import re
 
 import pandas as pd
-from mistralai import Mistral, TextChunk
 
+from common.AI_API import ask_Mistral
 from common.keys import MISTRAL_API_KEY_PAYANTE
-from common.path import COMMERCIAL_ONE_DRIVE_PATH, rapatrie_file
+from common.logconfig import LOGGER
+from common.path import COMMERCIAL_DOCUMENTS_PATH, rapatrie_file
+from common.pdf_document import process_file_by_Mistral_OCR
 
 
 def mrkd2json(inp):
@@ -36,29 +38,6 @@ def replace_figures(text):
     replaced_text = pattern.sub(r"\1", text)
 
     return replaced_text
-
-
-def process_pdf_by_Mistral(pdf_path):
-    client = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
-    uploaded_pdf = client.files.upload(
-        file={
-            "file_name": pdf_path.name,
-            "content": open(pdf_path, "rb"),
-        },
-        purpose="ocr",
-    )
-    client.files.retrieve(file_id=uploaded_pdf.id)
-    signed_url = client.files.get_signed_url(file_id=uploaded_pdf.id)
-
-    client2 = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
-    ocr_response = client2.ocr.process(
-        model="mistral-ocr-latest",
-        document={
-            "type": "document_url",
-            "document_url": signed_url.url,
-        },
-    )
-    return ocr_response
 
 
 def mrkd2df(inp):
@@ -101,31 +80,34 @@ def extract_markdown_tables(text):
     return extracted_tables
 
 
-def get_ministral_answer(request):
-    client = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
+# def get_mistral_answer(request, model="ministral-8b-latest"):
 
-    # Get structured response from model
-    chat_response = client.chat.complete(
-        model="ministral-8b-latest",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    TextChunk(text=request),
-                ],
-            }
-        ],
-        response_format={"type": "json_object"},
-        temperature=0,
-    )
-    return chat_response.choices[0].message.content
+#     client = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
+
+#     LOGGER.debug(f"we ask Mistral with the model {model}")
+#     chat_response = client.chat.complete(
+#         model=model,
+#         messages=[
+#             {
+#                 "role": "user",
+#                 "content": [
+#                     TextChunk(text=request),
+#                 ],
+#             }
+#         ],
+#         response_format={"type": "json_object"},
+#         temperature=0,
+#     )
+#     LOGGER.debug(f"the answer is {chat_response.choices[0].message.content}")
+
+#     return chat_response.choices[0].message.content
 
 
 def main(salaire_path):
 
     pdf_file_path = rapatrie_file(salaire_path)
 
-    ocr_response = process_pdf_by_Mistral(pdf_file_path)
+    ocr_response = process_file_by_Mistral_OCR(pdf_file_path)
     response_dict = json.loads(ocr_response.model_dump_json())
 
     ocr_markdown = response_dict["pages"][0]["markdown"]
@@ -137,22 +119,22 @@ def main(salaire_path):
     )
 
     tables = extract_markdown_tables(ocr_markdown)
-    content = get_ministral_answer(request)
+
+    # model="ministral-8b-latest"
+    content = ask_Mistral(api_key=MISTRAL_API_KEY_PAYANTE, prompt=request)
     df = mrkd2df(tables[0])
 
     response_dict2 = json.loads(content)
     json_path = pdf_file_path.with_suffix(".json")
     with open(json_path, "w", encoding="utf-8") as f:
         f.write(json.dumps(response_dict2, ensure_ascii=False))
-        print(json_path.resolve())
-        # print(json_path)
-        # print(df.columns)
+        LOGGER.debug(json_path.resolve())
 
 
 if __name__ == "__main__":
 
     CHIEN_QUI_FUME_PATH = (
-        COMMERCIAL_ONE_DRIVE_PATH
+        COMMERCIAL_DOCUMENTS_PATH
         / "2 - DOSSIERS à l'ETUDE"
         / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
     )

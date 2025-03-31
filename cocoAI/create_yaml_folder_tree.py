@@ -3,7 +3,7 @@ from pathlib import Path
 import yaml
 
 from common.logconfig import LOGGER
-from common.path import COMMERCIAL_ONE_DRIVE_PATH, COMMON_PATH, DESKTOP_PATH
+from common.path import COMMERCIAL_DOCUMENTS_PATH, COMMON_PATH, DESKTOP_PATH
 
 
 def extract_folder_structure(folder_path):
@@ -28,7 +28,7 @@ def save_to_yaml(data, output_file):
 
 # Example usage
 folder_path = (
-    COMMERCIAL_ONE_DRIVE_PATH
+    COMMERCIAL_DOCUMENTS_PATH
     / "3 - DOSSIERS REALISÉS - ETABLISSEMENTS VENDUS ACC"
     / "2025 - PETIT BISTROT D'AUTEUIL (Le) - 75016 PARIS - 8 Bis Rue VEEDERET"
     / "15. BIBLE DES ACTES DE CESSION TERRASSE DU GOUL03022025"

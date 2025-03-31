@@ -4,11 +4,7 @@ import pandas as pd
 
 from common.convert import dict_to_yaml_file, load_yaml_to_dict
 from common.logconfig import LOGGER
-from common.path import (
-    COMMON_PATH,
-    DATABANK_PATH,
-    make_unix_compatible,
-)
+from common.path import COMMON_PATH, DATABANK_PATH, make_unix_compatible
 
 
 def pick_id(name, kind="siren"):
@@ -44,7 +40,7 @@ def load_siren_in_databank(entreprise, siren, make_unix_compatible=False):
     databank_di = load_databank()
     databank_di["siren"][entreprise] = siren
     write_databank(databank_di)
-    LOGGER.info(f"siren {siren} loaded in databank")
+    LOGGER.debug(f"siren {siren} loaded in databank")
     return databank_di
 
 
@@ -52,7 +48,7 @@ def load_siret_in_databank(etablissement, siret):
     databank_di = load_databank()
     databank_di["siret"][make_unix_compatible(etablissement)] = siret
     write_databank(databank_di)
-    LOGGER.info(f"siret {siret} loaded in databank")
+    LOGGER.debug(f"siret {siret} loaded in databank")
     return databank_di
 
 

@@ -1,0 +1,104 @@
+header:
+  message: OK
+  statut: 200
+uniteLegale:
+  anneeCategorieEntreprise: '2022'
+  anneeEffectifsUniteLegale: '2022'
+  categorieEntreprise: PME
+  dateCreationUniteLegale: '2005-03-14'
+  dateDernierTraitementUniteLegale: '2024-03-22T14:26:06.001'
+  identifiantAssociationUniteLegale: null
+  nombrePeriodesUniteLegale: 3
+  periodesUniteLegale:
+  - activitePrincipaleUniteLegale: 56.10A
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5499'
+    changementActivitePrincipaleUniteLegale: false
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: true
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2013-07-31'
+    dateFin: null
+    denominationUniteLegale: BISTROT VALOIS
+    denominationUsuelle1UniteLegale: null
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: null
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: 00018
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev2
+    societeMissionUniteLegale: null
+  - activitePrincipaleUniteLegale: 56.10A
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5499'
+    changementActivitePrincipaleUniteLegale: true
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2008-01-01'
+    dateFin: '2013-07-30'
+    denominationUniteLegale: SARL MASURIER
+    denominationUsuelle1UniteLegale: null
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: null
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: 00018
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev2
+    societeMissionUniteLegale: null
+  - activitePrincipaleUniteLegale: 55.3A
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5499'
+    changementActivitePrincipaleUniteLegale: false
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2005-03-14'
+    dateFin: '2007-12-31'
+    denominationUniteLegale: SARL MASURIER
+    denominationUsuelle1UniteLegale: null
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: null
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: 00018
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev1
+    societeMissionUniteLegale: null
+  prenom1UniteLegale: null
+  prenom2UniteLegale: null
+  prenom3UniteLegale: null
+  prenom4UniteLegale: null
+  prenomUsuelUniteLegale: null
+  pseudonymeUniteLegale: null
+  sexeUniteLegale: null
+  sigleUniteLegale: null
+  siren: '481383537'
+  statutDiffusionUniteLegale: O
+  trancheEffectifsUniteLegale: '03'

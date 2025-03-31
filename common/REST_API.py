@@ -47,6 +47,7 @@ def make_request_with_api_key(
         response = requests.get(url)
 
     if response.status_code == 200:
+        LOGGER.debug(response)
         LOGGER.info("Request successful!")
         create_parent_directory(outputfile_path)
         export_request(response, outputfile_path)

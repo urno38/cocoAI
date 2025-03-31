@@ -1,18 +1,24 @@
 import io
 import json
 import os
+import shutil
 
 import fitz
 import pytesseract
 import requests
+from mistralai import Mistral
 from PIL import Image
 
-from cocoAI.salaire import get_ministral_answer, process_pdf_by_Mistral
+from cocoAI.company import get_infos_from_a_siret
+from cocoAI.folder_tree import create_complete_folder_tree
+from common.AI_API import ask_Mistral
+from common.keys import MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
 from common.path import (
-    COMMERCIAL_ONE_DRIVE_PATH,
+    COMMERCIAL_DOCUMENTS_PATH,
     TESSERACT_EXE_PATH,
     create_parent_directory,
+    make_unix_compatible,
     rapatrie_file,
 )
 
@@ -58,11 +64,11 @@ def convert_pdf_to_ascii(pdf_path, output_ascii_path=None):
         text = pdf_to_text(pdf_path)
         with open(output_ascii_path, "w", encoding="utf-8") as f:
             f.write(text)
-        LOGGER.info(f"pdf converted to {output_ascii_path}")
+        LOGGER.debug(f"pdf converted to {output_ascii_path}")
     else:
         with open(output_ascii_path, encoding="utf-8") as f:
             text = "\n".join(f.readlines())
-        LOGGER.info(f"{output_ascii_path.resolve()} loaded")
+        LOGGER.debug(f"{output_ascii_path.resolve()} loaded")
 
     return output_ascii_path, text
 
@@ -148,7 +154,11 @@ def request_file_nature():
         ("une taxe fonciere", "BAUX - QUITTANCE"),
         ("un appel de charges de copropriété", "BAUX - QUITTANCE"),
         (
-            "une attestation de vigilance et de régularité",
+            "une attestation de vigilance",
+            "DOCUMENTATION_FINANCIERE/ATTESTATIONS DE REGULARITE IMPOTS URSSAF",
+        ),
+        (
+            "une attestation de régularité",
             "DOCUMENTATION_FINANCIERE/ATTESTATIONS DE REGULARITE IMPOTS URSSAF",
         ),
         (
@@ -164,7 +174,7 @@ def request_file_nature():
         ("un tableau financier", "DOCUMENTATION_FINANCIERE/BILANS - CA"),
         (
             "un tableau d'amortissement d'emprunt bancaire",
-            "DOCUMENTATION_FINANCIERE/BILANS - CA",
+            "DOCUMENTATION_FINANCIERE/EMPRUNTS",
         ),
         (
             "une attestation de compte courant d'associés",
@@ -183,7 +193,6 @@ def request_file_nature():
             "DOCUMENTATION_FINANCIERE/DIAGNOSTICS",
         ),
         ("un document concernant un emprunt", "DOCUMENTATION_FINANCIERE/EMPRUNTS"),
-        ("un document concernant les emprunts", "DOCUMENTATION_FINANCIERE/EMPRUNTS"),
         ("un acte de vente signé", "JURIDIQUE_CORPORATE/ACTES SIGNES"),
         ("une autorisation bénéficiaire", "JURIDIQUE_CORPORATE/CORPORATE"),
         (
@@ -197,6 +206,10 @@ def request_file_nature():
             "JURIDIQUE_CORPORATE/CORPORATE",
         ),
         (
+            "une attestation de bénéficiaire de la société",
+            "JURIDIQUE_CORPORATE/CORPORATE",
+        ),
+        (
             "tous les états d'inscription du fond de commerce",
             "JURIDIQUE_CORPORATE/ETATS DES INSCRIPTIONS",
         ),
@@ -205,22 +218,34 @@ def request_file_nature():
             "JURIDIQUE_CORPORATE/K BIS - INSEE - STATUTS",
         ),
         ("un document INSEE", "JURIDIQUE_CORPORATE/K BIS - INSEE - STATUTS"),
+        (
+            "une immatriculation au registre SIRENE",
+            "JURIDIQUE_CORPORATE/K BIS - INSEE - STATUTS",
+        ),
         ("un statut", "JURIDIQUE_CORPORATE/K BIS - INSEE - STATUTS"),
         ("un document concernant les litiges", "JURIDIQUE_CORPORATE/LITIGES"),
         (
-            "un registre qui définit l'origine des propriétés des titres",
+            "un acte de cession des titres de la société",
             "JURIDIQUE_CORPORATE/ORIGINE DE PROPRIETE DES TITRES",
         ),
         (
-            "un registre qui définit l'origine de propriété du fonds social",
+            "un acte de cession des titres de propriété du fonds de commerce",
             "JURIDIQUE_CORPORATE/ORIGINE DE PROPRIETE DU FONDS",
         ),
         (
-            "un registre de nantissement des titres",
+            "un acte de nantissement des titres des parts sociales",
             "JURIDIQUE_CORPORATE/REGISTRES NANTISSEMENT DES TITRES",
         ),
         (
-            "une attestation de régularité d'assurance",
+            "une attestation d'assurance",
+            "JURIDIQUE_EXPLOITATION_ET_CONTRATS/ASSURANCE",
+        ),
+        (
+            "une responsabilité civile d'exploitation",
+            "JURIDIQUE_EXPLOITATION_ET_CONTRATS/ASSURANCE",
+        ),
+        (
+            "un contrat d'assurance",
             "JURIDIQUE_EXPLOITATION_ET_CONTRATS/ASSURANCE",
         ),
         (
@@ -239,13 +264,13 @@ def request_file_nature():
             "un contrat fournisseurs",
             "JURIDIQUE_EXPLOITATION_ET_CONTRATS/CONTRATS FOURNISSEURS",
         ),
-        ("un document licence IV", "JURIDIQUE_EXPLOITATION_ET_CONTRATS/LICENCE IV"),
+        ("une licence IV", "JURIDIQUE_EXPLOITATION_ET_CONTRATS/LICENCE IV"),
         (
             "un document concernant la terrasse ou la voirie",
             "JURIDIQUE_EXPLOITATION_ET_CONTRATS/TERRASSE - VOIRIE",
         ),
         (
-            "un document concernant l'urbanisme",
+            "un rapport d'urbanisme",
             "JURIDIQUE_EXPLOITATION_ET_CONTRATS/URBANISME",
         ),
         ("un bulletin de paie", "SOCIAL/BULLETINS PAIE"),
@@ -262,47 +287,124 @@ def request_file_nature():
             "un document qui concerne la prévoyance d'entreprise mais qui n'est pas un bulletin de salaire",
             "SOCIAL/MUTUELLE - PREVOYANCE",
         ),
+        (
+            "un journal de paie",
+            "SOCIAL/COTISATIONS",
+        ),
+        (
+            "un document comptable relatif aux prestations sociales",
+            "SOCIAL/COTISATIONS",
+        ),
     ]
 
     # Trier la liste selon la partie après le slash dans la deuxième chaîne de caractères
     # types_possibles_tries = sorted(types_possibles, key=lambda x: x[1].split('/')[-1] if '/' in x[1] else x[1])
 
-    request = "Soit un dictionnaire python di. Est ce que le document joint est :\n"
+    request = "Soit un dictionnaire python di dont toutes les valeurs sont initialisées à False. Est ce que le document joint est :\n"
     for type, key in types_possibles:
         request += " - "
-        request += (
-            f"{type} ? si oui, alors mets la clé '{key}' du dictionnaire di à True\n"
-        )
+        request += f"{type} ? si oui, alors mets uniquement la clé '{key}' du dictionnaire di à True\n"
 
     request += "Ne renvoie que le dictionnaire di sous forme json sans commentaires"
 
     return request
 
 
-def main(salaire_path):
+def get_new_location_dictionary_path(file_path, ocr_response):
 
-    pdf_file_path = rapatrie_file(salaire_path)
-    print(pdf_file_path)
-
-    ocr_response = process_pdf_by_Mistral(pdf_file_path)
     response_dict = json.loads(ocr_response.model_dump_json())
-
     ocr_markdown = response_dict["pages"][0]["markdown"]
 
     request = request_file_nature() + "\n\n\n" + ocr_markdown
 
-    request_file = pdf_file_path.with_suffix(".request")
-    with open(request_file, "w") as f:
+    request_file = file_path.with_suffix(".request")
+    with open(request_file, "w", encoding="utf-8") as f:
         f.write(request)
         LOGGER.debug(f"request exported to {request_file}")
 
-    json_dict = get_ministral_answer(request)
+    # model="ministral-8b-latest"
+    chat_response = ask_Mistral(
+        api_key=MISTRAL_API_KEY_PAYANTE,
+        prompt=request,
+        model="mistral-large-latest",
+        json_only=True,
+    )
+    json_dict = chat_response.choices[0].message.content
 
     response_dict2 = json.loads(json_dict)
-    json_path = pdf_file_path.with_suffix(".json")
+    json_path = file_path.with_suffix(".json")
     with open(json_path, "w", encoding="utf-8") as f:
         f.write(json.dumps(response_dict2, ensure_ascii=False))
-        print(json_path.resolve())
+        LOGGER.debug(json_path.resolve())
+
+    return response_dict2
+
+
+def process_file_by_Mistral_OCR(file_path):
+    LOGGER.debug(f"let us give to the OCR {file_path}")
+    client = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
+    uploaded_file = client.files.upload(
+        file={
+            "file_name": file_path.name,
+            "content": open(file_path, "rb"),
+        },
+        purpose="ocr",
+    )
+    client.files.retrieve(file_id=uploaded_file.id)
+    signed_url = client.files.get_signed_url(file_id=uploaded_file.id)
+
+    client2 = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
+    ocr_response = client2.ocr.process(
+        model="mistral-ocr-latest",
+        document={
+            "type": "document_url",
+            "document_url": signed_url.url,
+        },
+    )
+    return ocr_response
+
+
+def main(pdf_path, siret):
+
+    siren = int(str(siret)[:-5])
+    dest_folder = create_complete_folder_tree(siren)
+    entreprise_name, etablissement_name = get_infos_from_a_siret(siret)
+
+    pdf_file_path = rapatrie_file(pdf_path)
+    del pdf_path  # securite pour eviter de toucher ulterieurement au fichier d'origine
+
+    ocr_response = process_file_by_Mistral_OCR(pdf_file_path)
+    location_dict = get_new_location_dictionary_path(pdf_file_path, ocr_response)
+
+    path_list = []
+    for key, value in location_dict.items():
+        if value:
+            potential_path = (
+                dest_folder
+                / make_unix_compatible(etablissement_name)
+                / "REFERENCE_DOCUMENTS"
+            )
+            for el in key.split("/"):
+                potential_path = potential_path / make_unix_compatible(el)
+            path_list.append(potential_path / pdf_file_path.name)
+
+    if len(list(set(path_list))) == 0:
+        LOGGER.critical(f"not any new path found for the doc {pdf_file_path}")
+
+    if len(list(set(path_list))) > 1:
+        LOGGER.warning(f"several locations foreseen for that document")
+        LOGGER.warning(list(set(path_list)))
+
+    for i, path in enumerate(list(set(path_list))):  # remove duplicates
+        if i == 0:
+            shutil.move(pdf_file_path, path)
+            LOGGER.info(path)
+            LOGGER.debug(f"new location {path_list[0]}")
+        else:
+            pass
+            # si plusieurs path sont reconnus, alors je fais des symlinks pour gagner de la place
+            # path_list[0].symlink_to(path)
+            # LOGGER.debug(f"Symlink created at: {path.resolve()}")
 
 
 # Example usage
@@ -329,13 +431,15 @@ if __name__ == "__main__":
     # download_pdf(pdf_url, save_location)
 
     # test scan de pdf
-    pdf_path = list(COMMERCIAL_ONE_DRIVE_PATH.rglob("*GILBERTE*/*BAIL*pdf"))[0]
+    # pdf_path = list(COMMERCIAL_ONE_DRIVE_PATH.rglob("*GILBERTE*/*BAIL*pdf"))[0]
     # print(pdf_path)
 
     # output_path, text = convert_pdf_to_ascii(pdf_path, Path("result.txt"))
 
+    siret = "31013032300028"
+
     CHIEN_QUI_FUME_PATH = (
-        COMMERCIAL_ONE_DRIVE_PATH
+        COMMERCIAL_DOCUMENTS_PATH
         / "2 - DOSSIERS à l'ETUDE"
         / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
     )
@@ -344,7 +448,9 @@ if __name__ == "__main__":
     PAIE = SOCIAL / "PAIE 10"
     salaires_list = list(PAIE.glob("*Dernier*")) + list(PAIE.glob("*Normal*"))
 
-    # salaires_list =
+    DOC_FINANCIERE = list(CHIEN_QUI_FUME_PATH.glob("*DOCUMENTATION FI*"))[0]
+    DOCS = list(DOC_FINANCIERE.glob("*.pdf"))
 
-    for salaire_path in [salaires_list[3]]:
-        main(salaire_path)
+    for path in [DOCS[3]]:
+        print(path)
+        main(path, siret)

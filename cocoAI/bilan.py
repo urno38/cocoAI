@@ -18,7 +18,7 @@ from common.FEC import (
 )
 from common.identifiers import get_official_nomenclature, get_query_from_id_list
 from common.logconfig import LOGGER
-from common.path import COMMERCIAL_ONE_DRIVE_PATH, TMP_PATH, WORK_PATH
+from common.path import COMMERCIAL_DOCUMENTS_PATH, TMP_PATH, WORK_PATH
 
 
 def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
@@ -1458,14 +1458,14 @@ if __name__ == "__main__":
 
     excel_path_list = [
         (
-            COMMERCIAL_ONE_DRIVE_PATH
+            COMMERCIAL_DOCUMENTS_PATH
             / "2 - DOSSIERS à l'ETUDE"
             / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
             / "3. DOCUMENTATION FINANCIÈRE"
             / "2022 - GALLA - GL.xlsx"
         ),
         (
-            COMMERCIAL_ONE_DRIVE_PATH
+            COMMERCIAL_DOCUMENTS_PATH
             / "2 - DOSSIERS à l'ETUDE"
             / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
             / "3. DOCUMENTATION FINANCIÈRE"
