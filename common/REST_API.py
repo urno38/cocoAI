@@ -84,6 +84,7 @@ def main():
     LOGGER.info(url)
     response = make_request_with_api_key(url, json_terrassespath)
     di = load_yaml_to_dict(json_terrassespath.with_suffix(".yaml"))
+
     return
 
 

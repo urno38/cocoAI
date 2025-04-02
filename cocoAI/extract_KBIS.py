@@ -17,7 +17,7 @@ def interpret_KBIS(KBIS_path, export_json_path=None):
     if export_json_path is None:
         export_json_path = KBIS_path.with_suffix(".json")
 
-    output_path, text = convert_pdf_to_ascii(KBIS_path)
+    output_path, text = convert_pdf_to_ascii(KBIS_path, with_Mistral=True)
 
     request = f"Extrais le SIREN de l'établissement de ce document, il peut aussi être enregistré sous la forme d'un numéro d'immatriculation au RCS. Réponds sous forme d'un json dont la clé est 'SIREN'.\n{text}"
     request_file_path = KBIS_path.with_suffix(".request")
@@ -83,6 +83,9 @@ def transform_NAF_into_activity(NAF):
             "5629A",
             "5629B",
             "5630Z",
+            "7010Z",
+            "7021Z",
+            "7022Z",
             "0000Z",
         ],
         "Activity": [
@@ -93,12 +96,18 @@ def transform_NAF_into_activity(NAF):
             "Restauration collective sous contrat",
             "Autres services de restauration n.c.a.",
             "Distribution de repas à domicile",
+            "Activités des sièges sociaux",
+            "Conseil en relations publiques et communication",
+            "Conseil pour les affaires et autres conseils de gestion",
             np.nan,
         ],
     }
     NAF = NAF.replace(".", "").strip()
     naf_df = pd.DataFrame(naf_data_56)
-    # print(naf_df)
+    if NAF not in naf_data_56["NAF Code"]:
+        LOGGER.debug(f"{NAF} not in the databank above")
+        LOGGER.debug("NAFcode to be implemented")
+
     activity = naf_df[naf_df["NAF Code"] == NAF].loc[:, "Activity"].values[0]
     # print(activity)
     return activity

@@ -12,7 +12,7 @@ from PIL import Image
 from cocoAI.company import get_infos_from_a_siret
 from cocoAI.folder_tree import create_complete_folder_tree
 from common.AI_API import ask_Mistral
-from common.keys import MISTRAL_API_KEY_PAYANTE
+from common.keys import MISTRAL_API_KEY, MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
 from common.path import (
     COMMERCIAL_DOCUMENTS_PATH,
@@ -28,8 +28,7 @@ if os.name == "nt":
 
 def pdf_to_text(pdf_path):
     # Ouvrir le fichier PDF
-    LOGGER.info("convert pdf to text")
-    LOGGER.info(f"{pdf_path}")
+    LOGGER.debug(f"Je processe le fichier pdf {pdf_path} avec tesseract")
 
     pdf_document = fitz.open(pdf_path)
     text = ""
@@ -55,13 +54,20 @@ def pdf_to_text(pdf_path):
     return text
 
 
-def convert_pdf_to_ascii(pdf_path, output_ascii_path=None):
+def convert_pdf_to_ascii(pdf_path, output_ascii_path=None, with_Mistral=False):
 
     if output_ascii_path is None:
         output_ascii_path = pdf_path.with_suffix(".txt")
 
     if not output_ascii_path.exists():
-        text = pdf_to_text(pdf_path)
+        if with_Mistral:
+            ocr_response = process_file_by_Mistral_OCR(
+                pdf_path, api_key=MISTRAL_API_KEY
+            )
+            response_dict = json.loads(ocr_response.model_dump_json())
+            text = response_dict["pages"][0]["markdown"]
+        else:
+            text = pdf_to_text(pdf_path)
         with open(output_ascii_path, "w", encoding="utf-8") as f:
             f.write(text)
         LOGGER.debug(f"pdf converted to {output_ascii_path}")
@@ -340,9 +346,9 @@ def get_new_location_dictionary_path(file_path, ocr_response):
     return response_dict2
 
 
-def process_file_by_Mistral_OCR(file_path):
+def process_file_by_Mistral_OCR(file_path, api_key=MISTRAL_API_KEY_PAYANTE):
     LOGGER.debug(f"let us give to the OCR {file_path}")
-    client = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
+    client = Mistral(api_key=api_key)
     uploaded_file = client.files.upload(
         file={
             "file_name": file_path.name,
@@ -353,7 +359,7 @@ def process_file_by_Mistral_OCR(file_path):
     client.files.retrieve(file_id=uploaded_file.id)
     signed_url = client.files.get_signed_url(file_id=uploaded_file.id)
 
-    client2 = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
+    client2 = Mistral(api_key=api_key)
     ocr_response = client2.ocr.process(
         model="mistral-ocr-latest",
         document={

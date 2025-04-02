@@ -53,10 +53,10 @@ def get_entreprise_folder(siren):
 def create_complete_folder_tree(siren):
     siren, entreprise_name, sirets, etablissements = get_infos_from_a_siren(siren)
     root_yaml_file = COMMON_PATH / "folder_structure.yaml"
-    dest_folder = get_entreprise_folder(siren)
-    if dest_folder.exists():
-        LOGGER.debug(f"{dest_folder} already exists")
-        return dest_folder
+    dest_entreprise_folder_path = get_entreprise_folder(siren)
+    if dest_entreprise_folder_path.exists():
+        LOGGER.debug(f"{dest_entreprise_folder_path} already exists")
+        return dest_entreprise_folder_path
     for et in etablissements:
         if et["enseigne"] is None:
             LOGGER.debug(et)
@@ -65,21 +65,22 @@ def create_complete_folder_tree(siren):
             continue
         enseigne = make_unix_compatible(et["enseigne"])
         for path in [
-            dest_folder / enseigne,
-            dest_folder / enseigne / "WORK_DOCUMENTS",
-            dest_folder / enseigne / "MISTRAL_FILES",
-            dest_folder / enseigne / "ATTIO_FILES",
-            dest_folder
+            dest_entreprise_folder_path / enseigne,
+            dest_entreprise_folder_path / enseigne / "WORK_DOCUMENTS",
+            dest_entreprise_folder_path / enseigne / "MISTRAL_FILES",
+            dest_entreprise_folder_path / enseigne / "ATTIO_FILES",
+            dest_entreprise_folder_path
             / enseigne
             / "COMMERCIAL_DOCUMENTS",  # documents de commercialisation type memorandum d information ou teaser
         ]:
             path.mkdir(parents=True, exist_ok=True)
         create_folder_structure_from_yaml(
-            root_yaml_file, dest_folder / enseigne / "REFERENCE_DOCUMENTS"
+            root_yaml_file,
+            dest_entreprise_folder_path / enseigne / "REFERENCE_DOCUMENTS",
         )
-        LOGGER.debug(f"Created folder tree at {dest_folder}")
+        LOGGER.debug(f"Created folder tree at {dest_entreprise_folder_path}")
 
-    return dest_folder
+    return dest_entreprise_folder_path
 
 
 def main(siren):

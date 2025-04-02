@@ -1,0 +1,77 @@
+header:
+  message: OK
+  statut: 200
+uniteLegale:
+  anneeCategorieEntreprise: '2022'
+  anneeEffectifsUniteLegale: null
+  categorieEntreprise: PME
+  dateCreationUniteLegale: '2022-03-21'
+  dateDernierTraitementUniteLegale: '2024-03-22T14:26:06.001'
+  identifiantAssociationUniteLegale: null
+  nombrePeriodesUniteLegale: 2
+  periodesUniteLegale:
+  - activitePrincipaleUniteLegale: 70.10Z
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5710'
+    changementActivitePrincipaleUniteLegale: true
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2023-04-01'
+    dateFin: null
+    denominationUniteLegale: KADI INVEST
+    denominationUsuelle1UniteLegale: null
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: N
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev2
+    societeMissionUniteLegale: null
+  - activitePrincipaleUniteLegale: 00.00Z
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5710'
+    changementActivitePrincipaleUniteLegale: false
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2022-03-21'
+    dateFin: '2023-03-31'
+    denominationUniteLegale: KADI INVEST
+    denominationUsuelle1UniteLegale: null
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: N
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev2
+    societeMissionUniteLegale: null
+  prenom1UniteLegale: null
+  prenom2UniteLegale: null
+  prenom3UniteLegale: null
+  prenom4UniteLegale: null
+  prenomUsuelUniteLegale: null
+  pseudonymeUniteLegale: null
+  sexeUniteLegale: null
+  sigleUniteLegale: null
+  siren: '911842102'
+  statutDiffusionUniteLegale: O
+  trancheEffectifsUniteLegale: null
