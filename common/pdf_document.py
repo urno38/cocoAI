@@ -364,7 +364,7 @@ def process_file_by_Mistral_OCR(file_path):
     return ocr_response
 
 
-def main(pdf_path, siret):
+def analyse_pdf_document(pdf_path, siret):
 
     siren = int(str(siret)[:-5])
     dest_folder = create_complete_folder_tree(siren)
@@ -405,6 +405,11 @@ def main(pdf_path, siret):
             # si plusieurs path sont reconnus, alors je fais des symlinks pour gagner de la place
             # path_list[0].symlink_to(path)
             # LOGGER.debug(f"Symlink created at: {path.resolve()}")
+
+
+def main(pdf_path, siret):
+    analyse_pdf_document(pdf_path, siret)
+    return
 
 
 # Example usage
@@ -452,5 +457,4 @@ if __name__ == "__main__":
     DOCS = list(DOC_FINANCIERE.glob("*.pdf"))
 
     for path in [DOCS[3]]:
-        print(path)
         main(path, siret)

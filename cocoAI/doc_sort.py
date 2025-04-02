@@ -41,24 +41,6 @@ def check_all_documents_sorted(etablissement_name):
     return unclassified_paths
 
 
-def get_source_folder_path(etablissement_name):
-    source_folder_path = [
-        p
-        for p in list(
-            COMMERCIAL_DOCUMENTS_PATH.glob(
-                f"**/*{get_etablissement_folder_name(etablissement_name)}*"
-            )
-        )
-        if p.is_dir()
-    ]
-    if len(list(source_folder_path)) != 1:
-        LOGGER.debug(f"the input {etablissement_name} is not correct")
-        LOGGER.debug(list(source_folder_path))
-        raise ValueError(etablissement_name)
-
-    return source_folder_path[0]
-
-
 def classify_paths_by_parent(paths):
     """
     Classe les chemins selon leur dossier parent.
@@ -139,6 +121,8 @@ def classify_xlsx_document(dest_folder, xlsx_new_path):
 
 def classify_one_document(doc_path, siret):
 
+    LOGGER.debug(f"lets classify {doc_path}")
+
     siren = int(str(siret)[:-5])
     dest_folder = create_complete_folder_tree(siren)
     entreprise_name, etablissement_name = get_infos_from_a_siret(siret)
@@ -166,6 +150,15 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
+    elif doc_new_path.suffix == ".json":
+        path_list = [
+            (
+                dest_folder
+                / make_unix_compatible(etablissement_name)
+                / "MISTRAL_FILES"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
     elif doc_new_path.suffix == ".pdf":
         path_list = classify_pdf_document(dest_folder, doc_new_path)
     elif doc_new_path.suffix == ".xlsx":
@@ -181,7 +174,11 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif is_video(doc_new_path):
+    elif (
+        is_video(doc_new_path)
+        or doc_new_path.suffix == ".mov"  # videos IPHONE
+        or doc_new_path.suffix == ".MOV"  # videos IPHONE
+    ):
         path_list = [
             (
                 dest_folder
@@ -225,7 +222,7 @@ def get_source_folder_path(etablissement_name):
         folder_name = get_etablissement_folder_name(etablissement_name)
 
     source_folder_path_list = list(
-        COMMERCIAL_DOCUMENTS_PATH.glob(f"*/*{folder_name}*/4*")
+        COMMERCIAL_DOCUMENTS_PATH.glob(f"*/*{folder_name}*/4*/")
     )
 
     if len(source_folder_path_list) != 1:
@@ -235,28 +232,30 @@ def get_source_folder_path(etablissement_name):
     return source_folder_path_list[0]
 
 
+def create_unclassified_statistics(etablissement_name):
+    unclassified_paths_list = check_all_documents_sorted(etablissement_name)
+    unclassified_paths = classify_paths_by_parent(unclassified_paths_list)
+    os.makedirs(TMP_PATH, mode=0o777, exist_ok=True)
+    write_paths_to_file(
+        unclassified_paths, TMP_PATH / f"{etablissement_name}_unclassified_path.txt"
+    )
+    return
+
+
 def main(etablissement_name):
 
     siret = pick_id(etablissement_name, kind="siret")
     SOURCE_FOLDER_PATH = get_source_folder_path(etablissement_name)
-    PDF_DOCS = list(SOURCE_FOLDER_PATH.rglob("*.pdf"))
-    ALL_DOCS = list(SOURCE_FOLDER_PATH.rglob("*"))
-    DOCS_TO_CLASSIFY = [p for p in ALL_DOCS if p.is_file()]
+    DOCS_TO_CLASSIFY = [p for p in SOURCE_FOLDER_PATH.rglob("*") if p.is_file()]
 
     for path in DOCS_TO_CLASSIFY:
         if path.suffix == ".json":
             LOGGER.info("it is a json file, not transfered")
-        # si pas deja classifie
         if len(list(DATALAKE_PATH.rglob(make_unix_compatible(path.name)))) == 0:
             LOGGER.debug(path)
             classify_one_document(path, siret)
 
-    unclassified_paths_list = check_all_documents_sorted(etablissement_name)
-    unclassified_paths = classify_paths_by_parent(unclassified_paths_list)
-    os.makedirs((TMP_PATH), mode=0o777, exist_ok=True)
-    write_paths_to_file(
-        unclassified_paths, TMP_PATH / f"{etablissement_name}_unclassified_path.txt"
-    )
+    create_unclassified_statistics(etablissement_name)
 
 
 if __name__ == "__main__":

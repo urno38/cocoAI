@@ -161,9 +161,7 @@ def truncate_path_to_parent(path, parent_path):
 
 def rapatrie_file(filepath, dest_folder=DATA_PATH):
     LOGGER.info(f"source file {filepath}")
-    if not isinstance(filepath, Path):
-        filepath = Path(filepath)
-
+    filepath = Path(filepath)
     assert filepath.is_file()
 
     if not filepath.is_relative_to(dest_folder):
@@ -181,6 +179,9 @@ def rapatrie_file(filepath, dest_folder=DATA_PATH):
             LOGGER.debug(f"{filepath} has been copied to {destpath.parent}")
         else:
             LOGGER.debug(f"{filepath.name} already exists in {destpath.parent.name}")
+    else:
+        destpath = filepath
+
     LOGGER.info(f"work file {destpath}")
     return destpath
 

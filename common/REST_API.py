@@ -6,6 +6,7 @@ import requests
 
 from common.convert import json_to_yaml, load_yaml_to_dict
 from common.identifiers import pick_id
+from common.keys import SIRENE_API_KEY
 from common.logconfig import LOGGER
 from common.path import OPENDATA_PARIS_URL, WORK_PATH, create_parent_directory
 
@@ -21,7 +22,7 @@ def export_request(response, outputfile_path):
     yaml_outputfile_path = outputfile_path.with_suffix(".yaml")
     write_request_to_json(response, outputfile_path)
     json_to_yaml(outputfile_path, yaml_outputfile_path)
-    LOGGER.debug(f"Data has been written to {yaml_outputfile_path}")
+    LOGGER.debug(f"Data has been written to {yaml_outputfile_path.resolve()}")
     return
 
 
@@ -83,8 +84,23 @@ def main():
     LOGGER.info(url)
     response = make_request_with_api_key(url, json_terrassespath)
     di = load_yaml_to_dict(json_terrassespath.with_suffix(".yaml"))
-
     return
+
+
+def get_sirene_infos_from_SIRET(SIRET: str):
+    siret = "/".join(["siret", SIRET])
+    url = "https://api.insee.fr/api-sirene/3.11" + "/" + siret
+    headers = {"X-INSEE-Api-Key-Integration": SIRENE_API_KEY}
+    response = requests.get(url, headers=headers)
+    return response
+
+
+def get_sirene_infos_from_SIREN(SIREN: str):
+    siren = "/".join(["siren", SIREN])
+    url = "https://api.insee.fr/api-sirene/3.11" + "/" + siren
+    headers = {"X-INSEE-Api-Key-Integration": SIRENE_API_KEY}
+    response = requests.get(url, headers=headers)
+    return response
 
 
 if __name__ == "__main__":
