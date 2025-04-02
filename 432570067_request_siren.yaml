@@ -1,0 +1,239 @@
+header:
+  message: OK
+  statut: 200
+uniteLegale:
+  anneeCategorieEntreprise: '2022'
+  anneeEffectifsUniteLegale: '2022'
+  categorieEntreprise: PME
+  dateCreationUniteLegale: '2000-08-21'
+  dateDernierTraitementUniteLegale: '2024-03-22T14:26:06.001'
+  identifiantAssociationUniteLegale: null
+  nombrePeriodesUniteLegale: 8
+  periodesUniteLegale:
+  - activitePrincipaleUniteLegale: 56.10A
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5499'
+    changementActivitePrincipaleUniteLegale: false
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: true
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2021-03-31'
+    dateFin: null
+    denominationUniteLegale: CBS SAINT FERDINAND
+    denominationUsuelle1UniteLegale: LE FLORILEGE
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: N
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev2
+    societeMissionUniteLegale: null
+  - activitePrincipaleUniteLegale: 56.10A
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5499'
+    changementActivitePrincipaleUniteLegale: false
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: true
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2015-03-01'
+    dateFin: '2021-03-30'
+    denominationUniteLegale: CBS SAINT FERDINAND
+    denominationUsuelle1UniteLegale: LE FLORILEGE
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: null
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev2
+    societeMissionUniteLegale: null
+  - activitePrincipaleUniteLegale: 56.10A
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5710'
+    changementActivitePrincipaleUniteLegale: false
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: true
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2011-04-21'
+    dateFin: '2015-02-28'
+    denominationUniteLegale: CBS SAINT FERDINAND
+    denominationUsuelle1UniteLegale: LE FLORILEGE
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: null
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev2
+    societeMissionUniteLegale: null
+  - activitePrincipaleUniteLegale: 56.10A
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5499'
+    changementActivitePrincipaleUniteLegale: true
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2011-02-28'
+    dateFin: '2011-04-20'
+    denominationUniteLegale: CBS SAINT FERDINAND
+    denominationUsuelle1UniteLegale: LE FLORILEGE
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: null
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev2
+    societeMissionUniteLegale: null
+  - activitePrincipaleUniteLegale: 68.20B
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5499'
+    changementActivitePrincipaleUniteLegale: true
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2008-01-01'
+    dateFin: '2011-02-27'
+    denominationUniteLegale: CBS SAINT FERDINAND
+    denominationUsuelle1UniteLegale: LE FLORILEGE
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: null
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev2
+    societeMissionUniteLegale: null
+  - activitePrincipaleUniteLegale: 70.2C
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5499'
+    changementActivitePrincipaleUniteLegale: true
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2007-03-05'
+    dateFin: '2007-12-31'
+    denominationUniteLegale: CBS SAINT FERDINAND
+    denominationUsuelle1UniteLegale: LE FLORILEGE
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: null
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev1
+    societeMissionUniteLegale: null
+  - activitePrincipaleUniteLegale: 55.3A
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5499'
+    changementActivitePrincipaleUniteLegale: true
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2000-12-25'
+    dateFin: '2007-03-04'
+    denominationUniteLegale: CBS SAINT FERDINAND
+    denominationUsuelle1UniteLegale: LE FLORILEGE
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: null
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAF1993
+    societeMissionUniteLegale: null
+  - activitePrincipaleUniteLegale: null
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5499'
+    changementActivitePrincipaleUniteLegale: false
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2000-08-21'
+    dateFin: '2000-12-24'
+    denominationUniteLegale: CBS SAINT FERDINAND
+    denominationUsuelle1UniteLegale: LE FLORILEGE
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: null
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: null
+    societeMissionUniteLegale: null
+  prenom1UniteLegale: null
+  prenom2UniteLegale: null
+  prenom3UniteLegale: null
+  prenom4UniteLegale: null
+  prenomUsuelUniteLegale: null
+  pseudonymeUniteLegale: null
+  sexeUniteLegale: null
+  sigleUniteLegale: null
+  siren: '432570067'
+  statutDiffusionUniteLegale: O
+  trancheEffectifsUniteLegale: '11'

@@ -76,13 +76,16 @@ def write_paths_to_file(paths_list: List[Path], summary_file_path: Path):
 def classify_pdf_document(dest_folder, doc_new_path):
     ocr_response = process_file_by_Mistral_OCR(doc_new_path)
     location_dict = get_new_location_dictionary_path(doc_new_path, ocr_response)
+    LOGGER.debug(location_dict)
 
     path_list = []
     for key, value in location_dict.items():
         if value:
             potential_path = (
                 dest_folder
-                / make_unix_compatible(etablissement_name)
+                / make_unix_compatible(
+                    etablissement_name
+                )  # TODO reprendre ici car erreur
                 / "REFERENCE_DOCUMENTS"
             )
             for el in key.split("/"):

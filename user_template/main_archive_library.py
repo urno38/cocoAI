@@ -20,6 +20,7 @@ def retrieve_KBIS_path(source_entreprise_folder_path):
         + list(source_entreprise_folder_path.rglob("*K BIS*", case_sensitive=False))
     )
     new_KBIS_path_list = [rapatrie_file(p) for p in KBIS_path_list if p.is_file()]
+    LOGGER.debug("new_KBIS_path_list")
     LOGGER.debug(new_KBIS_path_list)
     return new_KBIS_path_list
 
@@ -33,12 +34,14 @@ def get_infos_from_source_folder(source_entreprise_folder_path):
         raise ValueError("trop de siren stockes")
     siren = siren_list[0]
 
-    siren, entreprise_name, sirets, etablissements_name_list = get_infos_from_a_siren(
+    siren, entreprise_name, sirets, etablissements_dicts_list = get_infos_from_a_siren(
         siren
     )
     etablissement_name = get_real_name(KBIS_path_list)
-
-    for i, etname in etablissements_name_list:
+    LOGGER.debug(etablissements_dicts_list)
+    LOGGER.debug(etablissement_name)
+    etablissement_names_list = [d["enseigne"] for d in etablissements_dicts_list]
+    for i, etname in enumerate(etablissement_names_list):
         if etname == etablissement_name:
             siret = sirets[i]
 
