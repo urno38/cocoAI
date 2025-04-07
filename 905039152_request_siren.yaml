@@ -1,0 +1,77 @@
+header:
+  message: OK
+  statut: 200
+uniteLegale:
+  anneeCategorieEntreprise: '2022'
+  anneeEffectifsUniteLegale: '2022'
+  categorieEntreprise: PME
+  dateCreationUniteLegale: '2021-11-09'
+  dateDernierTraitementUniteLegale: '2024-03-22T14:26:06.001'
+  identifiantAssociationUniteLegale: null
+  nombrePeriodesUniteLegale: 2
+  periodesUniteLegale:
+  - activitePrincipaleUniteLegale: 56.10A
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5710'
+    changementActivitePrincipaleUniteLegale: true
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2022-04-01'
+    dateFin: null
+    denominationUniteLegale: FINANCIERE LMJ
+    denominationUsuelle1UniteLegale: null
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: N
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev2
+    societeMissionUniteLegale: null
+  - activitePrincipaleUniteLegale: 00.00Z
+    caractereEmployeurUniteLegale: null
+    categorieJuridiqueUniteLegale: '5710'
+    changementActivitePrincipaleUniteLegale: false
+    changementCaractereEmployeurUniteLegale: false
+    changementCategorieJuridiqueUniteLegale: false
+    changementDenominationUniteLegale: false
+    changementDenominationUsuelleUniteLegale: false
+    changementEconomieSocialeSolidaireUniteLegale: false
+    changementEtatAdministratifUniteLegale: false
+    changementNicSiegeUniteLegale: false
+    changementNomUniteLegale: false
+    changementNomUsageUniteLegale: false
+    changementSocieteMissionUniteLegale: false
+    dateDebut: '2021-11-09'
+    dateFin: '2022-03-31'
+    denominationUniteLegale: FINANCIERE LMJ
+    denominationUsuelle1UniteLegale: null
+    denominationUsuelle2UniteLegale: null
+    denominationUsuelle3UniteLegale: null
+    economieSocialeSolidaireUniteLegale: N
+    etatAdministratifUniteLegale: A
+    nicSiegeUniteLegale: '00012'
+    nomUniteLegale: null
+    nomUsageUniteLegale: null
+    nomenclatureActivitePrincipaleUniteLegale: NAFRev2
+    societeMissionUniteLegale: null
+  prenom1UniteLegale: null
+  prenom2UniteLegale: null
+  prenom3UniteLegale: null
+  prenom4UniteLegale: null
+  prenomUsuelUniteLegale: null
+  pseudonymeUniteLegale: null
+  sexeUniteLegale: null
+  sigleUniteLegale: null
+  siren: '905039152'
+  statutDiffusionUniteLegale: O
+  trancheEffectifsUniteLegale: '12'

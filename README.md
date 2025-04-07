@@ -22,7 +22,7 @@
 - faire une page Linkedin pour comptoirs et commerces
 - faire une catégorie pour pister qui n'a pas été interprété
 
-vérifier avec les bilans In Extenso du bilan 2022 disponible en
+- vérifier avec les bilans In Extenso du bilan 2022 disponible en
 file:///C:/Users/lvolat/Documents/cocoAI/data/2_-*DOSSIERS_lETUDE/CHIEN_QUI_FUME_Le*-*75001_PARIS*-_33_Rue_du_PONT-NEUF/3.*DOCUMENTATION_FINANCIRE/2022*-*GALLA*-_BILAN.pdf
 
 02/04/2025
@@ -33,7 +33,6 @@ file:///C:/Users/lvolat/Documents/cocoAI/data/2_-*DOSSIERS_lETUDE/CHIEN_QUI_FUME
 2025-04-02
  #TODO : reprendre doc_sort.py l. 88 TODO
 
-## Questions
-
-- changer les colonnes du bilan actif et du bilan passif net au 31/12/2023
-- d'où viennent les amortissements prov ? dans le bilan
+mercredi 9 :
+faisons le point sur l'avancement
+quand est ce qu'on clot lactivite

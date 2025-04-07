@@ -6,37 +6,15 @@ import pandas as pd
 import xlsxwriter
 
 from cocoAI.compte_de_resultats import compte_de_resultats
-from common.FEC import define_formats, export_raw_data_by_year, extract_df_FEC
+from common.FEC import (
+    define_formats,
+    edit_comptes_not_used,
+    export_raw_data_by_year,
+    extract_df_FEC,
+)
 from common.identifiers import get_official_nomenclature, get_query_from_id_list
 from common.logconfig import LOGGER
 from common.path import COMMERCIAL_DOCUMENTS_PATH, WORK_PATH
-
-
-def get_dfyear(df, year):
-
-    # dfyear = df[df.year == year]
-    # dfyear.loc[:, "year"] = year
-
-    dfyear = pd.DataFrame(
-        df.query(f"year == {year}")
-        .groupby(["Compte"])["Crédit_Débit"]
-        .sum()
-        .reset_index()
-    )
-
-    dfyear["classe"] = dfyear["Compte"].apply(lambda x: str(x[0]))
-    dfyear["idlvl2"] = dfyear["Compte"].apply(lambda x: str(x[:2]))
-    dfyear["idlvl3"] = dfyear["Compte"].apply(lambda x: str(x[:3]))
-    dfyear["idlvl4"] = dfyear["Compte"].apply(lambda x: str(x[:4]))
-    dfyear["idlvl5"] = dfyear["Compte"].apply(lambda x: str(x[:5]))
-
-    # pour le dispatching quand on présente le crédit et le débit
-    dfyear["absCrédit_Débit"] = abs(dfyear["Crédit_Débit"])
-    dfyear["Bilan"] = dfyear["Crédit_Débit"].apply(
-        lambda x: "ACTIF" if x < 0 else ("PASSIF" if x > 0 else np.nan)
-    )
-
-    return dfyear
 
 
 def imprime_ligne_simplifie(
@@ -176,25 +154,26 @@ def imprime_ligne_bilan(
 
     return row, col, ws, ser
 
-    # edit_comptes_not_used(excel_path_list)
-
 
 def bilan_simplifiev2(
     df,
     benefice_total_curyear,
     benefice_total_refyear,
     workbook,
+    curyear,
+    refyear,
     sheet_name="Bilan simplifié",
 ):
     # on change d'approche : pour chacune des lignes de comptes, je determine si le bilan est positif ou negatif et ensuite je range dans le bilan si le bilan est positif ou negatif
-
-    dfd_grouped = {y: get_dfyear(df, y) for y in df["year"].drop_duplicates()}
+    dfd_grouped = {y: df[df.year == y] for y in df["year"].drop_duplicates()}
     # definition des formats
     formats_dict = define_formats(workbook)
-    liste_annees_croissante = list(df["year"].drop_duplicates().sort_values().values)
-    liste_annees_decroissante = list(
-        df["year"].drop_duplicates().sort_values(ascending=False).values
-    )
+    liste_annees_croissante = [refyear, curyear]
+    liste_annees_decroissante = [curyear, refyear]
+    # liste_annees_croissante = list(df["year"].drop_duplicates().sort_values().values)
+    # liste_annees_decroissante = list(
+    #     df["year"].drop_duplicates().sort_values(ascending=False).values
+    # )
     ws = workbook.add_worksheet(sheet_name)
 
     # MISE EN PAGE
@@ -445,6 +424,7 @@ def bilan_simplifiev2(
         raw_value=True,
     )
 
+    LOGGER.debug(liste_annees_decroissante)
     row, col, ws, ser_resultat_exercice = imprime_ligne_elementary(
         pd.Series(
             [benefice_total_curyear, benefice_total_refyear],
@@ -640,74 +620,5 @@ def bilan_simplifiev2(
     return workbook
 
 
-def main(excel_path_list, test=False):
-
-    df = extract_df_FEC(excel_path_list)
-
-    global dfdrop
-    dfdrop = copy.copy(df)
-
-    xlsx_path = Path(WORK_PATH / "Bilan_detaillev2.xlsx")
-    LOGGER.info(f"On ouvre le fichier {xlsx_path.resolve()} ! ")
-
-    engine_options = {"nan_inf_to_errors": True}
-
-    if not test:
-        writer = pd.ExcelWriter(
-            xlsx_path,
-            engine="xlsxwriter",
-            engine_kwargs={"options": engine_options},
-        )
-        writer = export_raw_data_by_year(df, writer)
-        workbook = writer.book
-    else:
-        workbook = xlsxwriter.Workbook(xlsx_path, engine_options)
-
-    # je cree un dictionnaire qui va servir de colonnes pour mon excel
-    dfd = {y: df[df.year == y] for y in df["year"].drop_duplicates()}
-
-    row = 0
-    col = 0
-
-    refyear = 2022
-    curyear = 2023
-
-    row, col, benefice_total_curyear, benefice_total_refyear = compte_de_resultats(
-        dfd, df, workbook, row, col, refyear, curyear
-    )
-
-    workbook = bilan_simplifiev2(
-        df, benefice_total_curyear, benefice_total_refyear, workbook
-    )
-
-    LOGGER.info(f"On ferme le fichier {xlsx_path.resolve()} ! ")
-    if test:
-        workbook.close()
-    else:
-        writer.close()
-    return
-
-
 if __name__ == "__main__":
-
-    excel_path_list = [
-        (
-            COMMERCIAL_DOCUMENTS_PATH
-            / "2 - DOSSIERS à l'ETUDE"
-            / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
-            / "3. DOCUMENTATION FINANCIÈRE"
-            / "2022 - GALLA - GL.xlsx"
-        ),
-        (
-            COMMERCIAL_DOCUMENTS_PATH
-            / "2 - DOSSIERS à l'ETUDE"
-            / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
-            / "3. DOCUMENTATION FINANCIÈRE"
-            / "2023 - GALLA - GL.xlsx"
-        ),
-    ]
-
-    main(excel_path_list, test=True)
-
-    # df = extract_df_FEC(excel_path_list)
-    # dfyear = get_dfyear(df, 2022)
+    pass

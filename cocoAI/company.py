@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 from urllib.parse import urlencode
 
 import mermaid as mmd
@@ -62,7 +63,8 @@ def create_beneficiaires_effectifs_diagram(yaml_path):
         LOGGER.debug("il existe des beneficiaires effectifs")
         for i, beneff in enumerate(di["beneficiaires_effectifs"]):
             # pLOGGER.info(beneff)
-            LOGGER.debug(beneff["prenom_usuel"], beneff["nom_usage"])
+            LOGGER.debug(beneff["prenom_usuel"])
+            LOGGER.debug(beneff["nom_usage"])
             # print(type(beneff["prenom_usuel"]), type(beneff["nom_usage"]))
             # try:
             noms = (
@@ -225,7 +227,7 @@ def get_infos_from_a_siren(siren: int):
 
         entreprise_name = make_unix_compatible(di["denomination"])
 
-        # je reproduis le dossier output
+        LOGGER.debug("je reproduis le dossier output")
         real_output_folder_path = obtain_output_folder(
             label=entreprise_name,
             kind="siren",
@@ -235,7 +237,7 @@ def get_infos_from_a_siren(siren: int):
             LOGGER.error(
                 f"{real_output_folder_path} exists but does not contain output.yaml then I delete it"
             )
-            os.remove(real_output_folder_path)
+            shutil.move(real_output_folder_path, "toto")
 
         LOGGER.debug(
             f"then rename {fake_output_folder_path} to {real_output_folder_path}"
@@ -243,7 +245,7 @@ def get_infos_from_a_siren(siren: int):
 
         os.rename(fake_output_folder_path, real_output_folder_path)
 
-        load_siren_in_databank(entreprise_name, siren)
+        load_siren_in_databank(entreprise_name, str(siren))
 
     yaml_list = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))
     yaml_path = yaml_list[0]
@@ -264,7 +266,7 @@ def get_infos_from_a_siren(siren: int):
         # LOGGER.warning(f"{di["etablissements"]}")
         LOGGER.debug(f"etablissement {et['enseigne']} de siret {et['siret']}")
         if et["siret"] not in databank["siret"].keys():
-            load_siret_in_databank(et["enseigne"], et["siret"])
+            load_siret_in_databank(et["enseigne"], str(et["siret"]))
 
     return siren, entreprise_name, sirets, di["etablissements"]
 

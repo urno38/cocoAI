@@ -722,9 +722,10 @@ def compte_de_resultats(
     return row, col, benefice_curyear, benefice_refyear
 
 
-def main(excel_path_list, test=False):
+def main(path_list, test=False, curyear=2022, refyear=2021):
 
-    df = extract_df_FEC(excel_path_list)
+    df = extract_df_FEC(path_list, patch=False)
+
     xlsx_path = Path(WORK_PATH / "Compte_de_resultats_detailles.xlsx")
     LOGGER.info(f"On ouvre le fichier {xlsx_path.resolve()} ! ")
 
@@ -756,8 +757,6 @@ def main(excel_path_list, test=False):
     col = 0
 
     sheet_name = "Compte_de_resultats"
-    refyear = 2022
-    curyear = 2023
     LOGGER.info("Let us pick up the CR")
     row, col, benefice_curyear, benefice_refyear = compte_de_resultats(
         dfd, df, workbook, row, col, refyear, curyear, sheet_name
@@ -777,6 +776,7 @@ if __name__ == "__main__":
         (
             COMMERCIAL_DOCUMENTS_PATH
             / "2 - DOSSIERS à l'ETUDE"
+            / "1 - FONDS DE COMMERCES"
             / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
             / "3. DOCUMENTATION FINANCIÈRE"
             / "2022 - GALLA - GL.xlsx"
@@ -784,6 +784,7 @@ if __name__ == "__main__":
         (
             COMMERCIAL_DOCUMENTS_PATH
             / "2 - DOSSIERS à l'ETUDE"
+            / "1 - FONDS DE COMMERCES"
             / "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF"
             / "3. DOCUMENTATION FINANCIÈRE"
             / "2023 - GALLA - GL.xlsx"

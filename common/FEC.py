@@ -1,6 +1,8 @@
+import re
 from datetime import datetime
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from common.convert import convert_beamer_to_pdf
@@ -61,10 +63,59 @@ def generer_tableau_resultats(fichier_excel):
     return soldes, df
 
 
+def is_official_FEC(path):
+    if re.match(r"\w{9}FEC\d{8}.txt", path.name):
+        LOGGER.debug(path)
+        LOGGER.debug("it is an official FEC")
+        return True
+    else:
+        LOGGER.info(path)
+        LOGGER.debug("not an official FEC")
+        return False
+
+
+def get_official_end_operation_date(path):
+    if is_official_FEC(path):
+        date = datetime.datetime.strptime(path.name[-12:-4], "%Y%m%d")
+    else:
+        raise NotImplemented
+    return date
+
+
+def load_txt_data(path_list):
+    # ["Compte", "Intitulé", "Date", "Journal"]
+    # Compte Date Débit Crédit
+
+    df_list = []
+    for p in path_list:
+        df = pd.read_csv(p, dtype={"PieceDate": str}, sep="\t")
+        df["Compte"] = df["CompteNum"].apply(str)
+        df["Débit"] = df["Debit"].apply(lambda x: float(x.replace(",", ".")))
+        df["Crédit"] = df["Credit"].apply(lambda x: float(x.replace(",", ".")))
+        df["Date"] = df["PieceDate"].apply(
+            lambda x: datetime.strptime(str(x).strip(), "%Y%m%d")
+        )
+        df["Journal"] = df["JournalCode"]
+        df["Intitulé"] = df["CompteLib"]
+        df.loc[:, "BilanDate"] = get_official_end_operation_date(p)
+        df["Bilanyear"] = get_official_end_operation_date(p).year
+        df_list.append(df)
+
+    dft = pd.concat(df_list)
+    return dft
+
+
 def load_excel_data(path_list) -> pd.DataFrame:
-    """Charge les données comptables depuis un fichier Excel."""
-    df = pd.concat([pd.read_excel(p, dtype={"Compte": str}) for p in path_list])
-    return df
+
+    df_list = []
+    for p in path_list:
+        df = pd.read_excel(p, dtype={"Compte": str})
+        df["Date"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%m/%Y"))
+        df["Bilanyear"] = int(p.name.strip().split()[0])
+        df_list.append(df)
+
+    dft = pd.concat(df)
+    return dft
 
 
 def calculate_balance_sheet(df: pd.DataFrame) -> pd.DataFrame:
@@ -237,10 +288,23 @@ def modify_df_patch(df):
     return df
 
 
-def extract_df_FEC(excel_path_list):
-    excel_path_list = [rapatrie_file(f) for f in excel_path_list]
-    df = load_excel_data(excel_path_list)
-    df = modify_df_patch(df)
+def extract_df_FEC(path_list, patch=False):
+
+    if not isinstance(path_list, list):
+        path_list = [path_list]
+
+    path_list = [rapatrie_file(f) for f in path_list]
+
+    if all([p.suffix == ".xlsx" for p in path_list]):
+        df = load_excel_data(path_list)
+    elif all([is_official_FEC(p) for p in path_list]):
+        df = load_txt_data(path_list)
+    else:
+        raise ValueError("not implemented")
+
+    if patch:
+        df = modify_df_patch(df)
+
     df["Compte"] = df["Compte"].apply(lambda x: str(x).strip())
     df["classe"] = df["Compte"].apply(lambda x: str(x[0]))
     df["idlvl2"] = df["Compte"].apply(lambda x: str(x[:2]))
@@ -248,7 +312,6 @@ def extract_df_FEC(excel_path_list):
     df["idlvl4"] = df["Compte"].apply(lambda x: str(x[:4]))
     df["idlvl5"] = df["Compte"].apply(lambda x: str(x[:5]))
     df["idlvl6"] = df["Compte"].apply(lambda x: str(x[:6]))
-    df["Date"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%m/%Y"))
     df["year"] = df["Date"].apply(lambda x: x.year)
     df["descriptionclasse"] = df["classe"].apply(
         lambda x: NOM_DICT_LVL1[x] if x in NOM_DICT_LVL1.keys() else None
@@ -281,7 +344,7 @@ def export_raw_data_by_year(df, writer):
         dfyear = df[df.year == year]
         dfyear.loc[:, "year"] = year
 
-        dfyear.groupby(["Compte", "Intitulé", "year"])[
+        dfyear.groupby(["Compte", "Intitulé", "year", "Bilanyear"])[
             ["Débit", "Crédit", "Crédit_Débit"]
         ].sum().to_excel(writer, sheet_name=f"{year} grouped data by compte")
 
@@ -521,6 +584,7 @@ def add_macro_categorie_and_detail(
     signe="+",
 ):
 
+    LOGGER.debug(idlist)
     row, col, curyear_value, refyear_value = add_line_idlist(
         worksheet,
         idlist,
@@ -535,6 +599,9 @@ def add_macro_categorie_and_detail(
         label=label,
         signe=signe,
     )
+
+    LOGGER.debug(curyear_value)
+    LOGGER.debug(refyear_value)
 
     for idk in idlist:
         for compte in (
@@ -594,12 +661,32 @@ def get_unique_label_in_df(df, identifiant, type="compte"):
         raise ValueError("not implemented")
 
 
-def main(excel_path_list):
+def main(excel_path_list, patch=True):
     dfnom = load_nomenclature()
     generate_short_summary(excel_path_list)
-    df = extract_df_FEC(excel_path_list)
-
+    df = extract_df_FEC(excel_path_list, patch=True)
     export_FEC_summary(df, WORK_PATH / "FEC_Summary.xlsx")
+    return
+
+
+def edit_comptes_not_used(path_list):
+    dfa = pd.read_csv(
+        TMP_PATH / "used_comptes.csv",
+        header=None,
+    )
+    dfa["Compte"] = dfa.iloc[:, 0].apply(lambda x: str(x).strip())
+
+    dfb = extract_df_FEC(path_list)
+    dfb["Compte"] = dfb["Compte"].apply(lambda x: str(x).strip())
+
+    np.savetxt(
+        TMP_PATH / "used_comptes.txt",
+        sorted(list(set(dfa["Compte"].values))),
+        fmt="%s",
+    )
+    unique_comptes = set(dfb["Compte"].values).difference(set(dfa["Compte"].values))
+    np.savetxt(TMP_PATH / "unique_comptes.txt", sorted(list(unique_comptes)), fmt="%s")
+    LOGGER.info(f"Les comptes non utilisés sont dans {TMP_PATH / 'unique_comptes.txt'}")
     return
 
 
@@ -617,4 +704,13 @@ if __name__ == "__main__":
         CHIEN_QUI_FUME_PATH / "2023 - GALLA - GL.xlsx",
     ]
 
-    main(excel_path_list)
+    # main(excel_path_list)
+
+    is_official_FEC(
+        COMMERCIAL_DOCUMENTS_PATH
+        / "1 - DOSSIERS EN COURS DE SIGNATURE"
+        / "DEI FRATELLI - 75001 PARIS - 10 Rue des PYRAMIDES"
+        / "3. DOCUMENTATION FINANCIÈRE"
+        / "839951027FEC20231231.txt"
+    )
+    is_official_FEC(excel_path_list[0])

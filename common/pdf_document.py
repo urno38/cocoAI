@@ -328,11 +328,11 @@ def get_new_location_dictionary_path(file_path, ocr_response):
         f.write(request)
         LOGGER.debug(f"request exported to {request_file}")
 
-    # model="ministral-8b-latest"
+    model = "mistral-large-latest"
     chat_response = ask_Mistral(
         api_key=MISTRAL_API_KEY_PAYANTE,
         prompt=request,
-        model="mistral-large-latest",
+        model=model,
         json_only=True,
     )
     json_dict = chat_response.choices[0].message.content
@@ -373,6 +373,7 @@ def process_file_by_Mistral_OCR(file_path, api_key=MISTRAL_API_KEY_PAYANTE):
 def analyse_pdf_document(pdf_path, siret):
 
     siren = int(str(siret)[:-5])
+
     dest_folder = create_complete_folder_tree(siren)
     entreprise_name, etablissement_name = get_infos_from_a_siret(siret)
 
@@ -403,6 +404,7 @@ def analyse_pdf_document(pdf_path, siret):
 
     for i, path in enumerate(list(set(path_list))):  # remove duplicates
         if i == 0:
+            path.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(pdf_file_path, path)
             LOGGER.info(path)
             LOGGER.debug(f"new location {path_list[0]}")

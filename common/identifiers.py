@@ -32,9 +32,9 @@ def write_databank(di: dict, databank_path=DATABANK_PATH):
     return
 
 
-def load_siren_in_databank(entreprise, siren, make_unix_compatible=False):
+def load_siren_in_databank(entreprise, siren, make_unix_compatible_flag=True):
 
-    if make_unix_compatible:
+    if make_unix_compatible_flag:
         entreprise = make_unix_compatible(entreprise)
 
     databank_di = load_databank()

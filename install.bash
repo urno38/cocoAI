@@ -101,7 +101,7 @@ echo PYTHONPATH $PYTHONPATH
 
 cd $DOCUMENTS_PATH/cocoAI
 
-echo Copy of the input baux 
+echo Copy of the input baux
 
 cp -v ~/COMPTOIRS\ ET\ COMMERCES/COMMERCIAL\ -\ Documents/2\ -\ DOSSIERS\ à\ l\'ETUDE/RALLYE\ PASSY\ \(BOUILLON\ PASSY\)\ -\ 75016\ PARIS\ -\ 34\ Rue\ de\ l\'ANNONCIATION/4.\ LOCAUX\ -\ IMMOBILIER\ \&\ PLANS/Annexe\ 6\ * data/
 
@@ -113,10 +113,10 @@ cp -rv ~/COMPTOIRS\ ET\ COMMERCES/COMMERCIAL\ -\ Documents/2\ -\ DOSSIERS\ à\ 
 
 
 
-echo install tesseract 
- 
+echo install tesseract
+
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    echo >> /Users/antoninbertuol/.zprofile
-    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/antoninbertuol/.zprofile
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+echo >> /Users/antoninbertuol/.zprofile
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/antoninbertuol/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
 brew install tesseract

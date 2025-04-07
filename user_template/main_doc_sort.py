@@ -1,9 +1,9 @@
 import pprint
 
+from cocoAI.doc_sort import main
 from common.identifiers import pick_id
 from common.logconfig import LOGGER
 from common.path import COMMERCIAL_DOCUMENTS_PATH
-from common.pdf_document import main
 
 if 0:
     siret = "31013032300028"
@@ -20,16 +20,10 @@ if 0:
     for path in PDF_DOCS[10:]:
         print(path)
         main(path, siret)
+
 else:
     etablissement_name = "BISTROT_VALOIS"
-    siret = pick_id(etablissement_name, kind="siret")
-    SOURCE_FOLDER_PATH = list(
-        COMMERCIAL_DOCUMENTS_PATH.glob(f"*/{etablissement_name.replace('_',' ')}*")
-    )[0]
-    PDF_DOCS = list(SOURCE_FOLDER_PATH.rglob("*.pdf"))
-    for path in PDF_DOCS:
-        print(path)
-        main(path, siret)
+    main(etablissement_name)
 
 
 # TODO : coder quelquechose pour assurer le coup où le scan se passe mal

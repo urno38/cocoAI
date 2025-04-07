@@ -54,9 +54,11 @@ def create_complete_folder_tree(siren):
     siren, entreprise_name, sirets, etablissements = get_infos_from_a_siren(siren)
     root_yaml_file = COMMON_PATH / "folder_structure.yaml"
     dest_entreprise_folder_path = get_entreprise_folder(siren)
+
     if dest_entreprise_folder_path.exists():
         LOGGER.debug(f"{dest_entreprise_folder_path} already exists")
         return dest_entreprise_folder_path
+
     for et in etablissements:
         if et["enseigne"] is None:
             LOGGER.debug(et)
@@ -74,10 +76,13 @@ def create_complete_folder_tree(siren):
             / "COMMERCIAL_DOCUMENTS",  # documents de commercialisation type memorandum d information ou teaser
         ]:
             path.mkdir(parents=True, exist_ok=True)
-        create_folder_structure_from_yaml(
-            root_yaml_file,
-            dest_entreprise_folder_path / enseigne / "REFERENCE_DOCUMENTS",
-        )
+
+        # commente suite demande ANTONIN on ne veut pas que les dossier soient crees si il ne sont pas remplis
+        # create_folder_structure_from_yaml(
+        #     root_yaml_file,
+        #     dest_entreprise_folder_path / enseigne / "REFERENCE_DOCUMENTS",
+        # )
+
         LOGGER.debug(f"Created folder tree at {dest_entreprise_folder_path}")
 
     return dest_entreprise_folder_path

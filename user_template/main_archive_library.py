@@ -57,9 +57,9 @@ def get_infos_from_source_folder(source_entreprise_folder_path):
 
 
 def main():
-    EN_COURS = list(COMMERCIAL_DOCUMENTS_PATH.glob("2*/"))[0]
+    EN_COURS = list(COMMERCIAL_DOCUMENTS_PATH.glob("2*/1*/"))[0]
 
-    for source_entreprise_folder_path in EN_COURS.rglob("*BROOKLYN*"):
+    for source_entreprise_folder_path in [list(EN_COURS.rglob("*/"))[15]]:
 
         (
             siren,

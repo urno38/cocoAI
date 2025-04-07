@@ -4,14 +4,18 @@ from collections import defaultdict
 from pathlib import Path
 from typing import List
 
+import pandas as pd
+
 from cocoAI.company import get_infos_from_a_siret
 from cocoAI.folder_tree import create_complete_folder_tree, get_entreprise_folder
 from common.identifiers import pick_id
 from common.logconfig import LOGGER
 from common.path import (
     COMMERCIAL_DOCUMENTS_PATH,
+    COMMON_PATH,
     DATALAKE_PATH,
     TMP_PATH,
+    WORK_PATH,
     is_photo,
     is_video,
     make_unix_compatible,
@@ -27,7 +31,7 @@ def check_all_documents_sorted(etablissement_name):
     LOGGER.info(
         f"check if all the documents from {etablissement_name} are sorted and moved"
     )
-    siret = pick_id(etablissement_name, kind="siret")
+    siret = pick_id(make_unix_compatible(etablissement_name), kind="siret")
     entreprise_name, etablissement = get_infos_from_a_siret(siret)
     dest_folder_path = get_entreprise_folder(siret[:-5])
     source_folder_path = get_source_folder_path(etablissement_name)
@@ -73,19 +77,16 @@ def write_paths_to_file(paths_list: List[Path], summary_file_path: Path):
     LOGGER.debug(f"List written in {summary_file_path.resolve()}")
 
 
-def classify_pdf_document(dest_folder, doc_new_path):
+def classify_pdf_document(dest_folder, doc_new_path, etablissement_name):
     ocr_response = process_file_by_Mistral_OCR(doc_new_path)
     location_dict = get_new_location_dictionary_path(doc_new_path, ocr_response)
     LOGGER.debug(location_dict)
-
     path_list = []
     for key, value in location_dict.items():
         if value:
             potential_path = (
                 dest_folder
-                / make_unix_compatible(
-                    etablissement_name
-                )  # TODO reprendre ici car erreur
+                / make_unix_compatible(etablissement_name)
                 / "REFERENCE_DOCUMENTS"
             )
             for el in key.split("/"):
@@ -122,13 +123,26 @@ def classify_xlsx_document(dest_folder, xlsx_new_path):
     return path_list
 
 
+def get_etablissement_name(doc_new_path):
+    tmpdf = pd.read_csv(list(COMMON_PATH.glob("*folder*csv"))[0])
+    for folder in tmpdf["folder"].values:
+        if make_unix_compatible(folder) in str(doc_new_path):
+            return make_unix_compatible(folder)
+
+
 def classify_one_document(doc_path, siret):
 
     LOGGER.debug(f"lets classify {doc_path}")
 
     siren = int(str(siret)[:-5])
     dest_folder = create_complete_folder_tree(siren)
-    entreprise_name, etablissement_name = get_infos_from_a_siret(siret)
+
+    try:
+        # soit je recupere le nom de l etablissement de ma databank
+        entreprise_name, etablissement_name = get_infos_from_a_siret(siret)
+    except:
+        # soit je le recupere de mon csv
+        get_etablissement_name(doc_new_path)
 
     doc_new_path = rapatrie_file(doc_path)
     del doc_path  # securite pour eviter de toucher ulterieurement au fichier d'origine
@@ -140,6 +154,22 @@ def classify_one_document(doc_path, siret):
                 dest_folder
                 / make_unix_compatible(etablissement_name)
                 / "COMMERCIAL_DOCUMENTS"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif (
+        "LIASSE_FISCALE" in doc_new_path.name
+        or "liasse_fiscale" in doc_new_path.name
+        or "liasse fiscale" in doc_new_path.name
+        or "LIASSE FISCALE" in doc_new_path.name
+    ):
+        path_list = [
+            (
+                dest_folder
+                / make_unix_compatible(etablissement_name)
+                / "REFERENCE_DOCUMENTS"
+                / "DOCUMENTATION_FINANCIERE"
+                / "BILANS - CA"
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
@@ -163,7 +193,7 @@ def classify_one_document(doc_path, siret):
             )
         ]
     elif doc_new_path.suffix == ".pdf":
-        path_list = classify_pdf_document(dest_folder, doc_new_path)
+        path_list = classify_pdf_document(dest_folder, doc_new_path, etablissement_name)
     elif doc_new_path.suffix == ".xlsx":
         # path_list = classify_xlsx_document(dest_folder, doc_new_path)
         path_list = []
@@ -206,14 +236,22 @@ def classify_one_document(doc_path, siret):
         LOGGER.critical("we do nothing")
     else:
         # let us move the files
-        shutil.move(doc_new_path, new_path_list[0])
+        new_path = new_path_list[0]
+        new_path.parent.mkdir(exist_ok=True, parents=True)
+        shutil.move(doc_new_path, new_path)
         LOGGER.debug(f"new location {path_list[0]}")
 
     return
 
 
 def get_etablissement_folder_name(etablissement_name):
-    return etablissement_name.replace("LE", "").replace("_", " ").strip()
+    # fonction pour corriger eventuellement les fautes d orthographe a l'encodage
+    return (
+        etablissement_name.replace("LE", "")
+        .replace("_", " ")
+        .replace("BISTRO", "BISTROT")
+        .strip()
+    )
 
 
 def get_source_folder_path(etablissement_name):
@@ -225,10 +263,15 @@ def get_source_folder_path(etablissement_name):
         folder_name = get_etablissement_folder_name(etablissement_name)
 
     source_folder_path_list = list(
-        COMMERCIAL_DOCUMENTS_PATH.glob(f"*/*{folder_name}*/4*/")
+        (COMMERCIAL_DOCUMENTS_PATH / "2 - DOSSIERS à l'ETUDE").rglob(
+            f"*{folder_name}*/"
+        )
     )
 
     if len(source_folder_path_list) != 1:
+        LOGGER.debug(
+            (COMMERCIAL_DOCUMENTS_PATH / f"2 - DOSSIERS à l'ETUDE/*{folder_name}*/")
+        )
         LOGGER.debug(source_folder_path_list)
         raise ValueError("not the right source_folder_path")
 
@@ -240,13 +283,13 @@ def create_unclassified_statistics(etablissement_name):
     unclassified_paths = classify_paths_by_parent(unclassified_paths_list)
     os.makedirs(TMP_PATH, mode=0o777, exist_ok=True)
     write_paths_to_file(
-        unclassified_paths, TMP_PATH / f"{etablissement_name}_unclassified_path.txt"
+        unclassified_paths,
+        TMP_PATH / make_unix_compatible(f"{etablissement_name}_unclassified_path.txt"),
     )
     return
 
 
 def main(etablissement_name):
-
     siret = pick_id(etablissement_name, kind="siret")
     SOURCE_FOLDER_PATH = get_source_folder_path(etablissement_name)
     DOCS_TO_CLASSIFY = [p for p in SOURCE_FOLDER_PATH.rglob("*") if p.is_file()]
@@ -264,5 +307,6 @@ def main(etablissement_name):
 if __name__ == "__main__":
 
     # etablissement_name = "LE_CHIEN_QUI_FUME"
-    etablissement_name = "CIRO"
+    # etablissement_name = "CIRO"
+    etablissement_name = "AFFRANCHIS"
     main(etablissement_name)

@@ -162,6 +162,13 @@ def get_most_recent_names(KBIS_path_list):
     return list(max_name), dfmax
 
 
+def index_all_KBIS(KBIS_path_list):
+    siren_list = [get_SIREN(p) for p in KBIS_path_list]
+    for siren in siren_list:
+        get_infos_from_a_siren(siren)
+    return
+
+
 def get_real_name(KBIS_path_list):
     parent_folder_name = list(set([str(path.parent) for path in KBIS_path_list]))
     LOGGER.debug(parent_folder_name)
@@ -178,7 +185,6 @@ def get_real_name(KBIS_path_list):
         # donc requete Pappers
         # je recupere le SIREN
         if len(dfmax["SIREN"].drop_duplicates()) == 1:
-            pass
             siren = dfmax["SIREN"].drop_duplicates().values[0]
             siren, entreprise_name, sirets, etablissements_dicts_list = (
                 get_infos_from_a_siren(siren)
@@ -187,9 +193,17 @@ def get_real_name(KBIS_path_list):
                 # if only one etablissement
                 real_name = etablissements_dicts_list[0]["enseigne"]
             else:
-                # c est la merde
-                LOGGER.debug(sirets)
-                raise ValueError("not implemented")
+                enseignes_possibles = [
+                    e["enseigne"]
+                    for e in etablissements_dicts_list
+                    if e["enseigne"] is not None
+                ]
+                if len(enseignes_possibles) == 1:
+                    real_name = enseignes_possibles[0]
+                else:
+                    # c est la merde
+                    LOGGER.debug(sirets)
+                    raise ValueError("not implemented")
         else:
             LOGGER.debug(dfmax["SIREN"])
             raise ValueError("not implemented")
