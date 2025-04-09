@@ -35,6 +35,9 @@ file:///C:/Users/lvolat/Documents/cocoAI/data/2_-*DOSSIERS_lETUDE/CHIEN_QUI_FUME
 
 2025-04-07
 
+2025-04-09 : continuer à enrichir la base avec un autre csv
+fichier remplissage_csv.ipynb
+
 # TODO
 
 reprendre à C:\Users\lvolat\Documents\cocoAI\work\load_all_sirets_in_databank.py
