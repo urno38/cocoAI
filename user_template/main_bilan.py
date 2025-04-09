@@ -44,8 +44,8 @@ DEI_FRATELLI_PATH = (
 
 path_list = [
     DEI_FRATELLI_PATH / "839951027FEC20231231.txt",
-    DEI_FRATELLI_PATH / "839951027FEC20241231-provisoire.txt",
+    DEI_FRATELLI_PATH / "839951027FEC20241231.txt",
 ]
 
 
-main(path_list, test=False, refyear=2023, curyear=2024)
+main(path_list, test=True, refyear=2023, curyear=2024)

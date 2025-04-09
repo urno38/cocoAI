@@ -97,7 +97,7 @@ def imprime_ligne_bilan(
     row,
     col,
     ws,
-    dfd_grouped,
+    dfd_Bilanyear,
     Bilan=None,
     format=None,
     additional_series=None,
@@ -143,7 +143,7 @@ def imprime_ligne_bilan(
     row, col, ws, ser = imprime_ligne_simplifie(
         label,
         query,
-        dfd_grouped,
+        dfd_Bilanyear,
         row,
         col,
         ws,
@@ -157,23 +157,18 @@ def imprime_ligne_bilan(
 
 def bilan_simplifiev2(
     df,
+    dfd_bilanyear,
     benefice_total_curyear,
     benefice_total_refyear,
     workbook,
-    curyear,
-    refyear,
+    curbilanyear,
+    refbilanyear,
     sheet_name="Bilan simplifié",
 ):
-    # on change d'approche : pour chacune des lignes de comptes, je determine si le bilan est positif ou negatif et ensuite je range dans le bilan si le bilan est positif ou negatif
-    dfd_grouped = {y: df[df.year == y] for y in df["year"].drop_duplicates()}
     # definition des formats
     formats_dict = define_formats(workbook)
-    liste_annees_croissante = [refyear, curyear]
-    liste_annees_decroissante = [curyear, refyear]
-    # liste_annees_croissante = list(df["year"].drop_duplicates().sort_values().values)
-    # liste_annees_decroissante = list(
-    #     df["year"].drop_duplicates().sort_values(ascending=False).values
-    # )
+    liste_annees_croissante = sorted([k for k in dfd_bilanyear.keys()])
+    liste_annees_decroissante = sorted([k for k in dfd_bilanyear.keys()], reverse=True)
     ws = workbook.add_worksheet(sheet_name)
 
     # MISE EN PAGE
@@ -213,7 +208,7 @@ def bilan_simplifiev2(
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
     )
 
     row, col, ws, ser = imprime_ligne_bilan(
@@ -222,7 +217,7 @@ def bilan_simplifiev2(
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
     )
 
     row, col, ws, ser = imprime_ligne_bilan(
@@ -231,7 +226,7 @@ def bilan_simplifiev2(
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
     )
 
     row += 1
@@ -243,7 +238,7 @@ def bilan_simplifiev2(
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan=None,
         format=formats_dict["bold"],
     )
@@ -261,9 +256,9 @@ def bilan_simplifiev2(
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="ACTIF",
-        # format=formats_dict["bold"],
+        raw_value=True,
     )
 
     row, col, ws, ser = imprime_ligne_bilan(
@@ -272,9 +267,8 @@ def bilan_simplifiev2(
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="ACTIF",
-        # format=formats_dict["bold"],
     )
 
     row, col, ws, ser = imprime_ligne_bilan(
@@ -283,40 +277,53 @@ def bilan_simplifiev2(
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="ACTIF",
         # format=formats_dict["bold"],
     )
 
     row, col, ws, ser = imprime_ligne_bilan(
         "Autres créances",
-        ["40", "42", "44", "45"],
+        ["40", "42", "44", "46"],
+        # ["40", "42", "44", "45"],
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="ACTIF",
         # format=formats_dict["bold"],
     )
 
     row, col, ws, ser = imprime_ligne_bilan(
         "Valeurs mobilières de placement",
-        ["501", "502", "503", "504", "505", "506", "507", "508"],
+        ["50"],
+        # ["501", "502", "503", "504", "505", "506", "507", "508"],
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="ACTIF",
         # format=formats_dict["bold"],
     )
 
     row, col, ws, ser = imprime_ligne_bilan(
-        "Disponibilités et insruments de trésorerie",
-        ["51", "53", "58"],
+        "Disponibilités",
+        ["51"],
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
+        Bilan="ACTIF",
+        # format=formats_dict["bold"],
+    )
+
+    row, col, ws, ser = imprime_ligne_bilan(
+        "Insruments de trésorerie",
+        ["53", "58"],
+        row,
+        0,
+        ws,
+        dfd_bilanyear,
         Bilan="ACTIF",
         # format=formats_dict["bold"],
     )
@@ -327,7 +334,7 @@ def bilan_simplifiev2(
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="ACTIF",
         # format=formats_dict["bold"],
     )
@@ -335,16 +342,17 @@ def bilan_simplifiev2(
     row, col, ws, ser = imprime_ligne_bilan(
         "ACTIF CIRCULANT",
         ["3"]
-        + ["4091"]
         + ["411", "413", "416", "417", "418"]
-        + ["40", "42", "44", "45"]
-        + ["501", "502", "503", "504", "505", "506", "507", "508"]
-        + ["51", "53", "58"]
+        + ["40", "42", "43", "44", "45", "46"]
+        + ["508"]
+        # + ["501", "502", "503", "504", "505", "506", "507", "508"]
+        + ["51"]
+        # + ["51", "53", "58"]
         + ["486"],
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="ACTIF",
         format=formats_dict["totaux"],
     )
@@ -357,7 +365,7 @@ def bilan_simplifiev2(
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="ACTIF",
         # format=formats_dict["bold"],
     )
@@ -389,7 +397,7 @@ def bilan_simplifiev2(
         row,
         0,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan=Bilan_list,
         format=formats_dict["totaux"],
     )
@@ -407,7 +415,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="PASSIF",
         # format=formats_dict["bold"],
     )
@@ -418,7 +426,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan=None,
         # format=formats_dict["bold"],
         raw_value=True,
@@ -444,7 +452,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="PASSIF",
     )
 
@@ -454,7 +462,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="PASSIF",
     )
 
@@ -464,7 +472,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="PASSIF",
     )
 
@@ -474,7 +482,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="PASSIF",
     )
 
@@ -489,7 +497,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="PASSIF",
         format=formats_dict["totaux"],
         additional_series=ser_report + ser_resultat_exercice,
@@ -504,7 +512,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="PASSIF",
     )
 
@@ -515,7 +523,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan=None,
     )
 
@@ -534,7 +542,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan=None,
     )
 
@@ -564,7 +572,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="PASSIF",
     )
 
@@ -574,7 +582,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="PASSIF",
     )
 
@@ -598,7 +606,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan=None,
         format=formats_dict["bold"],
         # additional_series=ser_capitaux_propres,
@@ -611,7 +619,7 @@ def bilan_simplifiev2(
         row,
         len(liste_annees_decroissante) + 2,
         ws,
-        dfd_grouped,
+        dfd_bilanyear,
         Bilan="PASSIF",
         additional_series=ser_passif_circulant + ser_capitaux_propres,
         format=formats_dict["totaux"],

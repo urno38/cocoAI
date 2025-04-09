@@ -17,17 +17,20 @@ from common.path import COMMERCIAL_DOCUMENTS_PATH, WORK_PATH
 def compte_de_resultats(
     dfd, df, workbook, row, col, refyear, curyear, sheet_name="Compte de résultats"
 ):
+
+    LOGGER.info("Compte de résultats")
+
     # definition des formats
     formats_dict = define_formats(workbook)
 
-    data = {
-        "dfd": dfd,
-        "df": df,
-        "curyear": curyear,
-        "refyear": refyear,
-        "format": formats_dict["normal"],
-        "formats_dict": formats_dict,
-    }  # data qui ne bougeront jamais, pour rendre les signatures plus courtes
+    # data = {
+    #     "dfd": dfd,
+    #     "df": df,
+    #     "curyear": curyear,
+    #     "refyear": refyear,
+    #     "format": formats_dict["normal"],
+    #     "formats_dict": formats_dict,
+    # }  # data qui ne bougeront jamais, pour rendre les signatures plus courtes
 
     worksheet = workbook.add_worksheet(sheet_name)
     worksheet.freeze_panes(1, 0)
@@ -63,16 +66,43 @@ def compte_de_resultats(
     worksheet.write(row, col_init, "Produits d'exploitation", formats_dict["bold"])
     row += 1
     # Ventes de marchandises
-    row, col = add_macro_categorie_and_detail(worksheet, ["707"], row, col_init, **data)
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["707"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+    )
     # Production vendue biens
-    row, col = add_macro_categorie_and_detail(worksheet, ["701"], row, col_init, **data)
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["701"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+    )
     # Production vendue services
     row, col = add_macro_categorie_and_detail(
         worksheet,
         ["706", "708"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Production vendue services",
     )
     idlist = ["70"]
@@ -93,21 +123,70 @@ def compte_de_resultats(
 
     # TOTAL I
     # Production stockée
-    row, col = add_macro_categorie_and_detail(worksheet, ["71"], row, col_init, **data)
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["71"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+    )
     # Production immobilisée
-    row, col = add_macro_categorie_and_detail(worksheet, ["72"], row, col_init, **data)
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["72"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+    )
     # subventions d exploitation recues
-    row, col = add_macro_categorie_and_detail(worksheet, ["74"], row, col_init, **data)
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["74"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+    )
     row, col = add_macro_categorie_and_detail(
         worksheet,
         ["781"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Reprises sur amortissements, dépréciations et provisions, transferts de charges",
     )
     # autres produits
-    row, col = add_macro_categorie_and_detail(worksheet, ["75"], row, col_init, **data)
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ["75"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+    )
     idlist = ["70", "71", "72", "74", "75", "78", "79"]
     # idlist = ["7"]
     row, col, curyear_value_totalI, refyear_value_totalI = add_line_idlist(
@@ -134,7 +213,12 @@ def compte_de_resultats(
         ["6037"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         signe="-",
     )
     # Achats de marchandises
@@ -143,7 +227,12 @@ def compte_de_resultats(
         ["607"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         signe="-",
     )
     # Variation de stock
@@ -152,7 +241,12 @@ def compte_de_resultats(
         ["603"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         signe="-",
     )
     # Achats de matières premières et autres approvisionnements
@@ -161,7 +255,12 @@ def compte_de_resultats(
         ["601"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Achats de matières premières et autres approvisionnements",
         signe="-",
     )
@@ -171,7 +270,12 @@ def compte_de_resultats(
         ["602", "604", "605", "606", "608", "609", "61", "62"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Autres achats et charges externes",
         signe="-",
     )
@@ -182,8 +286,13 @@ def compte_de_resultats(
         ["63"],
         row,
         col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         signe="-",
-        **data,
     )
 
     # Salaires et traitements
@@ -192,9 +301,14 @@ def compte_de_resultats(
         ["641", "644"],
         row,
         col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Salaires et traitements",
         signe="-",
-        **data,
     )
     # Charges sociales
     row, col = add_macro_categorie_and_detail(
@@ -202,9 +316,14 @@ def compte_de_resultats(
         ["645", "646", "647", "648"],
         row,
         col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Charges sociales",
         signe="-",
-        **data,
     )
     # Autres charges de gestions courantes
     row, col = add_macro_categorie_and_detail(
@@ -212,9 +331,14 @@ def compte_de_resultats(
         ["65"],
         row,
         col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         # label="Charges sociales",
         signe="-",
-        **data,
     )
     # Charges exceptionnelles
     row, col = add_macro_categorie_and_detail(
@@ -222,17 +346,27 @@ def compte_de_resultats(
         ["67"],
         row,
         col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         # label="Charges sociales",
         signe="-",
-        **data,
     )
     row, col = add_macro_categorie_and_detail(
         worksheet,
         ["681"],
         row,
         col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         signe="-",
-        **data,
     )
     # row, col = add_macro_categorie_and_detail(
     #     worksheet,
@@ -275,8 +409,13 @@ def compte_de_resultats(
         ["65"],
         row,
         col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         signe="-",
-        **data,
     )
     idlist = ["60", "61", "62", "63", "64", "65", "681"]
     row, col, curyear_value_totalII, refyear_value_totalII = add_line_idlist(
@@ -321,9 +460,14 @@ def compte_de_resultats(
         ["655"],
         row,
         col_init,
-        signe="-",
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Bénéfices attribués ou pertes tranférées (III)",
+        signe="-",
     )
 
     # Perte supportée ou bénéfice transféré
@@ -332,9 +476,14 @@ def compte_de_resultats(
         ["755"],
         row,
         col_init,
-        signe="-",
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Perte supportée ou bénéfice transféré (IV)",
+        signe="-",
     )
 
     row += 1
@@ -348,7 +497,12 @@ def compte_de_resultats(
         ["761"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
     )
     # Produits autres valeurs mobilières et créances actif immobilisé
     row, col = add_macro_categorie_and_detail(
@@ -356,7 +510,12 @@ def compte_de_resultats(
         ["762", "763", "764"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Produits autres valeurs mobilières et créances actif immobilisé",
     )
     #  Autres intérêts et produits assimilés
@@ -365,7 +524,12 @@ def compte_de_resultats(
         ["768"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Autres intérêts et produits assimilés",
     )
     #  Autres intérêts et produits assimilés
@@ -374,7 +538,12 @@ def compte_de_resultats(
         ["765"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Autres intérêts et produits assimilés",
     )
 
@@ -384,7 +553,12 @@ def compte_de_resultats(
         ["766"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
     )
     #  Produits nets sur cessions de valeurs mobilières de placement
     row, col = add_macro_categorie_and_detail(
@@ -392,7 +566,12 @@ def compte_de_resultats(
         ["767"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
     )
     #  Produits nets sur cessions de valeurs mobilières de placement
     row, col = add_macro_categorie_and_detail(
@@ -400,7 +579,12 @@ def compte_de_resultats(
         ["786"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
     )
 
     # idlist = ["60", "61", "62", "63", "64", "65", "681"]
@@ -428,24 +612,79 @@ def compte_de_resultats(
         ["664", "665"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Dotations financières aux amortissements, dépréciations et provisions",
         signe="-",
     )
     row, col = add_macro_categorie_and_detail(
-        worksheet, ["661"], row, col_init, **data, signe="-"
+        worksheet,
+        ["661"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        signe="-",
     )
     row, col = add_macro_categorie_and_detail(
-        worksheet, ["666"], row, col_init, **data, signe="-"
+        worksheet,
+        ["666"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        signe="-",
     )
     row, col = add_macro_categorie_and_detail(
-        worksheet, ["667"], row, col_init, **data, signe="-"
+        worksheet,
+        ["667"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        signe="-",
     )
     row, col = add_macro_categorie_and_detail(
-        worksheet, ["668"], row, col_init, **data, signe="-"
+        worksheet,
+        ["668"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        signe="-",
     )
     row, col = add_macro_categorie_and_detail(
-        worksheet, ["686"], row, col_init, **data, signe="-"
+        worksheet,
+        ["686"],
+        row,
+        col_init,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        signe="-",
     )
 
     # idlist = ["60", "61", "62", "63", "64", "65", "681"]
@@ -507,21 +746,36 @@ def compte_de_resultats(
         ["771"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
     )
     row, col = add_macro_categorie_and_detail(
         worksheet,
         ["772"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
     )
     row, col = add_macro_categorie_and_detail(
         worksheet,
         ["774", "775", "777", "778"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Produits exceptionnels sur opérations en capital",
     )
     row, col = add_macro_categorie_and_detail(
@@ -529,7 +783,12 @@ def compte_de_resultats(
         ["787"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
     )
 
     row, col, curyear_value_totalVII, refyear_value_totalVII = add_line_idlist(
@@ -557,7 +816,12 @@ def compte_de_resultats(
         ["671"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         signe="-",
     )
     row, col = add_macro_categorie_and_detail(
@@ -565,7 +829,12 @@ def compte_de_resultats(
         ["672"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         signe="-",
     )
     row, col = add_macro_categorie_and_detail(
@@ -573,7 +842,12 @@ def compte_de_resultats(
         ["674", "675", "677", "678"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Charges exceptionnelles sur opérations en capital",
         signe="-",
     )
@@ -582,7 +856,12 @@ def compte_de_resultats(
         ["687"],
         row,
         col_init,
-        **data,
+        dfd,
+        df,
+        curyear,
+        refyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         signe="-",
     )
     row, col, curyear_value_totalVIII, refyear_value_totalVIII = add_line_idlist(

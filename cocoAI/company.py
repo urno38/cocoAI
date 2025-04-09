@@ -181,31 +181,33 @@ def main(siren, entreprise):
 
     di = load_yaml_to_dict(yaml_path)
 
-    summary_mdpath = get_summary_from_dict(di, output_folder_path)
-    if not summary_mdpath.exists():
-        convert_markdown_to_latex(summary_mdpath, summary_texpath)
-        convert_markdown_to_docx(summary_mdpath, summary_docxpath)
-        convert_markdown_to_pdf(summary_mdpath, summary_pdfpath)
-        convert_markdown_to_latex(summary_mdpath, summary_texpath)
+    # TODO: a rebrancher
+    if 0:
+        summary_mdpath = get_summary_from_dict(di, output_folder_path)
+        if not summary_mdpath.exists():
+            convert_markdown_to_latex(summary_mdpath, summary_texpath)
+            convert_markdown_to_docx(summary_mdpath, summary_docxpath)
+            convert_markdown_to_pdf(summary_mdpath, summary_pdfpath)
+            convert_markdown_to_latex(summary_mdpath, summary_texpath)
 
-    if not beamer_mdpath.exists():
-        convert_markdown_to_beamer(
-            summary_mdpath,
-            beamer_pdfpath,
-            beamer_texpath,
-            title=f"Résumé siren {siren}",
-        )
-        LOGGER.info(f"Global summary available in {beamer_pdfpath}")
+        if not beamer_mdpath.exists():
+            convert_markdown_to_beamer(
+                summary_mdpath,
+                beamer_pdfpath,
+                beamer_texpath,
+                title=f"Résumé siren {siren}",
+            )
+            LOGGER.info(f"Global summary available in {beamer_pdfpath}")
 
-        # on reflechit avec les beneficiaires effectifs
-        create_beneficiaires_effectifs_diagram(yaml_path)
-        diagram_path = (json_path.parent / "flowchart.png").resolve()
-        output_pdf = json_path.parent / "slidesv2.pdf"
-        output_tex = json_path.parent / "slidesv2.tex"
-        modify_beamer_slide(beamer_texpath, output_tex, diagram_path)
-        convert_beamer_to_pdf(output_tex, output_pdf)
+            # on reflechit avec les beneficiaires effectifs
+            create_beneficiaires_effectifs_diagram(yaml_path)
+            diagram_path = (json_path.parent / "flowchart.png").resolve()
+            output_pdf = json_path.parent / "slidesv2.pdf"
+            output_tex = json_path.parent / "slidesv2.tex"
+            modify_beamer_slide(beamer_texpath, output_tex, diagram_path)
+            convert_beamer_to_pdf(output_tex, output_pdf)
 
-    LOGGER.info(f"Everything is available under {output_folder_path}")
+        LOGGER.info(f"Everything is available under {output_folder_path}")
     return output_folder_path
 
 
@@ -225,7 +227,10 @@ def get_infos_from_a_siren(siren: int):
         yaml_path = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))[0]
         di = load_yaml_to_dict(yaml_path)
 
-        entreprise_name = make_unix_compatible(di["denomination"])
+        if di["denomination"] is not None:
+            entreprise_name = make_unix_compatible(di["denomination"])
+        else:
+            entreprise_name = make_unix_compatible(di["nom_entreprise"])
 
         LOGGER.debug("je reproduis le dossier output")
         real_output_folder_path = obtain_output_folder(
@@ -251,7 +256,10 @@ def get_infos_from_a_siren(siren: int):
     yaml_path = yaml_list[0]
     LOGGER.debug(f"Le yaml trouve est {yaml_path}")
     di = load_yaml_to_dict(yaml_path)
-    entreprise_name = make_unix_compatible(di["denomination"])
+    if di["denomination"] is not None:
+        entreprise_name = make_unix_compatible(di["denomination"])
+    else:
+        entreprise_name = make_unix_compatible(di["nom_entreprise"])
 
     sirets = [int(et["siret"]) for et in di["etablissements"]]
 
@@ -286,4 +294,5 @@ if __name__ == "__main__":
 
     # main(pick_id("GALLA", kind="siren"), "GALLA")
 
-    siren, entreprise_name, sirets, etablissements = get_infos_from_a_siren(310130323)
+    # siren, entreprise_name, sirets, etablissements = get_infos_from_a_siren(310130323)
+    get_infos_from_a_siren("844924365")

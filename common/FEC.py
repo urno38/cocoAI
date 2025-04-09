@@ -76,7 +76,7 @@ def is_official_FEC(path):
 
 def get_official_end_operation_date(path):
     if is_official_FEC(path):
-        date = datetime.datetime.strptime(path.name[-12:-4], "%Y%m%d")
+        date = datetime.strptime(path.name[-12:-4], "%Y%m%d")
     else:
         raise NotImplemented
     return date
@@ -327,13 +327,19 @@ def extract_df_FEC(path_list, patch=False):
     )
     df["Crédit_Débit"] = df["Crédit"] - df["Débit"]
 
+    # pour le dispatching quand on présente le crédit et le débit
+    df["absCrédit_Débit"] = abs(df["Crédit_Débit"])
+    df["Bilan"] = df["Crédit_Débit"].apply(
+        lambda x: "ACTIF" if x < 0 else ("PASSIF" if x > 0 else np.nan)
+    )
+
     LOGGER.info(f"Les données comptables ont été chargées avec succès.")
     return df
 
 
 def export_raw_data_by_year(df, writer):
 
-    LOGGER.info(f"Let us export the raw data")
+    LOGGER.info(f"Données brutes")
 
     export_columns = ["Compte", "Intitulé", "Date", "Journal"]
     sorted_columns = export_columns + [c for c in df.columns if c not in export_columns]

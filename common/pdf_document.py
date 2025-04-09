@@ -9,9 +9,9 @@ import requests
 from mistralai import Mistral
 from PIL import Image
 
-from cocoAI.company import get_infos_from_a_siret
 from cocoAI.folder_tree import create_complete_folder_tree
 from common.AI_API import ask_Mistral
+from common.identifiers import get_etablissement_name
 from common.keys import MISTRAL_API_KEY, MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
 from common.path import (
@@ -372,10 +372,8 @@ def process_file_by_Mistral_OCR(file_path, api_key=MISTRAL_API_KEY_PAYANTE):
 
 def analyse_pdf_document(pdf_path, siret):
 
-    siren = int(str(siret)[:-5])
-
-    dest_folder = create_complete_folder_tree(siren)
-    entreprise_name, etablissement_name = get_infos_from_a_siret(siret)
+    enseigne_dest_folder = create_complete_folder_tree(siret)
+    etablissement_name = get_etablissement_name(siret)
 
     pdf_file_path = rapatrie_file(pdf_path)
     del pdf_path  # securite pour eviter de toucher ulterieurement au fichier d'origine
@@ -387,7 +385,7 @@ def analyse_pdf_document(pdf_path, siret):
     for key, value in location_dict.items():
         if value:
             potential_path = (
-                dest_folder
+                enseigne_dest_folder
                 / make_unix_compatible(etablissement_name)
                 / "REFERENCE_DOCUMENTS"
             )

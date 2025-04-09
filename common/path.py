@@ -161,8 +161,12 @@ def truncate_path_to_parent(path, parent_path):
 
 def rapatrie_file(filepath, dest_folder=DATA_PATH):
     LOGGER.info(f"source file {filepath}")
-    filepath = Path(filepath)
     assert filepath.is_file()
+    filepath = Path(filepath)
+    # y a des fichiers bizarres quelquefois qui trainent, je les convertis arbitrairement
+    if filepath.suffix == ".PDF":
+        shutil.move(filepath, filepath.with_suffix(".pdf"))
+
 
     if not filepath.is_relative_to(dest_folder):
         if filepath.is_relative_to(COMMERCIAL_DOCUMENTS_PATH):

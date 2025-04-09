@@ -13,6 +13,17 @@ def pick_id(name, kind="siren"):
     return di[kind][name]
 
 
+def get_etablissement_name(siret):
+    di = load_yaml_to_dict(COMMON_PATH / "databank.yaml")
+    # print(siret)
+    return [(k, v) for k, v in di["siret"].items() if v == siret][0][0]
+
+
+def get_entreprise_name(siren):
+    di = load_yaml_to_dict(COMMON_PATH / "databank.yaml")
+    return [(k, v) for k, v in di["siren"].items() if v == siren][0][0]
+
+
 def verify_id(id, kind="siren"):
     if kind == "siren":
         if len(id) != 9:
@@ -209,11 +220,12 @@ def get_query_from_id_list(id_list):
 
 
 if __name__ == "__main__":
-    pass
     # from common.logconfig import LOGGER
 
     # LOGGER.info(f'GALLA {pick_id("GALLA", kind="siren")}')
     # LOGGER.info(f'LE_JARDIN_DE_ROME {pick_id("LE_JARDIN_DE_ROME", kind="siret")}')
     # df = load_nomenclature()
     # print(df)
-    pprint(NOM_DICT_LVL3)
+    # pprint(NOM_DICT_LVL3)
+
+    print(get_etablissement_name("31890659101072"))

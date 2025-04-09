@@ -33,6 +33,15 @@ file:///C:/Users/lvolat/Documents/cocoAI/data/2_-*DOSSIERS_lETUDE/CHIEN_QUI_FUME
 2025-04-02
  #TODO : reprendre doc_sort.py l. 88 TODO
 
+2025-04-07
+
+# TODO
+
+reprendre à C:\Users\lvolat\Documents\cocoAI\work\load_all_sirets_in_databank.py
+
+aprem :
+faire la jointure C:\Users\lvolat\Documents\cocoAI\work\siret_databank.json
+
 mercredi 9 :
 faisons le point sur l'avancement
 quand est ce qu'on clot lactivite

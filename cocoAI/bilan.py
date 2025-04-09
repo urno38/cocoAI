@@ -20,22 +20,14 @@ from common.logconfig import LOGGER
 from common.path import COMMERCIAL_DOCUMENTS_PATH, WORK_PATH
 
 
-def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
+def bilan_actif(
+    dfdbilan, df, workbook, refbilanyear, curbilanyear, sheet_name="Bilan actif"
+):
 
     LOGGER.info("Bilan actif")
 
     # definition des formats
     formats_dict = define_formats(workbook)
-
-    data = {
-        "dfd": dfd,
-        "df": df,
-        "curyear": curyear,
-        "refyear": refyear,
-        "format": formats_dict["normal"],
-        "formats_dict": formats_dict,
-    }  # data qui ne bougeront jamais, pour rendre les signatures plus courtes
-
     worksheet = workbook.add_worksheet(sheet_name)
     worksheet.freeze_panes(1, 0)
 
@@ -57,9 +49,9 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
     worksheet.write(row, col, "Bilan actif détaillé")
     col += 1
     cell_format = workbook.add_format({"bold": False, "align": "center"})
-    worksheet.write(row, col, f"Année {int(curyear)}", cell_format)
+    worksheet.write(row, col, f"Année {int(curbilanyear)}", cell_format)
     col += 1
-    worksheet.write(row, col, f"Année {int(refyear)}", cell_format)
+    worksheet.write(row, col, f"Année {int(refbilanyear)}", cell_format)
     col += 1
     worksheet.write(row, col, f"Variation absolue", cell_format)
     col += 1
@@ -80,7 +72,11 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
             [id],
             row,
             col_init,
-            **data,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            formats_dict=formats_dict,
         )
 
     row, col = add_macro_categorie_and_detail(
@@ -88,7 +84,12 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         ["208", "280"],
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Autres immobilisations incorporelles",
     )
 
@@ -97,7 +98,12 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         ["237", "238"],
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Avances et acomptes sur immobilisations corporelles",
     )
 
@@ -106,7 +112,17 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
 
     for id in ["211", "212", "213", "215", "218", "231"]:
         row, col = add_macro_categorie_and_detail(
-            worksheet, [id], row, col_init, **data, signe="-"
+            worksheet,
+            [id],
+            row,
+            col_init,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            signe="-",
         )
 
     row, col = add_macro_categorie_and_detail(
@@ -114,7 +130,12 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         ["2145", "2814"],
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Constructions",
         signe="-",
     )
@@ -124,7 +145,12 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         ["2154", "2815"],
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Installations tech. et outillages industriels",
         signe="-",
     )
@@ -134,13 +160,28 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         ["218", "2818"],
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Autres immobilisations corporelles",
         signe="-",
     )
 
     row, col, curyear_value, refyear_value = add_line_idlist(
-        worksheet, ["231"], row, col_init, **data, signe="-"
+        worksheet,
+        ["231"],
+        row,
+        col_init,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        signe="-",
     )
 
     row, col = add_macro_categorie_and_detail(
@@ -148,7 +189,12 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         ["237", "238"],
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Avances et acomptes",
         signe="-",
     )
@@ -156,10 +202,30 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
     worksheet.write(row, col_init, "Immobilisations financières", formats_dict["bold"])
     row += 1
     row, col = add_macro_categorie_and_detail(
-        worksheet, ["271"], row, col_init, **data, signe="-"
+        worksheet,
+        ["271"],
+        row,
+        col_init,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        signe="-",
     )
     row, col = add_macro_categorie_and_detail(
-        worksheet, ["272"], row, col_init, **data, signe="-"
+        worksheet,
+        ["272"],
+        row,
+        col_init,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        signe="-",
     )
 
     for id in ["266", "267", "273", "274", "275"]:
@@ -168,7 +234,14 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
             [id],
             row,
             col_init,
-            **data,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            label=None,
+            LOGGER_msg=None,
             signe="-",
         )
 
@@ -178,10 +251,10 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         idlist,
         row,
         col_init,
-        dfd,
+        dfdbilan,
         df,
-        curyear,
-        refyear,
+        curbilanyear,
+        refbilanyear,
         format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="TOTAL (I)",
@@ -197,14 +270,34 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
     # row += 1
     ids = ["3"]
     row, col = add_macro_categorie_and_detail(
-        worksheet, ids, row, col_init, **data, signe="-"
+        worksheet,
+        ids,
+        row,
+        col_init,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        signe="-",
     )
     id_total_list += ids
 
     # Avances et acomptes versés sur commande
     ids = ["4091"]
     row, col = add_macro_categorie_and_detail(
-        worksheet, ids, row, col_init, **data, signe="-"
+        worksheet,
+        ids,
+        row,
+        col_init,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        signe="-",
     )
     id_total_list += ids
 
@@ -215,19 +308,51 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
     ids = ["41"]
     for id in ids:
         row, col = add_macro_categorie_and_detail(
-            worksheet, [id], row, col_init, **data, signe="-"
+            worksheet,
+            [id],
+            row,
+            col_init,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            signe="-",
         )
     id_total_list += ids
 
     # Autres
-    ids = ["40", "42", "43", "44", "45", "46", "47", "48", "49"]
+    ids = ["40", "42", "43", "44", "45"]
     row, col = add_macro_categorie_and_detail(
         worksheet,
         ids,
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        label="Autres créances",
+    )
+    id_total_list += ids
+
+    ids = ["46", "47", "49"]
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ids,
+        row,
+        col_init,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Autres",
+        signe="-",
     )
     id_total_list += ids
 
@@ -237,7 +362,17 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
     ids = ["4562"]
     for id in ids:
         row, col, curyear_value, refyear_value = add_line_idlist(
-            worksheet, [id], row, col_init, **data, signe="-"
+            worksheet,
+            [id],
+            row,
+            col_init,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            signe="-",
         )
     id_total_list += ids
 
@@ -245,7 +380,17 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
     ids = ["506"]
     for id in ids:
         row, col = add_macro_categorie_and_detail(
-            worksheet, [id], row, col_init, **data, signe="-"
+            worksheet,
+            [id],
+            row,
+            col_init,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            signe="-",
         )
     id_total_list += ids
 
@@ -259,7 +404,12 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         ids,
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Disponibilités",
         signe="-",
     )
@@ -269,7 +419,17 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
     ids = ["486"]
     for id in ids:
         row, col, curyear_value, refyear_value = add_line_idlist(
-            worksheet, [id], row, col_init, **data, signe="-"
+            worksheet,
+            [id],
+            row,
+            col_init,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            signe="-",
         )
     id_total_list += ids
 
@@ -278,10 +438,10 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         id_total_list,
         row,
         col_init,
-        dfd,
+        dfdbilan,
         df,
-        curyear,
-        refyear,
+        curbilanyear,
+        refbilanyear,
         format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="TOTAL (II)",
@@ -295,7 +455,17 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
     ids = ["4816"]
     for id in ids:
         row, col, curyear_value_totalIII, refyear_value_totalIII = add_line_idlist(
-            worksheet, [id], row, col_init, **data, signe="-"
+            worksheet,
+            [id],
+            row,
+            col_init,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            signe="-",
         )
     # id_total_list += ids
 
@@ -303,7 +473,17 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
     ids = ["169"]
     for id in ids:
         row, col, curyear_value_totalIV, refyear_value_totalIV = add_line_idlist(
-            worksheet, [id], row, col_init, **data, signe="-"
+            worksheet,
+            [id],
+            row,
+            col_init,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            signe="-",
         )
     # id_total_list += ids
 
@@ -314,7 +494,12 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
         ids,
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Ecart de conversion actif",
         signe="-",
     )
@@ -349,11 +534,11 @@ def bilan_actif(dfd, df, workbook, refyear, curyear, sheet_name="Bilan actif"):
 
 
 def bilan_passif(
-    dfd,
+    dfdbilan,
     df,
     workbook,
-    refyear,
-    curyear,
+    refbilanyear,
+    curbilanyear,
     benefice_total_curyear,
     benefice_total_refyear,
     sheet_name="Bilan passif",
@@ -363,16 +548,6 @@ def bilan_passif(
 
     # definition des formats
     formats_dict = define_formats(workbook)
-
-    data = {
-        "dfd": dfd,
-        "df": df,
-        "curyear": curyear,
-        "refyear": refyear,
-        "format": formats_dict["normal"],
-        "formats_dict": formats_dict,
-    }  # data qui ne bougeront jamais, pour rendre les signatures plus courtes
-
     worksheet = workbook.add_worksheet(sheet_name)
     worksheet.freeze_panes(1, 0)
 
@@ -394,9 +569,9 @@ def bilan_passif(
     worksheet.write(row, col, "Bilan passif détaillé")
     col += 1
     cell_format = workbook.add_format({"bold": False, "align": "center"})
-    worksheet.write(row, col, f"Année {int(curyear)}", cell_format)
+    worksheet.write(row, col, f"Année {int(curbilanyear)}", cell_format)
     col += 1
-    worksheet.write(row, col, f"Année {int(refyear)}", cell_format)
+    worksheet.write(row, col, f"Année {int(refbilanyear)}", cell_format)
     col += 1
     worksheet.write(row, col, f"Variation absolue", cell_format)
     col += 1
@@ -411,11 +586,33 @@ def bilan_passif(
     id_total_list = []
 
     ids = ["10"]
-    row, col = add_macro_categorie_and_detail(worksheet, ids, row, col_init, **data)
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ids,
+        row,
+        col_init,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+    )
     id_total_list += ids
 
     ids = ["11"]
-    row, col = add_macro_categorie_and_detail(worksheet, ids, row, col_init, **data)
+    row, col = add_macro_categorie_and_detail(
+        worksheet,
+        ids,
+        row,
+        col_init,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+    )
     id_total_list += ids
 
     # Attention pour la ligne Résultats de l'exercice bénéfice ou pertes, je reporte le obtenu dans les soldes intermédiaires de gestion, le bénéfice ou la perte totale
@@ -436,7 +633,14 @@ def bilan_passif(
             [id],
             row,
             col_init,
-            **data,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            label=None,
+            LOGGER_msg=None,
         )
         id_total_list += [id]
 
@@ -447,10 +651,10 @@ def bilan_passif(
     refyear_value = 0
     for id in ["10", "11", "13", "14"]:
         curyear_value += calcule_balance_cred_moins_deb(
-            dfd[int(curyear)].query(f"idlvl{len(id)} == '{id}'")
+            dfdbilan[int(curbilanyear)].query(f"idlvl{len(id)} == '{id}'")
         )
         refyear_value += calcule_balance_cred_moins_deb(
-            dfd[int(refyear)].query(f"idlvl{len(id)} == '{id}'")
+            dfdbilan[int(refbilanyear)].query(f"idlvl{len(id)} == '{id}'")
         )
 
     curyear_value_totalI = curyear_value + benefice_total_curyear
@@ -482,7 +686,14 @@ def bilan_passif(
         ids,
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        label=None,
+        LOGGER_msg=None,
     )
     id_total_list += ids
 
@@ -491,10 +702,10 @@ def bilan_passif(
         id_total_list,
         row,
         col_init,
-        dfd,
+        dfdbilan,
         df,
-        curyear,
-        refyear,
+        curbilanyear,
+        refbilanyear,
         format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="TOTAL (I bis)",
@@ -517,7 +728,14 @@ def bilan_passif(
         ids,
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
+        label=None,
+        LOGGER_msg=None,
     )
     id_total_list += ids
 
@@ -526,10 +744,10 @@ def bilan_passif(
         id_total_list,
         row,
         col_init,
-        dfd,
+        dfdbilan,
         df,
-        curyear,
-        refyear,
+        curbilanyear,
+        refbilanyear,
         format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="TOTAL (II)",
@@ -559,10 +777,10 @@ def bilan_passif(
         ids,
         row,
         col_init,
-        dfd,
+        dfdbilan,
         df,
-        curyear,
-        refyear,
+        curbilanyear,
+        refbilanyear,
         format=formats_dict["normal"],
         formats_dict=formats_dict,
         label="Dettes auprès des établissements de crédit",
@@ -573,7 +791,14 @@ def bilan_passif(
             [id],
             row,
             col_init,
-            **data,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            label=None,
+            LOGGER_msg=None,
         )
     id_total_list += ids
 
@@ -586,10 +811,10 @@ def bilan_passif(
         ids,
         row,
         col_init,
-        dfd,
+        dfdbilan,
         df,
-        curyear,
-        refyear,
+        curbilanyear,
+        refbilanyear,
         format=formats_dict["normal"],
         formats_dict=formats_dict,
         label="Dettes fournisseurs et comptes rattachés",
@@ -601,7 +826,14 @@ def bilan_passif(
             [id],
             row,
             col_init,
-            **data,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            label=None,
+            LOGGER_msg=None,
         )
     id_total_list += ids
 
@@ -620,10 +852,10 @@ def bilan_passif(
         ids,
         row,
         col_init,
-        dfd,
+        dfdbilan,
         df,
-        curyear,
-        refyear,
+        curbilanyear,
+        refbilanyear,
         format=formats_dict["normal"],
         formats_dict=formats_dict,
         label="Dettes fiscales et sociales",
@@ -634,7 +866,14 @@ def bilan_passif(
             [id],
             row,
             col_init,
-            **data,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            label=None,
+            LOGGER_msg=None,
         )
     id_total_list += ids
 
@@ -650,7 +889,14 @@ def bilan_passif(
             [id],
             row,
             col_init,
-            **data,
+            dfdbilan,
+            df,
+            curbilanyear,
+            refbilanyear,
+            format=formats_dict["normal"],
+            formats_dict=formats_dict,
+            label=None,
+            LOGGER_msg=None,
         )
     id_total_list += ids
 
@@ -659,10 +905,10 @@ def bilan_passif(
         id_total_list,
         row,
         col_init,
-        dfd,
+        dfdbilan,
         df,
-        curyear,
-        refyear,
+        curbilanyear,
+        refbilanyear,
         format=formats_dict["totaux"],
         formats_dict=formats_dict,
         label="TOTAL (III)",
@@ -678,7 +924,12 @@ def bilan_passif(
         ids,
         row,
         col_init,
-        **data,
+        dfdbilan,
+        df,
+        curbilanyear,
+        refbilanyear,
+        format=formats_dict["normal"],
+        formats_dict=formats_dict,
         label="Ecart de conversion passif (IV)",
         signe="-",
     )
@@ -798,6 +1049,7 @@ def main(path_list, test=False, refyear=2022, curyear=2023):
 
     # je cree un dictionnaire qui va servir de colonnes pour mon excel
     dfd = {y: df[df.year == y] for y in df["year"].drop_duplicates()}
+    dfdbilan = {y: df[df.Bilanyear == y] for y in df["Bilanyear"].drop_duplicates()}
 
     row = 0
     col = 0
@@ -805,19 +1057,20 @@ def main(path_list, test=False, refyear=2022, curyear=2023):
     row, col, benefice_total_curyear, benefice_total_refyear = compte_de_resultats(
         dfd, df, workbook, row, col, refyear, curyear
     )
-    workbook = bilan_actif(dfd, df, workbook, refyear, curyear)
-    workbook = bilan_passif(
-        dfd,
-        df,
-        workbook,
-        refyear,
-        curyear,
-        benefice_total_curyear,
-        benefice_total_refyear,
-    )
+    # workbook = bilan_actif(dfdbilan, df, workbook, refyear, curyear)
+    # workbook = bilan_passif(
+    #     dfdbilan,
+    #     df,
+    #     workbook,
+    #     refyear,
+    #     curyear,
+    #     benefice_total_curyear,
+    #     benefice_total_refyear,
+    # )
 
     workbook = bilan_simplifiev2(
         df,
+        dfdbilan,
         benefice_total_curyear,
         benefice_total_refyear,
         workbook,
