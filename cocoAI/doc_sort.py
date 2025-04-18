@@ -169,6 +169,17 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
+    elif ("MATRICE" in doc_new_path.name or "matrice" in doc_new_path.name) and (
+        doc_new_path.suffix == ".docx" or doc_new_path.suffix == ".xlsx"
+    ):
+        # Cas du teaser fait par comptoirs et commerces
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "WORK_DOCUMENTS"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
     elif (
         "liasse" in doc_new_path.name
         or "Liasse" in doc_new_path.name
@@ -180,7 +191,21 @@ def classify_one_document(doc_path, siret):
                 enseigne_dest_folder
                 / "REFERENCE_DOCUMENTS"
                 / "DOCUMENTATION_FINANCIERE"
-                / "BILANS - CA"
+                / "BILANS_CA"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif (
+        "BILAN" in doc_new_path.name
+        or "Bilan" in doc_new_path.name
+        or "bilan" in doc_new_path.name
+    ):
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "REFERENCE_DOCUMENTS"
+                / "DOCUMENTATION_FINANCIERE"
+                / "BILANS_CA"
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
@@ -210,6 +235,24 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
+    elif (
+        "Registre" in doc_new_path.name
+        or "registre" in doc_new_path.name
+        or "REGISTRE" in doc_new_path.name
+    ) and (
+        "Personnel" in doc_new_path.name
+        or "personnel" in doc_new_path.name
+        or "PERSONNEL" in doc_new_path.name
+    ):
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "REFERENCE_DOCUMENTS"
+                / "SOCIAL"
+                / "LISTE_DU_PERSONNEL"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
     elif doc_new_path.suffix == ".json":
         path_list = [
             (
@@ -219,11 +262,12 @@ def classify_one_document(doc_path, siret):
             )
         ]
     elif doc_new_path.suffix == ".pdf":
-
         # les fichiers pdfs contiennent des images
         # quand elles sont tres grosses, on fait rien
         taille_mo = calculer_taille_fichier_mo(doc_new_path)
+        LOGGER.debug(f"le fichier pdf mesure {taille_mo}")
         if taille_mo > 100:
+            # si il est trop gros, allez hop
             path_list = [
                 (
                     enseigne_dest_folder
@@ -231,9 +275,9 @@ def classify_one_document(doc_path, siret):
                     / make_unix_compatible(doc_new_path.name)
                 )
             ]
-
-        # traitement classique
-        path_list = classify_pdf_document(enseigne_dest_folder, doc_new_path)
+        else:
+            # traitement classique
+            path_list = classify_pdf_document(enseigne_dest_folder, doc_new_path)
 
     elif doc_new_path.suffix == ".xlsx":
         # path_list = classify_xlsx_document(dest_folder, doc_new_path)
@@ -244,7 +288,7 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif is_photo(doc_new_path):
+    elif is_photo(doc_new_path) or doc_new_path.suffix == "heic":
         path_list = [
             (
                 enseigne_dest_folder
