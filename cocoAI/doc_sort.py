@@ -20,6 +20,7 @@ from common.path import (
     DATALAKE_PATH,
     TMP_PATH,
     WORK_PATH,
+    calculer_taille_fichier_mo,
     is_photo,
     is_video,
     make_unix_compatible,
@@ -152,6 +153,23 @@ def classify_one_document(doc_path, siret):
             )
         ]
     elif (
+        "KBIS" in doc_new_path.name
+        or "kbis" in doc_new_path.name
+        or "K-BIS" in doc_new_path.name
+        or "k-bis" in doc_new_path.name
+        or "K-Bis" in doc_new_path.name
+    ):
+        # Cas du teaser fait par comptoirs et commerces
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "REFERENCE_DOCUMENTS"
+                / "JURIDIQUE_CORPORATE"
+                / "K BIS - INSEE - STATUTS"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif (
         "liasse" in doc_new_path.name
         or "Liasse" in doc_new_path.name
         or "fiscale" in doc_new_path.name
@@ -167,7 +185,24 @@ def classify_one_document(doc_path, siret):
             )
         ]
     elif "IM" in doc_new_path.name:
-        # Cas du memorandum d'information fait par comptoirs et commerces fait par comptoirs et commerces
+        # Cas du memorandum d'information fait par comptoirs et commerces
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "COMMERCIAL_DOCUMENTS"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif (
+        "Lettre" in doc_new_path.name
+        or "lettre" in doc_new_path.name
+        or "LETTRE" in doc_new_path.name
+    ) and (
+        "Offre" in doc_new_path.name
+        or "offre" in doc_new_path.name
+        or "OFFRE" in doc_new_path.name
+    ):
+        # Cas de la lettre d offre deja faite fait par comptoirs et commerces
         path_list = [
             (
                 enseigne_dest_folder
@@ -184,7 +219,22 @@ def classify_one_document(doc_path, siret):
             )
         ]
     elif doc_new_path.suffix == ".pdf":
+
+        # les fichiers pdfs contiennent des images
+        # quand elles sont tres grosses, on fait rien
+        taille_mo = calculer_taille_fichier_mo(doc_new_path)
+        if taille_mo > 100:
+            path_list = [
+                (
+                    enseigne_dest_folder
+                    / "OTHERS"
+                    / make_unix_compatible(doc_new_path.name)
+                )
+            ]
+
+        # traitement classique
         path_list = classify_pdf_document(enseigne_dest_folder, doc_new_path)
+
     elif doc_new_path.suffix == ".xlsx":
         # path_list = classify_xlsx_document(dest_folder, doc_new_path)
         path_list = [
@@ -221,6 +271,14 @@ def classify_one_document(doc_path, siret):
             (
                 enseigne_dest_folder
                 / "WORK_DOCUMENTS"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif doc_new_path.suffix == ".doc" or doc_new_path.suffix == ".docx":
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "WORD_DOCUMENTS_UNCLASSIFIED"
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
@@ -263,6 +321,10 @@ def get_unclassified_path_filepath(etablissement_name):
     return TMP_PATH / make_unix_compatible(
         f"{etablissement_name}_unclassified_path.txt"
     )
+
+
+def get_encours_path_filepath(etablissement_name):
+    return TMP_PATH / make_unix_compatible(f"{etablissement_name}_en_cours.txt")
 
 
 def create_unclassified_statistics(etablissement_name):

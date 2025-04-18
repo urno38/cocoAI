@@ -66,7 +66,7 @@ def get_df_folder_possibles():
     # df["siret"] = df2
     # df.reset_index(inplace=True)
 
-    df = pd.read_csv(COMMON_PATH / "folder_possibles.csv", index_col=0)
+    df = pd.read_csv(COMMON_PATH / "folder_possibles_complet.csv", index_col=0)
     df["siret"] = df["siret"].apply(
         lambda x: str(int(x)) if not np.isnan(float(x)) else np.nan
     )

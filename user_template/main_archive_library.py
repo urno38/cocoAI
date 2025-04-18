@@ -1,6 +1,7 @@
 from cocoAI.doc_sort import (
     classify_one_document,
     create_unclassified_statistics,
+    get_encours_path_filepath,
     get_unclassified_path_filepath,
 )
 from cocoAI.folder_tree import (
@@ -33,21 +34,40 @@ def main():
     df = get_df_folder_possibles()
     folder_possibles = df[~df.siret.isna()].folder.values
     # LOGGER.debug(folder_possibles)
-    TO_BE_CLASSIFIED = [d for d in list(EN_COURS.rglob("*/"))]
+    dossiers = (
+        [d for d in list(COMMERCIAL_DOCUMENTS_PATH.glob("1 -*/*/"))]
+        + [d for d in list(COMMERCIAL_DOCUMENTS_PATH.glob("2*/1*/*/"))]
+        + [d for d in list(COMMERCIAL_DOCUMENTS_PATH.glob("10 -*/*/"))]
+        + [d for d in list(COMMERCIAL_DOCUMENTS_PATH.glob("100 -*/1 -*/*/"))]
+    )
+    TO_BE_CLASSIFIED = [d for d in dossiers]
     # LOGGER.debug(TO_BE_CLASSIFIED)
     TO_BE_CLASSIFIED = [d for d in TO_BE_CLASSIFIED if d.name in folder_possibles]
     # LOGGER.debug(TO_BE_CLASSIFIED)
     for source_entreprise_folder_path in TO_BE_CLASSIFIED:
 
         LOGGER.info(source_entreprise_folder_path)
-
         ser = get_ser_infos(source_entreprise_folder_path)
         siret = ser["siret"]
+
+        encours_filepath = get_encours_path_filepath(siret)
+        if encours_filepath.exists():
+            continue
+        else:
+            encours_filepath.touch()
+
         dest_etablissement_folder_path = create_complete_folder_tree(siret)
         etablissement_name = make_unix_compatible(get_etablissement_name(siret))
 
-        tmp_filepath = get_unclassified_path_filepath(etablissement_name)
+        # pour gerer les en cours
+        encours_filepath = get_encours_path_filepath(etablissement_name)
+        if encours_filepath.exists():
+            continue
+        else:
+            encours_filepath.touch()
+
         # pour aller plus vite les prochaines fois
+        tmp_filepath = get_unclassified_path_filepath(etablissement_name)
         if tmp_filepath.exists():
             continue
 

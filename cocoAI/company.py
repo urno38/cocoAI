@@ -218,9 +218,7 @@ def get_infos_from_a_siren(siren: int):
         if len(yaml_list) > 1:
             LOGGER.error(yaml_list)
             raise ValueError("several outputs for one siren")
-        else:  # len(yaml_list) == 1
-            pass
-    else:  # len(yaml_list) == 0
+    else:
         # if the output folder does not exist then I recreate it
         fake_output_folder_path = main(siren=siren, entreprise="entreprise")
 
@@ -295,4 +293,13 @@ if __name__ == "__main__":
     # main(pick_id("GALLA", kind="siren"), "GALLA")
 
     # siren, entreprise_name, sirets, etablissements = get_infos_from_a_siren(310130323)
-    get_infos_from_a_siren("844924365")
+    for s in [
+        # "30176296900016",
+        # "40413673100019",
+        "32176212200018",
+        "80224059800010",
+        "91795262400026",
+        "81131629800017",
+    ]:
+        print(s)
+        get_infos_from_a_siret(s)

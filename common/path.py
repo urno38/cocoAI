@@ -68,6 +68,15 @@ def create_parent_directory(path):
     return
 
 
+def calculer_taille_fichier_mo(chemin_fichier):
+    try:
+        taille_octets = os.path.getsize(chemin_fichier)
+        taille_mo = taille_octets / (1024 * 1024)  # Conversion en mégaoctets
+        return taille_mo
+    except OSError as e:
+        return f"Erreur : {e}"
+
+
 def obtain_output_folder(label, kind, number):
     if number is None or number == "":
         path = OUTPUT_PATH / f"{kind}_{label}"
@@ -95,6 +104,7 @@ def make_unix_compatible(name):
     # Strip spaces
     name = name.strip()
     # Replace spaces with underscores
+    name = name.replace("'", "_")
     name = name.replace(" ", "_")
     name = name.replace(")", "")
     name = name.replace("(", "")
@@ -107,6 +117,7 @@ def make_unix_compatible(name):
     name = re.sub("_+", "_", name)
     name = re.sub("-+", "-", name)
     name = re.sub("_-_", "_", name)
+    name = re.sub("_+", "_", name)
     return name
 
 
@@ -166,7 +177,6 @@ def rapatrie_file(filepath, dest_folder=DATA_PATH):
     # y a des fichiers bizarres quelquefois qui trainent, je les convertis arbitrairement
     if filepath.suffix == ".PDF":
         shutil.move(filepath, filepath.with_suffix(".pdf"))
-
 
     if not filepath.is_relative_to(dest_folder):
         if filepath.is_relative_to(COMMERCIAL_DOCUMENTS_PATH):
