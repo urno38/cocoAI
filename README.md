@@ -25,26 +25,10 @@
 - vérifier avec les bilans In Extenso du bilan 2022 disponible en
 file:///C:/Users/lvolat/Documents/cocoAI/data/2_-*DOSSIERS_lETUDE/CHIEN_QUI_FUME_Le*-*75001_PARIS*-_33_Rue_du_PONT-NEUF/3.*DOCUMENTATION_FINANCIRE/2022*-*GALLA*-_BILAN.pdf
 
-02/04/2025
-  #TODO : maintenant
- il peut y avoir plusieurs KBIS corrects dans le dossier donc faire une requete entreprise.gouv.fr pour verifier que l entreprise existe puis stocker les fichiers temporaires dans la base et creer l arborescence
-    cf extract_KBIS.py
+TODO : 2025-04-23
 
-2025-04-02
-# TODO : reprendre doc_sort.py l. 88 TODO
-
-2025-04-07
-
-2025-04-09 : continuer à enrichir la base avec un autre csv
-fichier remplissage_csv.ipynb
-
-# TODO
-
-reprendre à C:\Users\lvolat\Documents\cocoAI\work\load_all_sirets_in_databank.py
-
-aprem :
-faire la jointure C:\Users\lvolat\Documents\cocoAI\work\siret_databank.json
-
-mercredi 9 :
-faisons le point sur l'avancement
-quand est ce qu'on clot lactivite
+- repartir de main_archive pour TERMINER l'archivage total
+- coder le cas où il y a deux affichettes. Exemple siret pick_id("BISTROT_RENAISSANCE", kind="siret")
+- vérifier que l'archivge est complet pour les dossiers dans commercial
+- finir les fignolages pour les fichiers résiduels
+- renvoyer un mail avec les bonnes imputations

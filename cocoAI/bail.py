@@ -255,7 +255,7 @@ def global_request_bail(bail_path, output_mdpath):
     LOGGER.info(request)
 
     prompt = text + request
-    #  model="mistral-embed"  Our state-of-the-art semantic for extracting representation of text extracts
+
     response = ask_Mistral(
         api_key=MISTRAL_API_KEY_PAYANTE, prompt=prompt, model="mistral-large-latest"
     )

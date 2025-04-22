@@ -17,6 +17,7 @@ JURIDIQUE_EXPLOITATION_ET_CONTRATS:
     LICENCE IV: {} #attestation de la license, récépisssé de license
     TERRASSE - VOIRIE: {} # quittance de terrasse et certificat de la mairie de paris
     URBANISME: {} # rapport d'urbanisme
+    INVENTAIRE: {} # les inventaires
 
 DOCUMENTATION_FINANCIERE:
     BILANS - CA: {} #tous les documents financiers, attestation de CA, états d'immobilisation, tous document issu de la comptabilité, tout tableau financier, tableau d'amortissement d'emprunt bancaire

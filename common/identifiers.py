@@ -15,7 +15,6 @@ def pick_id(name, kind="siren"):
 
 def get_etablissement_name(siret):
     di = load_yaml_to_dict(COMMON_PATH / "databank.yaml")
-    # print(siret)
     return [(k, v) for k, v in di["siret"].items() if v == siret][0][0]
 
 

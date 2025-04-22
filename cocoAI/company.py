@@ -17,6 +17,7 @@ from common.convert import (
     load_yaml_to_dict,
 )
 from common.identifiers import (
+    get_etablissement_name,
     load_databank,
     load_siren_in_databank,
     load_siret_in_databank,
@@ -240,7 +241,7 @@ def get_infos_from_a_siren(siren: int):
             LOGGER.error(
                 f"{real_output_folder_path} exists but does not contain output.yaml then I delete it"
             )
-            shutil.move(real_output_folder_path, "toto")
+            shutil.rmtree(real_output_folder_path)
 
         LOGGER.debug(
             f"then rename {fake_output_folder_path} to {real_output_folder_path}"
@@ -264,15 +265,36 @@ def get_infos_from_a_siren(siren: int):
     databank = load_databank()
 
     LOGGER.debug(di["etablissements"])
-    for et in di["etablissements"]:
-        if et["enseigne"] is None:
-            LOGGER.warning(f"{et["siret"]} n a pas de nom d etablissement dans pappers")
-            LOGGER.warning("probablement un siege de holding")
-            continue
-        # LOGGER.warning(f"{di["etablissements"]}")
-        LOGGER.debug(f"etablissement {et['enseigne']} de siret {et['siret']}")
-        if et["siret"] not in databank["siret"].keys():
-            load_siret_in_databank(et["enseigne"], str(et["siret"]))
+
+    if len(di["etablissements"]) == 1:
+        # si il n'y a que le siege
+        LOGGER.warning(f"un seul etablissement dans cette entreprise")
+        et = di["etablissements"][0]
+        if et["enseigne"] is None and et["nom_commercial"] is None:
+            LOGGER.warning(f"pas d enseigne et pas de nom commercial")
+            LOGGER.warning(
+                f"exceptionnellement je prends la denomination de l entreprise"
+            )
+            load_siret_in_databank(
+                make_unix_compatible(di["denomination"]), str(et["siret"])
+            )
+
+    else:
+        for et in di["etablissements"]:
+            if et["enseigne"] is None:
+                LOGGER.warning(f"{et["siret"]} n a pas de nom d enseigne dans pappers")
+                if et["nom_commercial"] is None:
+                    LOGGER.warning(
+                        f"{et["siret"]} n a pas de nom commercial dans pappers"
+                    )
+                else:
+                    LOGGER.warning("je charge le nom commercial dans databank.yaml")
+                    nom = et["nom_commercial"]
+            else:
+                nom = et["enseigne"]
+
+            if str(et["siret"]) not in databank["siret"].values():
+                load_siret_in_databank(make_unix_compatible(nom), str(et["siret"]))
 
     return siren, entreprise_name, sirets, di["etablissements"]
 
@@ -281,11 +303,20 @@ def get_infos_from_a_siret(siret: int):
     siret = str(siret)
     siren = int(str(siret)[:-5])
     siren, entreprise_name, sirets, etablissements = get_infos_from_a_siren(siren)
+
+    if len(sirets) == 1:
+        return entreprise_name, get_etablissement_name(siret)
+
     for et in etablissements:
         if et["siret"] == siret:
-            return entreprise_name, et["enseigne"]
-    LOGGER.debug("siret not found in Pappers")
-    raise ValueError("siret not found in Pappers")
+            if "enseigne" in et.keys() and et["enseigne"] is not None:
+                return entreprise_name, et["enseigne"]
+            elif "nom_commercial" in et.keys() and et["nom_commercial"] is not None:
+                return entreprise_name, et["nom_commercial"]
+
+    LOGGER.debug(f"siret {siret}")
+    LOGGER.debug("siret not found in databank.yaml")
+    raise ValueError("siret not found in databank.yaml")
 
 
 if __name__ == "__main__":
@@ -297,7 +328,7 @@ if __name__ == "__main__":
         # "30176296900016",
         # "40413673100019",
         # "48138353700018",
-        "47150251800018",
+        # "47150251800018",
         # "45229220400024",
         # "34027633600039",
         # "56201528900019",
@@ -306,6 +337,8 @@ if __name__ == "__main__":
         # "80224059800010",
         # "91795262400026",
         # "81131629800017",
+        # "31677872900012",
+        "45229220400024"
     ]:
         print(s)
         get_infos_from_a_siret(s)

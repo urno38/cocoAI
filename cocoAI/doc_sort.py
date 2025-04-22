@@ -32,14 +32,16 @@ from common.pdf_document import (
 )
 
 
-def check_all_documents_sorted(etablissement_name):
+def check_all_documents_sorted(etablissement_name, source_folder_path=None):
     LOGGER.info(
         f"check if all the documents from {etablissement_name} are sorted and moved"
     )
     siret = pick_id(make_unix_compatible(etablissement_name), kind="siret")
     entreprise_name, etablissement = get_infos_from_a_siret(siret)
     dest_folder_path = get_entreprise_folder(siret[:-5])
-    source_folder_path = get_source_folder_path(etablissement_name)
+
+    if source_folder_path is None:
+        source_folder_path = get_source_folder_path(etablissement_name)
 
     unclassified_paths = []
     for file in source_folder_path.rglob("*"):
@@ -143,7 +145,7 @@ def classify_one_document(doc_path, siret):
     doc_new_path = rapatrie_file(doc_path)
     del doc_path  # securite pour eviter de toucher ulterieurement au fichier d'origine
 
-    if "TEASER" in doc_new_path.name or "teaser" in doc_new_path.name:
+    if "teaser" in doc_new_path.name.lower():
         # Cas du teaser fait par comptoirs et commerces
         path_list = [
             (
@@ -152,13 +154,7 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif (
-        "KBIS" in doc_new_path.name
-        or "kbis" in doc_new_path.name
-        or "K-BIS" in doc_new_path.name
-        or "k-bis" in doc_new_path.name
-        or "K-Bis" in doc_new_path.name
-    ):
+    elif "kbis" in doc_new_path.name.lower() or "k-bis" in doc_new_path.name.lower():
         # Cas du teaser fait par comptoirs et commerces
         path_list = [
             (
@@ -169,7 +165,7 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif ("MATRICE" in doc_new_path.name or "matrice" in doc_new_path.name) and (
+    elif "MATRICE" in doc_new_path.name.lower() and (
         doc_new_path.suffix == ".docx" or doc_new_path.suffix == ".xlsx"
     ):
         # Cas du teaser fait par comptoirs et commerces
@@ -181,10 +177,10 @@ def classify_one_document(doc_path, siret):
             )
         ]
     elif (
-        "liasse" in doc_new_path.name
-        or "Liasse" in doc_new_path.name
-        or "fiscale" in doc_new_path.name
-        or "Fiscale" in doc_new_path.name
+        "liasse" in doc_new_path.name.lower()
+        or "liasses" in doc_new_path.name.lower()
+        or "fiscale" in doc_new_path.name.lower()
+        or "fiscales" in doc_new_path.name.lower()
     ):
         path_list = [
             (
@@ -195,11 +191,7 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif (
-        "BILAN" in doc_new_path.name
-        or "Bilan" in doc_new_path.name
-        or "bilan" in doc_new_path.name
-    ):
+    elif "bilan" in doc_new_path.name.lower():
         path_list = [
             (
                 enseigne_dest_folder
@@ -218,14 +210,8 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif (
-        "Lettre" in doc_new_path.name
-        or "lettre" in doc_new_path.name
-        or "LETTRE" in doc_new_path.name
-    ) and (
-        "Offre" in doc_new_path.name
-        or "offre" in doc_new_path.name
-        or "OFFRE" in doc_new_path.name
+    elif ("lettre" in doc_new_path.name.lower()) and (
+        "offre" in doc_new_path.name.lower()
     ):
         # Cas de la lettre d offre deja faite fait par comptoirs et commerces
         path_list = [
@@ -235,14 +221,8 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif (
-        "Registre" in doc_new_path.name
-        or "registre" in doc_new_path.name
-        or "REGISTRE" in doc_new_path.name
-    ) and (
-        "Personnel" in doc_new_path.name
-        or "personnel" in doc_new_path.name
-        or "PERSONNEL" in doc_new_path.name
+    elif ("registre" in doc_new_path.name.lower()) and (
+        "personnel" in doc_new_path.name.lower()
     ):
         path_list = [
             (
@@ -250,6 +230,16 @@ def classify_one_document(doc_path, siret):
                 / "REFERENCE_DOCUMENTS"
                 / "SOCIAL"
                 / "LISTE_DU_PERSONNEL"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif "inventaire" in doc_new_path.name.lower():
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "REFERENCE_DOCUMENTS"
+                / "JURIDIQUE_EXPLOITATION_ET_CONTRATS"
+                / "INVENTAIRE"
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
@@ -279,8 +269,7 @@ def classify_one_document(doc_path, siret):
             # traitement classique
             path_list = classify_pdf_document(enseigne_dest_folder, doc_new_path)
 
-    elif doc_new_path.suffix == ".xlsx":
-        # path_list = classify_xlsx_document(dest_folder, doc_new_path)
+    elif doc_new_path.suffix == ".xlsx" or doc_new_path.suffix == ".xls":
         path_list = [
             (
                 enseigne_dest_folder
@@ -288,7 +277,7 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif is_photo(doc_new_path) or doc_new_path.suffix == "heic":
+    elif is_photo(doc_new_path) or doc_new_path.suffix == ".heic":
         path_list = [
             (
                 enseigne_dest_folder
@@ -318,11 +307,23 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif doc_new_path.suffix == ".doc" or doc_new_path.suffix == ".docx":
+    elif (
+        doc_new_path.suffix == ".doc"
+        or doc_new_path.suffix == ".docx"
+        or doc_new_path.suffix == ".rtf"
+    ):
         path_list = [
             (
                 enseigne_dest_folder
-                / "WORD_DOCUMENTS_UNCLASSIFIED"
+                / "WORK_DOCUMENTS"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif doc_new_path.suffix == ".eml":
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "WORK_DOCUMENTS"
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
@@ -371,8 +372,10 @@ def get_encours_path_filepath(etablissement_name):
     return TMP_PATH / make_unix_compatible(f"{etablissement_name}_en_cours.txt")
 
 
-def create_unclassified_statistics(etablissement_name):
-    unclassified_paths_list = check_all_documents_sorted(etablissement_name)
+def create_unclassified_statistics(etablissement_name, source_folder_path=None):
+    unclassified_paths_list = check_all_documents_sorted(
+        etablissement_name, source_folder_path=source_folder_path
+    )
     unclassified_paths = classify_paths_by_parent(unclassified_paths_list)
     os.makedirs(TMP_PATH, mode=0o777, exist_ok=True)
     write_paths_to_file(

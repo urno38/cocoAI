@@ -1,3 +1,6 @@
+import os
+import shutil
+
 from cocoAI.doc_sort import (
     classify_one_document,
     create_unclassified_statistics,
@@ -11,7 +14,13 @@ from cocoAI.folder_tree import (
 )
 from common.identifiers import get_etablissement_name
 from common.logconfig import LOGGER
-from common.path import COMMERCIAL_DOCUMENTS_PATH, DATALAKE_PATH, make_unix_compatible
+from common.path import (
+    COCOAI_PATH,
+    COMMERCIAL_DOCUMENTS_PATH,
+    DATALAKE_PATH,
+    TMP_PATH,
+    make_unix_compatible,
+)
 
 # def retrieve_KBIS_path(source_entreprise_folder_path):
 #     LOGGER.debug(source_entreprise_folder_path)
@@ -28,6 +37,11 @@ from common.path import COMMERCIAL_DOCUMENTS_PATH, DATALAKE_PATH, make_unix_comp
 
 
 def main():
+
+    # household
+    TMP_PATH.mkdir(exist_ok=True)
+    if (COCOAI_PATH / "toto").exists():
+        shutil.rmtree(COCOAI_PATH / "toto")
 
     EN_COURS = list(COMMERCIAL_DOCUMENTS_PATH.glob("2*/1*/"))[0]
     LOGGER.debug(EN_COURS)

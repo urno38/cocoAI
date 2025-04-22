@@ -102,6 +102,9 @@ def make_unix_compatible(name):
         str: The transformed Unix-compatible name.
     """
     # Strip spaces
+    if "." in name:
+        name = ".".join([n.strip() for n in name.split(".")])
+
     name = name.strip()
     # Replace spaces with underscores
     name = name.replace("'", "_")

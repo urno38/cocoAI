@@ -50,7 +50,6 @@ def create_folder_structure_from_yaml(yaml_file, dest_folder):
 
 
 def get_entreprise_folder(siren):
-    LOGGER.debug(siren)
     return DATALAKE_PATH / (get_entreprise_name(siren) + "_" + str(siren))
 
 
@@ -74,28 +73,32 @@ def get_df_folder_possibles():
     return df
 
 
+def get_enseigne_folder(siret):
+    siren = str(int(siret)).strip()[:9]
+    dest_entreprise_folder_path = get_entreprise_folder(siren)
+    get_infos_from_a_siret(siret)
+    enseigne = make_unix_compatible(get_etablissement_name(siret))
+    return dest_entreprise_folder_path / enseigne
+
+
 def create_complete_folder_tree(siret):
-    # df = get_df_folder_possibles()
+
     siren = str(int(siret)).strip()[:9]
     LOGGER.debug(siren)
-    # root_yaml_file = COMMON_PATH / "folder_structure.yaml"
-
-    dest_entreprise_folder_path = get_entreprise_folder(siren)
     LOGGER.debug(siret)
-    enseigne = make_unix_compatible(get_etablissement_name(siret))
+
+    enseigne_folder = get_enseigne_folder(siret)
 
     for path in [
-        dest_entreprise_folder_path / enseigne,
-        dest_entreprise_folder_path / enseigne / "WORK_DOCUMENTS",
-        dest_entreprise_folder_path / enseigne / "MISTRAL_FILES",
-        dest_entreprise_folder_path / enseigne / "ATTIO_FILES",
-        dest_entreprise_folder_path
-        / enseigne
-        / "COMMERCIAL_DOCUMENTS",  # documents de commercialisation type memorandum d information ou teaser
+        enseigne_folder,
+        enseigne_folder / "WORK_DOCUMENTS",
+        enseigne_folder / "MISTRAL_FILES",
+        enseigne_folder / "ATTIO_FILES",
+        enseigne_folder / "COMMERCIAL_DOCUMENTS",
     ]:
         path.mkdir(parents=True, exist_ok=True)
 
-    return dest_entreprise_folder_path / enseigne
+    return enseigne_folder
 
 
 def main(siren):
