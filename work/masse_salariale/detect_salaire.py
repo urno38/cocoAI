@@ -7,5 +7,5 @@ siren = convert_to_siren(siret)
 ENSEIGNE_FOLDER = get_enseigne_folder(siret)
 
 
-for bull in list(DATALAKE_PATH.rglob("BULLETINS_PAIE/")):
+for bull in list(DATALAKE_PATH.rglob("plans*")):
     print(bull)
