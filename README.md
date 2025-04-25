@@ -32,3 +32,8 @@ TODO : 2025-04-23
 - vérifier que l'archivge est complet pour les dossiers dans commercial
 - finir les fignolages pour les fichiers résiduels
 - renvoyer un mail avec les bonnes imputations
+
+ Todo pour le 2025-04-28
+ repartir de
+C:\Users\lvolat\Documents\cocoAI\work\masse_salariale\detect_salaire.py
+il y a un pb sur plusieurs pages
