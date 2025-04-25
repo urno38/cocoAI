@@ -15,3 +15,7 @@ ENSEIGNE_FOLDER = get_enseigne_folder(siret)
 #         print(bull)
 #     except:
 #         pass
+
+
+for sal in list(DATALAKE_PATH.rglob("BULL*/*.pdf")):
+    print(sal)
