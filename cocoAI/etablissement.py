@@ -1,6 +1,4 @@
-from cocoAI.terrasse import (
-    extract_terrace_info_from_siret,
-)
+from cocoAI.terrasse import extract_terrace_info_from_siret
 from common.AI_API import get_summary_from_dict
 from common.convert import (
     convert_markdown_to_beamer,
@@ -10,12 +8,12 @@ from common.convert import (
 )
 from common.identifiers import pick_id
 from common.logconfig import LOGGER
-from common.path import obtain_output_folder
+from common.path import get_out_path
 
 
 def main(siret, entreprise):
     params = {"siret": siret}
-    output_folder_path = obtain_output_folder(entreprise, kind="siret", number=siret)
+    output_folder_path = get_out_path(entreprise, kind="siret", number=siret)
     json_path = output_folder_path / "output.json"
     yaml_path = json_path.with_suffix(".yaml")
     summary_mdpath = json_path.with_suffix(".md")
@@ -26,7 +24,7 @@ def main(siret, entreprise):
     beamer_texpath = json_path.parent / "slides.tex"
     beamer_pdfpath = json_path.parent / "slides.pdf"
 
-    output_folder_path = obtain_output_folder(entreprise, kind="siret", number=siret)
+    output_folder_path = get_out_path(entreprise, kind="siret", number=siret)
     output_path, di = extract_terrace_info_from_siret(entreprise)
 
     # get_infos_terrasses_etablissement(pick_id(entreprise, "siret"), entreprise)

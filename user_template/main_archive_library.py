@@ -45,7 +45,7 @@ def main():
 
     EN_COURS = list(COMMERCIAL_DOCUMENTS_PATH.glob("2*/1*/"))[0]
     LOGGER.debug(EN_COURS)
-    df = get_df_folder_possibles()
+    df = get_df_folder_possibles().reset_index()
     folder_possibles = df[~df.siret.isna()].folder.values
     # LOGGER.debug(folder_possibles)
     dossiers = (

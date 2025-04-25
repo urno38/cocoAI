@@ -12,6 +12,7 @@ from cocoAI.folder_tree import (
     get_df_folder_possibles,
     get_entreprise_folder,
 )
+from common.FEC import is_official_FEC
 from common.identifiers import get_etablissement_name, pick_id
 from common.logconfig import LOGGER
 from common.path import (
@@ -165,7 +166,7 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif "MATRICE" in doc_new_path.name.lower() and (
+    elif "matrice" in doc_new_path.name.lower() and (
         doc_new_path.suffix == ".docx" or doc_new_path.suffix == ".xlsx"
     ):
         # Cas du teaser fait par comptoirs et commerces
@@ -188,6 +189,16 @@ def classify_one_document(doc_path, siret):
                 / "REFERENCE_DOCUMENTS"
                 / "DOCUMENTATION_FINANCIERE"
                 / "BILANS_CA"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif is_official_FEC(doc_new_path):
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "REFERENCE_DOCUMENTS"
+                / "DOCUMENTATION_FINANCIERE"
+                / "FEC"
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
@@ -240,6 +251,15 @@ def classify_one_document(doc_path, siret):
                 / "REFERENCE_DOCUMENTS"
                 / "JURIDIQUE_EXPLOITATION_ET_CONTRATS"
                 / "INVENTAIRE"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif "plan" in doc_new_path.name.lower():
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "REFERENCE_DOCUMENTS"
+                / "PLANS"
                 / make_unix_compatible(doc_new_path.name)
             )
         ]

@@ -65,19 +65,19 @@ def get_df_folder_possibles():
     # df["siret"] = df2
     # df.reset_index(inplace=True)
 
-    df = pd.read_csv(COMMON_PATH / "folder_possibles_complet.csv", index_col=0)
+    df = pd.read_csv(COMMON_PATH / "folder_possibles_completv2.csv", index_col=0)
     df["siret"] = df["siret"].apply(
         lambda x: str(int(x)) if not np.isnan(float(x)) else np.nan
     )
 
-    return df
+    return df.reset_index()
 
 
 def get_enseigne_folder(siret):
     siren = str(int(siret)).strip()[:9]
     dest_entreprise_folder_path = get_entreprise_folder(siren)
     get_infos_from_a_siret(siret)
-    enseigne = make_unix_compatible(get_etablissement_name(siret))
+    enseigne = get_etablissement_name(siret)
     return dest_entreprise_folder_path / enseigne
 
 

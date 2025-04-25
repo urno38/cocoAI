@@ -22,7 +22,7 @@ from common.path import (
     OPENDATA_PARIS_URL,
     WORK_PATH,
     create_parent_directory,
-    obtain_output_folder,
+    get_out_path,
 )
 from common.pdf_document import download_pdf, extract_images_from_pdf
 from common.REST_API import export_request, make_request_with_api_key
@@ -55,7 +55,7 @@ def get_all_gpx_from_a_siret(siret):
 
     if response.status_code == 200:
         LOGGER.debug(response)
-        LOGGER.info("Request successful!")
+        LOGGER.debug("Request successful!")
         create_parent_directory(json_terrassespath)
         export_request(response, json_terrassespath)
     else:
@@ -119,8 +119,7 @@ def get_infos_terrasses_etablissement(siret, etablissement):
     params = {"where": f"siret={siret}"}
 
     json_path = (
-        obtain_output_folder(etablissement, kind="siret", number=siret)
-        / f"request.json"
+        get_out_path(etablissement, kind="siret", number=siret) / f"request.json"
     )
 
     url = (
@@ -230,7 +229,7 @@ def extract_terrace_info_from_siret(siret, etablissement: str = "LE_JARDIN_DE_RO
     """
 
     LOGGER.debug(f"Let us extract the infos from the gargote {etablissement}")
-    output_path = obtain_output_folder(etablissement, kind="siret", number=siret)
+    output_path = get_out_path(etablissement, kind="siret", number=siret)
     output_csvpath = output_path / "terrasses.csv"
     output_texpath = output_path / "terrasses.tex"
 
@@ -344,7 +343,7 @@ def generate_beamer_tex(df, output_file=Path("terrasses.tex"), standalone=False)
 
 
 def generate_beamer_terrasses(etablissement, siret):
-    output_path = obtain_output_folder(etablissement, kind="siret", number=siret)
+    output_path = get_out_path(etablissement, kind="siret", number=siret)
     output_csvpath = output_path / "terrasses.csv"
     output_totaltexpath = output_path / "slides_terrasses.tex"
     df = pd.read_csv(output_csvpath)

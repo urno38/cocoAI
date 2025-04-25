@@ -4,7 +4,7 @@ from common.AI_API import ask_Mistral
 from common.convert import clean_and_export_file, convert_markdown_to_beamer
 from common.keys import MISTRAL_API_KEY, MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
-from common.path import obtain_output_folder, rapatrie_file, rename_file_unix_compatible
+from common.path import get_out_path, rapatrie_file, rename_file_unix_compatible
 from common.pdf_document import convert_pdf_to_ascii
 
 
@@ -273,7 +273,7 @@ def global_request_bail(bail_path, output_mdpath):
 def main(bail_path):
     bail_path = rapatrie_file(bail_path)
     new_bail_path = rename_file_unix_compatible(bail_path)
-    output_folder = obtain_output_folder(new_bail_path.stem, kind="bail", number="")
+    output_folder = get_out_path(new_bail_path.stem, kind="bail", number="")
 
     LOGGER.info("First let us pick some precise infos")
 
@@ -327,7 +327,7 @@ if __name__ == "__main__":
         r"C:\Users\lvolat\Documents\cocoAI\data\Annexe_6_b_-_Bail_du_29_mars_2016.pdf"
     )
     new_bail_path = rename_file_unix_compatible(bail_path)
-    output_folder = obtain_output_folder(new_bail_path.stem, kind="bail", number="")
+    output_folder = get_out_path(new_bail_path.stem, kind="bail", number="")
     LOGGER.info("First let us pick some precise infos")
     output_mdpath = output_folder / "extraction_results.md"
 

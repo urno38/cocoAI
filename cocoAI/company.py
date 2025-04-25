@@ -15,8 +15,10 @@ from common.convert import (
     convert_markdown_to_latex,
     convert_markdown_to_pdf,
     load_yaml_to_dict,
+    test_pappers_data_compliance,
 )
 from common.identifiers import (
+    get_entreprise_name,
     get_etablissement_name,
     load_databank,
     load_siren_in_databank,
@@ -24,12 +26,7 @@ from common.identifiers import (
 )
 from common.keys import PAPPERS_API_KEY_A_BERTUOL, PAPPERS_API_KEY_LVOLAT_FREE
 from common.logconfig import LOGGER
-from common.path import (
-    OUTPUT_PATH,
-    PAPPERS_API_URL,
-    make_unix_compatible,
-    obtain_output_folder,
-)
+from common.path import OUTPUT_PATH, PAPPERS_API_URL, get_out_path, make_unix_compatible
 from common.REST_API import make_request_with_api_key
 
 # Remplacez 'votre_cle_api' par votre clé API réelle
@@ -150,16 +147,102 @@ def modify_beamer_slide(file_path, output_path, diagram_path):
 
 
 def get_output_path(entreprise, siren):
-    output_folder_path = obtain_output_folder(entreprise, "siren", siren)
+    output_folder_path = get_out_path(entreprise, "siren", siren)
     json_path = output_folder_path / "output.json"
     yaml_path = json_path.with_suffix(".yaml")
     return json_path, yaml_path
 
 
+def produce_yaml(siren, entreprise):
+    params = {"siren": siren}
+    json_path, yaml_path = get_output_path(entreprise, siren=siren)
+    url = f"{PAPPERS_API_URL}/entreprise?&{urlencode(params)}"
+    make_request_with_api_key(
+        url=url,
+        outputfile_path=json_path,
+        API="PAPPERS",
+        api_key=PAPPERS_API_KEY_A_BERTUOL,
+    )
+    output_folder_path = get_out_path(entreprise, kind="siren", number=siren)
+    return output_folder_path
+
+
+def clean_all_siren_outputs(siren):
+    output_list = list(OUTPUT_PATH.glob(f"siren_*_{siren}"))
+    for out in output_list:
+        print("on supprime", out)
+        shutil.rmtree(out)
+
+
+def charge_yaml(yaml_path):
+    di = load_yaml_to_dict(yaml_path)
+    test_pappers_data_compliance(di)
+    return (
+        di["siren"],
+        (
+            make_unix_compatible(di["denomination"])
+            if di["denomination"] is not None
+            else make_unix_compatible(di["nom_entreprise"])
+        ),
+        [et["siret"] for et in di["etablissements"] if not et["etablissement_cesse"]],
+        [et for et in di["etablissements"] if not et["etablissement_cesse"]],
+    )
+
+
+def extract_name_from_etablissement(et):
+    if et["enseigne"] is not None:
+        return make_unix_compatible(et["enseigne"])
+    if et["nom_commercial"] is not None:
+        return make_unix_compatible(et["nom_commercial"])
+    return None
+
+
+def get_infos_from_a_siren(siren: int):
+
+    # je nettoie
+    yaml_list = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))
+    if len(yaml_list) != 1 or "siren_fake" in str(yaml_list[0]):
+        clean_all_siren_outputs(siren)
+    else:
+        return charge_yaml(yaml_list[0])
+
+    # une fois nettoye, je produis
+    fake_out_path = produce_yaml(siren, "fake")
+    infos = charge_yaml(fake_out_path / "output.yaml")
+    denom = infos[1]
+    out_path = get_out_path(denom, "siren", siren, create=False)
+    os.rename(fake_out_path, out_path)
+    load_siren_in_databank(denom, str(siren))
+
+    siren, denom, sirets, ets = charge_yaml(out_path / "output.yaml")
+    for et in ets:
+        etname = extract_name_from_etablissement(et)
+        if etname is not None:
+            load_siret_in_databank(etname, et["siret"])
+        else:
+            if et["siege"]:
+                LOGGER.debug(f"on nomme {et['siret']} {denom} car c est le siege")
+                load_siret_in_databank(denom, et["siret"])
+            else:
+                LOGGER.debug(
+                    f"on nomme {et['siret']} {denom}_{et['siret'][-5:]} car mal nommes"
+                )
+                load_siret_in_databank(denom + "_" + et["siret"][-5:], et["siret"])
+
+    return siren, denom, sirets, ets
+
+
+def get_infos_from_a_siret(siret):
+    siret = str(siret)
+    siren = siret[:-5]
+    get_infos_from_a_siren(siren)
+    return get_entreprise_name(siren), get_etablissement_name(siret)
+
+
 def main(siren, entreprise):
 
     params = {"siren": siren}
-    output_folder_path = obtain_output_folder(entreprise, kind="siren", number=siren)
+    output_folder_path = get_out_path(entreprise, kind="siren", number=siren)
 
     # definition des path
     json_path, yaml_path = get_output_path(entreprise, siren=siren)
@@ -182,8 +265,7 @@ def main(siren, entreprise):
 
     di = load_yaml_to_dict(yaml_path)
 
-    # TODO: a rebrancher
-    if 0:
+    if 1:
         summary_mdpath = get_summary_from_dict(di, output_folder_path)
         if not summary_mdpath.exists():
             convert_markdown_to_latex(summary_mdpath, summary_texpath)
@@ -200,123 +282,19 @@ def main(siren, entreprise):
             )
             LOGGER.info(f"Global summary available in {beamer_pdfpath}")
 
-            # on reflechit avec les beneficiaires effectifs
-            create_beneficiaires_effectifs_diagram(yaml_path)
-            diagram_path = (json_path.parent / "flowchart.png").resolve()
-            output_pdf = json_path.parent / "slidesv2.pdf"
-            output_tex = json_path.parent / "slidesv2.tex"
-            modify_beamer_slide(beamer_texpath, output_tex, diagram_path)
-            convert_beamer_to_pdf(output_tex, output_pdf)
+            # beneficiaires effectifs
+            try:
+                create_beneficiaires_effectifs_diagram(yaml_path)
+                diagram_path = (json_path.parent / "flowchart.png").resolve()
+                output_pdf = json_path.parent / "slidesv2.pdf"
+                output_tex = json_path.parent / "slidesv2.tex"
+                modify_beamer_slide(beamer_texpath, output_tex, diagram_path)
+                convert_beamer_to_pdf(output_tex, output_pdf)
+            except:
+                LOGGER.debug("beneficiaires effectifs not done")
 
         LOGGER.info(f"Everything is available under {output_folder_path}")
     return output_folder_path
-
-
-def get_infos_from_a_siren(siren: int):
-    # je produis les donnees PAPPERS
-    yaml_list = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))
-    if yaml_list != []:
-        if len(yaml_list) > 1:
-            LOGGER.error(yaml_list)
-            raise ValueError("several outputs for one siren")
-    else:
-        # if the output folder does not exist then I recreate it
-        fake_output_folder_path = main(siren=siren, entreprise="entreprise")
-
-        yaml_path = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))[0]
-        di = load_yaml_to_dict(yaml_path)
-
-        if di["denomination"] is not None:
-            entreprise_name = make_unix_compatible(di["denomination"])
-        else:
-            entreprise_name = make_unix_compatible(di["nom_entreprise"])
-
-        LOGGER.debug("je reproduis le dossier output")
-        real_output_folder_path = obtain_output_folder(
-            label=entreprise_name,
-            kind="siren",
-            number=siren,
-        )
-        if real_output_folder_path.exists():
-            LOGGER.error(
-                f"{real_output_folder_path} exists but does not contain output.yaml then I delete it"
-            )
-            shutil.rmtree(real_output_folder_path)
-
-        LOGGER.debug(
-            f"then rename {fake_output_folder_path} to {real_output_folder_path}"
-        )
-
-        os.rename(fake_output_folder_path, real_output_folder_path)
-
-        load_siren_in_databank(entreprise_name, str(siren))
-
-    yaml_list = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))
-    yaml_path = yaml_list[0]
-    LOGGER.debug(f"Le yaml trouve est {yaml_path}")
-    di = load_yaml_to_dict(yaml_path)
-    if di["denomination"] is not None:
-        entreprise_name = make_unix_compatible(di["denomination"])
-    else:
-        entreprise_name = make_unix_compatible(di["nom_entreprise"])
-
-    sirets = [int(et["siret"]) for et in di["etablissements"]]
-
-    databank = load_databank()
-
-    LOGGER.debug(di["etablissements"])
-
-    if len(di["etablissements"]) == 1:
-        # si il n'y a que le siege
-        LOGGER.warning(f"un seul etablissement dans cette entreprise")
-        et = di["etablissements"][0]
-        if et["enseigne"] is None and et["nom_commercial"] is None:
-            LOGGER.warning(f"pas d enseigne et pas de nom commercial")
-            LOGGER.warning(
-                f"exceptionnellement je prends la denomination de l entreprise"
-            )
-            load_siret_in_databank(
-                make_unix_compatible(di["denomination"]), str(et["siret"])
-            )
-
-    else:
-        for et in di["etablissements"]:
-            if et["enseigne"] is None:
-                LOGGER.warning(f"{et["siret"]} n a pas de nom d enseigne dans pappers")
-                if et["nom_commercial"] is None:
-                    LOGGER.warning(
-                        f"{et["siret"]} n a pas de nom commercial dans pappers"
-                    )
-                else:
-                    LOGGER.warning("je charge le nom commercial dans databank.yaml")
-                    nom = et["nom_commercial"]
-            else:
-                nom = et["enseigne"]
-
-            if str(et["siret"]) not in databank["siret"].values():
-                load_siret_in_databank(make_unix_compatible(nom), str(et["siret"]))
-
-    return siren, entreprise_name, sirets, di["etablissements"]
-
-
-def get_infos_from_a_siret(siret: int):
-    siret = str(siret)
-    siren = int(str(siret)[:-5])
-    siren, entreprise_name, sirets, etablissements = get_infos_from_a_siren(siren)
-
-    if len(sirets) == 1:
-        return entreprise_name, get_etablissement_name(siret)
-
-    for et in etablissements:
-        if et["siret"] == siret:
-            if "enseigne" in et.keys() and et["enseigne"] is not None:
-                return entreprise_name, et["enseigne"]
-            elif "nom_commercial" in et.keys() and et["nom_commercial"] is not None:
-                return entreprise_name, et["nom_commercial"]
-
-    LOGGER.debug(f"siret {siret}")
-    LOGGER.debug("siret not found in databank.yaml")
-    raise ValueError("siret not found in databank.yaml")
 
 
 if __name__ == "__main__":

@@ -20,6 +20,7 @@ JURIDIQUE_EXPLOITATION_ET_CONTRATS:
     INVENTAIRE: {} # les inventaires
 
 DOCUMENTATION_FINANCIERE:
+    FEC: {}
     BILANS - CA: {} #tous les documents financiers, attestation de CA, états d'immobilisation, tous document issu de la comptabilité, tout tableau financier, tableau d'amortissement d'emprunt bancaire
     COMPTES COURANTS: {} # attestation de compte courant d'associés
     EMPRUNTS: {} # tout ce qui concerne les emprunts
@@ -35,5 +36,6 @@ SOCIAL:
     LISTE DU PERSONNEL: {}
     MUTUELLE - PREVOYANCE: {}
 
+PLANS: {} #je stocke tous les plans
 PHOTOS: {} #je stocke toutes les photos
 VIDEOS: {} #je stocke toutes les videos

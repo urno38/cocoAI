@@ -1,6 +1,6 @@
 output*.txt
 output.xlsx
-work
+# work
 data
 archives
 output.json

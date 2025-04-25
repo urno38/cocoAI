@@ -307,18 +307,18 @@ def test_pappers_data_compliance(data):
     Args:
         data (_type_): _description_
     """
-    LOGGER.info(f"Societe {data['denomination']}")
-    LOGGER.info(f"siren {data['siren']}")
+    LOGGER.debug(f"Societe {data['denomination']}")
+    LOGGER.debug(f"siren {data['siren']}")
     if data["beneficiaires_effectifs"] != []:
-        LOGGER.info("il existe des beneficiaires effectifs")
+        LOGGER.debug("il existe des beneficiaires effectifs")
         for beneff in data["beneficiaires_effectifs"]:
             noms = beneff["prenom_usuel"] + " " + beneff["nom"]
-            LOGGER.info(noms)
+            LOGGER.debug(noms)
             for key in data.keys():
                 if "part" in key:
-                    LOGGER.info(key, data[key])
+                    LOGGER.debug(key, data[key])
     else:
-        LOGGER.info("pas de beneficiaires effectifs")
+        LOGGER.debug("pas de beneficiaires effectifs")
     return
 
 

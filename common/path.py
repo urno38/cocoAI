@@ -77,13 +77,13 @@ def calculer_taille_fichier_mo(chemin_fichier):
         return f"Erreur : {e}"
 
 
-def obtain_output_folder(label, kind, number):
+def get_out_path(label, kind, number, create=True):
     if number is None or number == "":
         path = OUTPUT_PATH / f"{kind}_{label}"
     else:
         path = OUTPUT_PATH / f"{kind}_{label}_{number}"
-    create_parent_directory(path)
-    path.mkdir(exist_ok=True)
+    if create:
+        path.mkdir(exist_ok=True, parents=True)
     LOGGER.debug(f"output folder is {path}")
     return path
 

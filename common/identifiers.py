@@ -13,17 +13,25 @@ def pick_id(name, kind="siren"):
     return di[kind][name]
 
 
+def convert_to_siren(siret):
+    verify_id(siret, "siret")
+    return str(int(siret))[:9]
+
+
 def get_etablissement_name(siret):
+    siret = str(int(siret))
     di = load_yaml_to_dict(COMMON_PATH / "databank.yaml")
     return [(k, v) for k, v in di["siret"].items() if v == siret][0][0]
 
 
 def get_entreprise_name(siren):
+    siren = str(int(siren))
     di = load_yaml_to_dict(COMMON_PATH / "databank.yaml")
     return [(k, v) for k, v in di["siren"].items() if v == siren][0][0]
 
 
 def verify_id(id, kind="siren"):
+    id = str(int(id))
     if kind == "siren":
         if len(id) != 9:
             raise ValueError("le siren doit etre long de 9 caracteres")
@@ -56,9 +64,10 @@ def load_siren_in_databank(entreprise, siren, make_unix_compatible_flag=True):
 
 def load_siret_in_databank(etablissement, siret):
     databank_di = load_databank()
-    databank_di["siret"][make_unix_compatible(etablissement)] = siret
+    databank_di["siret"][make_unix_compatible(etablissement).upper()] = siret
     write_databank(databank_di)
-    LOGGER.debug(f"siret {siret} loaded in databank")
+    LOGGER.debug(f"siret {siret}")
+    LOGGER.debug(f"etablissement {etablissement.upper()}")
     return databank_di
 
 

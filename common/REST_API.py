@@ -49,7 +49,7 @@ def make_request_with_api_key(
 
     if response.status_code == 200:
         LOGGER.debug(response)
-        LOGGER.info("Request successful!")
+        LOGGER.debug("Request successful!")
         create_parent_directory(outputfile_path)
         export_request(response, outputfile_path)
     else:
