@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 
 import requests
 
-from common.convert import json_to_yaml, load_yaml_to_dict
+from common.convert import json_to_yaml, yaml_to_dict
 from common.identifiers import pick_id
 from common.keys import SIRENE_API_KEY
 from common.logconfig import LOGGER
@@ -83,7 +83,7 @@ def main():
     url = f"{OPENDATA_PARIS_URL}/catalog/datasets/terrasses-autorisations/records?&{urlencode(params)}"
     LOGGER.info(url)
     response = make_request_with_api_key(url, json_terrassespath)
-    di = load_yaml_to_dict(json_terrassespath.with_suffix(".yaml"))
+    di = yaml_to_dict(json_terrassespath.with_suffix(".yaml"))
 
     return
 

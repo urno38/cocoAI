@@ -1,6 +1,5 @@
-from common.convert import convert_pt_to_cm
+from common.convert import pt_to_cm
 from common.image import get_image_size
-
 
 legend_dict = {
     "page1_img1.png": "Commerce Accessoire",
@@ -28,7 +27,7 @@ latex_content = (
 \\begin{columns}
     \\begin{column}{0.5\\textwidth}
     \\begin{tabular}{m{"""
-    + str(convert_pt_to_cm(get_image_size("page1_img1.png")[0]) + 1)
+    + str(pt_to_cm(get_image_size("page1_img1.png")[0]) + 1)
     + """cm} l}
 """
 )

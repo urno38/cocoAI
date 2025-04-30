@@ -7,8 +7,8 @@ import pandas as pd
 import requests
 
 from common import execute
-from common.convert import convert_pt_to_cm, load_yaml_to_dict
-from common.identifiers import pick_id
+from common.convert import pt_to_cm, yaml_to_dict
+from common.identifiers import get_etablissement_name, pick_id
 from common.image import (
     detect_colors_in_image,
     detect_monochrome_images,
@@ -38,7 +38,7 @@ def get_all_terraces_from_a_siret(siret):
     url = f"{OPENDATA_PARIS_URL}/catalog/datasets/terrasses-autorisations/records?&{urlencode(params)}"
     # LOGGER.debug(url)
     response = make_request_with_api_key(url, json_terrassespath)
-    di = load_yaml_to_dict(json_terrassespath.with_suffix(".yaml"))
+    di = yaml_to_dict(json_terrassespath.with_suffix(".yaml"))
     return di
 
 
@@ -130,7 +130,7 @@ def get_infos_terrasses_etablissement(siret, etablissement):
         + urlencode(params)
     )
     response = make_request_with_api_key(url, json_path)
-    di = load_yaml_to_dict(json_path.with_suffix(".yaml"))
+    di = yaml_to_dict(json_path.with_suffix(".yaml"))
 
     return di
 
@@ -153,7 +153,7 @@ def draw_map_slide_with_legend(
     \\begin{columns}
         \\begin{column}{0.5\\textwidth}
         \\begin{tabular}{m{"""
-        + str(convert_pt_to_cm(get_image_size("page1_img1.png")[0]) + 1)
+        + str(pt_to_cm(get_image_size("page1_img1.png")[0]) + 1)
         + """cm} l}
     """
     )
@@ -214,19 +214,7 @@ def reorganize_and_display(data: List[Dict]) -> pd.DataFrame:
     return df
 
 
-def extract_terrace_info_from_siret(siret, etablissement: str = "LE_JARDIN_DE_ROME"):
-    """_summary_
-
-    Args:
-        siret (_type_): _description_
-        etablissement (str, optional): _description_. Defaults to "LE_JARDIN_DE_ROME".
-
-    Raises:
-        ValueError: _description_
-
-    Returns:
-        _type_: _description_
-    """
+def extract_terrace_info_from_siret(siret, etablissement):
 
     LOGGER.debug(f"Let us extract the infos from the gargote {etablissement}")
     output_path = get_out_path(etablissement, kind="siret", number=siret)
@@ -263,13 +251,14 @@ def extract_terrace_info_from_siret(siret, etablissement: str = "LE_JARDIN_DE_RO
 
     # # PARTIE IMPRESSION DES CARACTERISTIQUES
     df = reorganize_and_display(di)
+
     df["surface"] = df["largeur"] * df["longueur"]
     df = df.sort_values("surface")
     df = df.loc[:, ["adresse", "typologie", "surface"]]
     df = df.set_index("adresse")
 
     df.to_csv(output_csvpath)
-    LOGGER.info(f"Exported in  { output_csvpath}")
+    LOGGER.info(f"Exported in  {output_csvpath}")
     df.to_latex(
         buf=output_texpath,
         header=True,
@@ -280,7 +269,7 @@ def extract_terrace_info_from_siret(siret, etablissement: str = "LE_JARDIN_DE_RO
         position="c",
         float_format="%.2f",
     )
-    LOGGER.info(f"Exported in  { output_texpath}")
+    LOGGER.info(f"Exported in  {output_texpath}")
 
     LOGGER.info(f"Extracted all the needed terrace infos in {output_path}")
 
@@ -338,11 +327,12 @@ def generate_beamer_tex(df, output_file=Path("terrasses.tex"), standalone=False)
             f.write("\\end{document}\n")
         # LOGGER.info(output_file.resolve())
 
-    LOGGER.info(f"Output terrasses exported to { output_file.resolve()}")
+    LOGGER.info(f"Output terrasses exported to {output_file.resolve()}")
     return
 
 
 def generate_beamer_terrasses(etablissement, siret):
+
     output_path = get_out_path(etablissement, kind="siret", number=siret)
     output_csvpath = output_path / "terrasses.csv"
     output_totaltexpath = output_path / "slides_terrasses.tex"
@@ -355,27 +345,25 @@ def generate_beamer_terrasses(etablissement, siret):
     os.chdir(cwd)
 
     LOGGER.info(
-        "Output terrasses exported to",
-        output_totaltexpath.with_suffix(".pdf").resolve(),
+        f"Output terrasses exported to {output_totaltexpath.with_suffix(".pdf").resolve()}"
     )
 
-    return
+    return output_path
 
 
-def main(siret, etablissement):
-    # path, di = extract_terrace_info_from_siret("LE_JARDIN_DE_ROME")
+def main(siret, etablissement=None):
+    # pdf_path = r"c:\Users\lvolat\Downloads\328311052_004.pdf"
+
+    if etablissement is None:
+        etablissement = get_etablissement_name(siret)
     path, di = extract_terrace_info_from_siret(siret, etablissement)
+    dossier_images, legende, map_path = create_map_with_legend(path / "affichette.pdf")
+    output_folder = generate_beamer_terrasses(etablissement, siret)
 
-    # test pour le bouzin complet
-    pdf_path = r"c:\Users\lvolat\Downloads\328311052_004.pdf"
-    dossier_images, legende, map_path = create_map_with_legend(pdf_path)
-
-    # test generate slides terrasses
-    # Exemple d'utilisation
-    generate_beamer_terrasses(etablissement, siret)
+    return output_folder
 
 
 if __name__ == "__main__":
     # BLOC ENTREPRISE
-    etablissement = "LE_BISTROT_VALOIS"
+    etablissement = "BISTROT_VALOIS"
     main(siret=pick_id(etablissement, kind="siret"), etablissement=etablissement)

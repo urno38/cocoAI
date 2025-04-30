@@ -45,7 +45,64 @@ def add_slides_recursively(content, presentation, level=1):
         return presentation
 
 
-def convert_markdown_to_pptx(input_file, output_file):
+def beamer_to_pdf(tex_file, output_file, engine="pypandoc"):
+
+    if engine == "pypandoc":
+        try:
+            pypandoc.convert_file(
+                tex_file,
+                "beamer",
+                outputfile=output_file,
+                extra_args=["--pdf-engine=pdflatex"],
+            )
+            LOGGER.info(f"Conversion successful! Output file: {output_file}")
+        except Exception as e:
+            LOGGER.error(f"Conversion failed with error: {e}")
+    elif engine == "pdflatex":
+        subprocess.run(["pdflatex", tex_file])
+    else:
+        raise ValueError("not implemented")
+    return output_file
+
+
+def dict_to_yaml(data, filename):
+    """
+    Converts a dictionary to a YAML file with UTF-8 encoding.
+
+    :param data: Dictionary to convert
+    :param filename: Name of the file to write the YAML content
+    """
+    with open(filename, "w", encoding="utf-8") as file:
+        yaml.dump(
+            data, file, default_flow_style=False, sort_keys=False, allow_unicode=True
+        )
+    LOGGER.debug(f"Dictionnaire exported in {filename}")
+    return
+
+
+def clean_and_export_file(input_file_path, en_tete="```yaml", fin="```"):
+
+    output_file_path = input_file_path.with_suffix(".yaml")
+
+    with open(input_file_path, "r", encoding="utf-8") as file:
+        lines = file.readlines()
+
+    if lines and lines[0].strip() == en_tete:
+        lines.pop(0)
+    if lines and lines[-1].strip() == fin:
+        lines.pop()
+
+    # output_file_path = input_file_path.rsplit(".", 1)[0] + ".yaml"
+
+    with open(output_file_path, "w", encoding="utf-8") as file:
+        file.writelines(lines)
+
+    LOGGER.info(f"Fichier nettoyé et exporté vers {output_file_path}")
+
+    return output_file_path
+
+
+def markdown_to_pptx(input_file, output_file):
 
     # Lire le contenu du fichier Markdown d'entrée
     with open(input_file, "r", encoding="utf-8") as file:
@@ -66,7 +123,7 @@ def convert_markdown_to_pptx(input_file, output_file):
     LOGGER.debug(f"Converti {input_file} en {output_file}")
 
 
-def convert_markdown_to_latex(markdown_file, latex_file):
+def markdown_to_latex(markdown_file, latex_file):
     try:
         # Convertir le fichier Markdown en LaTeX
         output = pypandoc.convert_file(
@@ -77,7 +134,7 @@ def convert_markdown_to_latex(markdown_file, latex_file):
         LOGGER.error(f"Erreur lors de la conversion : {e}")
 
 
-def convert_markdown_to_docx(markdown_file, word_file):
+def markdown_to_docx(markdown_file, word_file):
     try:
         # Convertir le fichier Markdown en LaTeX
         output = pypandoc.convert_file(markdown_file, "docx", outputfile=word_file)
@@ -86,13 +143,43 @@ def convert_markdown_to_docx(markdown_file, word_file):
         LOGGER.error(f"Erreur lors de la conversion : {e}")
 
 
-def convert_markdown_to_pdf(markdown_file, pdf_file):
+def markdown_to_pdf(markdown_file, pdf_file):
     try:
         # Convertir le fichier Markdown en LaTeX
         output = pypandoc.convert_file(markdown_file, "pdf", outputfile=pdf_file)
         LOGGER.info(f"Conversion réussie : {pdf_file}")
     except Exception as e:
         LOGGER.error(f"Erreur lors de la conversion : {e}")
+
+
+def markdown_to_beamer(
+    input_file: Path,
+    output_pdf: Path = "slides.pdf",
+    output_tex: Path = "slides.tex",
+    title: str = "Summary",
+):
+
+    if not os.path.exists(input_file):
+        LOGGER.error(f"Error: {input_file} not found.")
+        return
+    add_header_to_beamer_markdown(input_file, input_file, title)
+    try:
+        # Convert to PDF
+        pypandoc.convert_file(
+            input_file,
+            "beamer",
+            outputfile=output_pdf,
+            extra_args=["--pdf-engine=xelatex"],
+        )
+        LOGGER.info(f"PDF conversion complete: {output_pdf}")
+
+        # Convert to TEX
+        pypandoc.convert_file(
+            input_file, "beamer", outputfile=output_tex, extra_args=["--standalone"]
+        )
+        LOGGER.info(f"TEX conversion complete: {output_tex}")
+    except Exception as e:
+        LOGGER.error(f"Error during conversion: {e}")
 
 
 def format_summary_as_markdown(summary):
@@ -156,7 +243,7 @@ def json_to_yaml(json_file_path, yaml_file_path):
     # LOGGER.info(json_file_path, "converted to", yaml_file_path)
 
 
-def load_yaml_to_dict(yaml_file_path):
+def yaml_to_dict(yaml_file_path):
     # Read the YAML file
     with open(yaml_file_path, "r", encoding="utf-8") as yaml_file:
         data = yaml.safe_load(yaml_file)
@@ -247,57 +334,7 @@ def remove_unique_level_headers_and_code_blocks(file_path):
         file.writelines(non_unique_lines)
 
 
-def convert_markdown_to_beamer(
-    input_file: Path,
-    output_pdf: Path = "slides.pdf",
-    output_tex: Path = "slides.tex",
-    title: str = "Summary",
-):
-
-    if not os.path.exists(input_file):
-        LOGGER.error(f"Error: {input_file} not found.")
-        return
-    add_header_to_beamer_markdown(input_file, input_file, title)
-    try:
-        # Convert to PDF
-        pypandoc.convert_file(
-            input_file,
-            "beamer",
-            outputfile=output_pdf,
-            extra_args=["--pdf-engine=xelatex"],
-        )
-        LOGGER.info(f"PDF conversion complete: {output_pdf}")
-
-        # Convert to TEX
-        pypandoc.convert_file(
-            input_file, "beamer", outputfile=output_tex, extra_args=["--standalone"]
-        )
-        LOGGER.info(f"TEX conversion complete: {output_tex}")
-    except Exception as e:
-        LOGGER.error(f"Error during conversion: {e}")
-
-
-def convert_beamer_to_pdf(tex_file, output_file, engine="pypandoc"):
-
-    if engine == "pypandoc":
-        try:
-            output = pypandoc.convert_file(
-                tex_file,
-                "beamer",
-                outputfile=output_file,
-                extra_args=["--pdf-engine=pdflatex"],
-            )
-            LOGGER.info(f"Conversion successful! Output file: {output_file}")
-        except Exception as e:
-            LOGGER.error(f"Conversion failed with error: {e}")
-    elif engine == "pdflatex":
-        subprocess.run(["pdflatex", tex_file])
-    else:
-        raise ValueError("not implemented")
-    return output_file
-
-
-def convert_pt_to_cm(pt):
+def pt_to_cm(pt):
     return (pt * 1.3333343412075) * 0.0264583333
 
 
@@ -322,41 +359,17 @@ def test_pappers_data_compliance(data):
     return
 
 
-def dict_to_yaml_file(data, filename):
-    """
-    Converts a dictionary to a YAML file with UTF-8 encoding.
+def docx_to_pdf(docxfile_path, pdffile_path=None):
+    if pdffile_path is None:
+        pdffile_path = docxfile_path.with_suffix(".pdf")
 
-    :param data: Dictionary to convert
-    :param filename: Name of the file to write the YAML content
-    """
-    with open(filename, "w", encoding="utf-8") as file:
-        yaml.dump(
-            data, file, default_flow_style=False, sort_keys=False, allow_unicode=True
-        )
-    LOGGER.debug(f"Dictionnaire exported in {filename}")
-    return
+    LOGGER.debug("conversion docx to pdf")
+    LOGGER.debug(docxfile_path)
+    LOGGER.debug(pdffile_path)
 
+    pypandoc.convert_file(docxfile_path, "pdf", outputfile=pdffile_path)
 
-def clean_and_export_file(input_file_path, en_tete="```yaml", fin="```"):
-
-    output_file_path = input_file_path.with_suffix(".yaml")
-
-    with open(input_file_path, "r", encoding="utf-8") as file:
-        lines = file.readlines()
-
-    if lines and lines[0].strip() == en_tete:
-        lines.pop(0)
-    if lines and lines[-1].strip() == fin:
-        lines.pop()
-
-    # output_file_path = input_file_path.rsplit(".", 1)[0] + ".yaml"
-
-    with open(output_file_path, "w", encoding="utf-8") as file:
-        file.writelines(lines)
-
-    LOGGER.info(f"Fichier nettoyé et exporté vers {output_file_path}")
-
-    return output_file_path
+    return pdffile_path
 
 
 def main():
@@ -367,7 +380,7 @@ def main():
         "LE_JARDIN_DE_ROME_siret": "57205690100018",
     }
 
-    dict_to_yaml_file(data, "output.yaml")
+    dict_to_yaml(data, "output.yaml")
 
 
 if __name__ == "__main__":

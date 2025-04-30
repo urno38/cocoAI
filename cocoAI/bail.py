@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from common.AI_API import ask_Mistral
-from common.convert import clean_and_export_file, convert_markdown_to_beamer
+from common.convert import clean_and_export_file, markdown_to_beamer
 from common.keys import MISTRAL_API_KEY, MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
 from common.path import get_out_path, rapatrie_file, rename_file_unix_compatible
@@ -306,7 +306,7 @@ def main(bail_path):
 
     if not output_mdpath.exists():
         txt, output_mdpath = global_request_bail(new_bail_path, output_mdpath)
-        convert_markdown_to_beamer(
+        markdown_to_beamer(
             output_mdpath,
             beamer_pdfpath,
             beamer_texpath,

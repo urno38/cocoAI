@@ -15,12 +15,12 @@
 ## to do list
 
 - implémenter la charte graphique de CC dans les beamers
-- commenter les fonctions et faire des logs d'impression intermédiaires remplacer les print par des logs propres
 - les bénéficiaires indirects ont un diagramme à améliorer : pointillés et sans les holdings intermédiaires
 - faire une IHM simple pour chacun des items
 - présenter les avantages de mettre en place une procédure ou pas dans la boite comptoirs et commerces
-- faire une page Linkedin pour comptoirs et commerces
 - faire une catégorie pour pister qui n'a pas été interprété
+
+Vérifications, tests
 
 - vérifier avec les bilans In Extenso du bilan 2022 disponible en
 file:///C:/Users/lvolat/Documents/cocoAI/data/2_-*DOSSIERS_lETUDE/CHIEN_QUI_FUME_Le*-*75001_PARIS*-_33_Rue_du_PONT-NEUF/3.*DOCUMENTATION_FINANCIRE/2022*-*GALLA*-_BILAN.pdf
@@ -32,8 +32,13 @@ TODO : 2025-04-23
 - vérifier que l'archivge est complet pour les dossiers dans commercial
 - finir les fignolages pour les fichiers résiduels
 - renvoyer un mail avec les bonnes imputations
+- coder le cas où il y a deux fiches terrasses pour un seul etablissement
 
- Todo pour le 2025-04-28
+ <!-- Todo pour le 2025-04-28
  repartir de
 C:\Users\lvolat\Documents\cocoAI\work\masse_salariale\detect_salaire.py
-il y a un pb sur plusieurs pages
+il y a un pb sur plusieurs pages -->
+
+ #TODO pour le 2025-04-30
+repartir de AI_API.py, il y a un TODO
+bug induit dans etablissement.py

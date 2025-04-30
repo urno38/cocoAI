@@ -4,7 +4,6 @@ from collections import defaultdict
 from pathlib import Path
 from typing import List
 
-import pandas as pd
 
 from cocoAI.company import get_infos_from_a_siret
 from cocoAI.folder_tree import (
@@ -13,14 +12,11 @@ from cocoAI.folder_tree import (
     get_entreprise_folder,
 )
 from common.FEC import is_official_FEC
-from common.identifiers import get_etablissement_name, pick_id
+from common.identifiers import pick_id
 from common.logconfig import LOGGER
 from common.path import (
     COMMERCIAL_DOCUMENTS_PATH,
-    COMMON_PATH,
-    DATALAKE_PATH,
     TMP_PATH,
-    WORK_PATH,
     calculer_taille_fichier_mo,
     is_photo,
     is_video,

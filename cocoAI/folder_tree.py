@@ -138,3 +138,15 @@ def get_ser_infos(source_folder_path):
             return df.set_index("folder").loc[f, :]
 
     return None
+
+
+def get_mistral_work_path(siret):
+    ENSEIGNE_FOLDER = get_enseigne_folder(siret)
+    MISTRAL_PATH = list(ENSEIGNE_FOLDER.rglob("**/MISTRAL_FILES/"))[0]
+    return MISTRAL_PATH
+
+
+def get_work_path(siret):
+    ENSEIGNE_FOLDER = get_enseigne_folder(siret)
+    WORK_PATH = list(ENSEIGNE_FOLDER.rglob("**/WORK_DOCUMENTS/"))[0]
+    return WORK_PATH

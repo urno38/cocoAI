@@ -1,7 +1,6 @@
 import pprint
 
 from cocoAI.doc_sort import main
-from common.identifiers import pick_id
 from common.logconfig import LOGGER
 from common.path import COMMERCIAL_DOCUMENTS_PATH
 

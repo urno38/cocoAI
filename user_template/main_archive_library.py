@@ -1,6 +1,9 @@
 import os
 import shutil
 
+import pypandoc
+from docx2pdf import convert
+
 from cocoAI.doc_sort import (
     classify_one_document,
     create_unclassified_statistics,
@@ -89,6 +92,38 @@ def main():
         LOGGER.debug(etablissement_name)
         LOGGER.info(dest_etablissement_folder_path)
 
+        # je convertis tous les docx en pdf
+        for ipath in (
+            list(source_entreprise_folder_path.rglob("*.docx"))
+            + list(source_entreprise_folder_path.rglob("*.doc"))
+            + list(source_entreprise_folder_path.rglob("*.rtf"))
+        ):
+            if ipath.with_suffix(".pdf").exists():
+                continue
+            try:
+                LOGGER.info(f'on convertit {ipath} en {ipath.with_suffix(".pdf")}')
+                convert(ipath, ipath.with_suffix(".pdf"))
+
+            except:
+                LOGGER.warning(
+                    f'pb de conversion de {ipath} en {ipath.with_suffix(".pdf")}'
+                )
+                LOGGER.warning("on essaie une conversion plus fine")
+                try:
+                    pypandoc.convert_file(
+                        rf"{str(ipath)}",
+                        to="pdf",
+                        outputfile=rf"{str(ipath.with_suffix(".pdf"))}",
+                        extra_args=["--pdf-engine=xelatex"],
+                    )
+                    LOGGER.debug("conversion ok")
+
+                except:
+                    LOGGER.warning("echec de la conversion")
+
+        # pypandoc.convert_file(source_entreprise_folder_path.rglob("*.doc"), "pdf")
+        # pypandoc.convert_file(source_entreprise_folder_path.rglob("*.rtf"), "pdf")
+
         for path in source_entreprise_folder_path.rglob("*"):
             if (
                 len(list(DATALAKE_PATH.rglob(make_unix_compatible(path.name)))) == 0
@@ -102,4 +137,6 @@ def main():
 
 
 if __name__ == "__main__":
+    main()
+    main()
     main()

@@ -2,13 +2,13 @@ from pprint import pprint
 
 import pandas as pd
 
-from common.convert import dict_to_yaml_file, load_yaml_to_dict
+from common.convert import dict_to_yaml, yaml_to_dict
 from common.logconfig import LOGGER
 from common.path import COMMON_PATH, DATABANK_PATH, make_unix_compatible
 
 
 def pick_id(name, kind="siren"):
-    di = load_yaml_to_dict(COMMON_PATH / "databank.yaml")
+    di = yaml_to_dict(COMMON_PATH / "databank.yaml")
     verify_id(di[kind][name], kind)
     return di[kind][name]
 
@@ -20,13 +20,13 @@ def convert_to_siren(siret):
 
 def get_etablissement_name(siret):
     siret = str(int(siret))
-    di = load_yaml_to_dict(COMMON_PATH / "databank.yaml")
+    di = yaml_to_dict(COMMON_PATH / "databank.yaml")
     return [(k, v) for k, v in di["siret"].items() if v == siret][0][0]
 
 
 def get_entreprise_name(siren):
     siren = str(int(siren))
-    di = load_yaml_to_dict(COMMON_PATH / "databank.yaml")
+    di = yaml_to_dict(COMMON_PATH / "databank.yaml")
     return [(k, v) for k, v in di["siren"].items() if v == siren][0][0]
 
 
@@ -41,12 +41,12 @@ def verify_id(id, kind="siren"):
 
 
 def load_databank(databank_path=DATABANK_PATH):
-    di = load_yaml_to_dict(databank_path)
+    di = yaml_to_dict(databank_path)
     return di
 
 
 def write_databank(di: dict, databank_path=DATABANK_PATH):
-    dict_to_yaml_file(di, databank_path)
+    dict_to_yaml(di, databank_path)
     return
 
 
@@ -73,7 +73,7 @@ def load_siret_in_databank(etablissement, siret):
 
 def load_nomenclature(yaml_path=COMMON_PATH / "nomenclature.yaml"):
     df_list = []
-    di = load_yaml_to_dict(yaml_path)
+    di = yaml_to_dict(yaml_path)
     for k, dict in di.items():
         df_list.append(
             pd.DataFrame(

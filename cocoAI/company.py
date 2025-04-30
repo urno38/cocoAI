@@ -9,18 +9,17 @@ from mermaid.flowchart import FlowChart, Link, Node
 
 from common.AI_API import get_summary_from_dict
 from common.convert import (
-    convert_beamer_to_pdf,
-    convert_markdown_to_beamer,
-    convert_markdown_to_docx,
-    convert_markdown_to_latex,
-    convert_markdown_to_pdf,
-    load_yaml_to_dict,
+    beamer_to_pdf,
+    markdown_to_beamer,
+    markdown_to_docx,
+    markdown_to_latex,
+    markdown_to_pdf,
     test_pappers_data_compliance,
+    yaml_to_dict,
 )
 from common.identifiers import (
     get_entreprise_name,
     get_etablissement_name,
-    load_databank,
     load_siren_in_databank,
     load_siret_in_databank,
 )
@@ -53,7 +52,7 @@ def get_company_info(siren):
 
 
 def create_beneficiaires_effectifs_diagram(yaml_path):
-    di = load_yaml_to_dict(yaml_path)
+    di = yaml_to_dict(yaml_path)
     title = ""
     nodes = [Node("MIALANE")]
     links = []
@@ -157,6 +156,8 @@ def produce_yaml(siren, entreprise):
     params = {"siren": siren}
     json_path, yaml_path = get_output_path(entreprise, siren=siren)
     url = f"{PAPPERS_API_URL}/entreprise?&{urlencode(params)}"
+    LOGGER.debug("url")
+    LOGGER.debug(url)
     make_request_with_api_key(
         url=url,
         outputfile_path=json_path,
@@ -175,7 +176,7 @@ def clean_all_siren_outputs(siren):
 
 
 def charge_yaml(yaml_path):
-    di = load_yaml_to_dict(yaml_path)
+    di = yaml_to_dict(yaml_path)
     test_pappers_data_compliance(di)
     return (
         di["siren"],
@@ -201,20 +202,22 @@ def get_infos_from_a_siren(siren: int):
 
     # je nettoie
     yaml_list = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))
+    LOGGER.debug(yaml_list)
     if len(yaml_list) != 1 or "siren_fake" in str(yaml_list[0]):
         clean_all_siren_outputs(siren)
+        # une fois nettoye, je produis
+        LOGGER.debug(siren)
+        fake_out_path = produce_yaml(siren, "fake")
+        infos = charge_yaml(fake_out_path / "output.yaml")
+        denom = infos[1]
+        out_path = get_out_path(denom, "siren", siren, create=False)
+        os.rename(fake_out_path, out_path)
+        load_siren_in_databank(denom, str(siren))
+        siren, denom, sirets, ets = charge_yaml(out_path / "output.yaml")
     else:
-        return charge_yaml(yaml_list[0])
+        siren, denom, sirets, ets = charge_yaml(yaml_list[0])
 
-    # une fois nettoye, je produis
-    fake_out_path = produce_yaml(siren, "fake")
-    infos = charge_yaml(fake_out_path / "output.yaml")
-    denom = infos[1]
-    out_path = get_out_path(denom, "siren", siren, create=False)
-    os.rename(fake_out_path, out_path)
-    load_siren_in_databank(denom, str(siren))
-
-    siren, denom, sirets, ets = charge_yaml(out_path / "output.yaml")
+    LOGGER.debug(ets)
     for et in ets:
         etname = extract_name_from_etablissement(et)
         if etname is not None:
@@ -263,18 +266,18 @@ def main(siren, entreprise):
         api_key=PAPPERS_API_KEY_A_BERTUOL,
     )
 
-    di = load_yaml_to_dict(yaml_path)
+    di = yaml_to_dict(yaml_path)
 
     if 1:
         summary_mdpath = get_summary_from_dict(di, output_folder_path)
         if not summary_mdpath.exists():
-            convert_markdown_to_latex(summary_mdpath, summary_texpath)
-            convert_markdown_to_docx(summary_mdpath, summary_docxpath)
-            convert_markdown_to_pdf(summary_mdpath, summary_pdfpath)
-            convert_markdown_to_latex(summary_mdpath, summary_texpath)
+            markdown_to_latex(summary_mdpath, summary_texpath)
+            markdown_to_docx(summary_mdpath, summary_docxpath)
+            markdown_to_pdf(summary_mdpath, summary_pdfpath)
+            markdown_to_latex(summary_mdpath, summary_texpath)
 
         if not beamer_mdpath.exists():
-            convert_markdown_to_beamer(
+            markdown_to_beamer(
                 summary_mdpath,
                 beamer_pdfpath,
                 beamer_texpath,
@@ -289,7 +292,7 @@ def main(siren, entreprise):
                 output_pdf = json_path.parent / "slidesv2.pdf"
                 output_tex = json_path.parent / "slidesv2.tex"
                 modify_beamer_slide(beamer_texpath, output_tex, diagram_path)
-                convert_beamer_to_pdf(output_tex, output_pdf)
+                beamer_to_pdf(output_tex, output_pdf)
             except:
                 LOGGER.debug("beneficiaires effectifs not done")
 
@@ -315,8 +318,9 @@ if __name__ == "__main__":
         # "80224059800010",
         # "91795262400026",
         # "81131629800017",
+        # "45156961000012",
         # "31677872900012",
-        "45229220400024"
+        # "79903742900047",
+        # "44487749200025"
     ]:
-        print(s)
         get_infos_from_a_siret(s)

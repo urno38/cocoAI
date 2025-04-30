@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from common.convert import convert_beamer_to_pdf
+from common.convert import beamer_to_pdf
 from common.identifiers import (
     NOM_DICT_LVL1,
     NOM_DICT_LVL2,
@@ -270,7 +270,7 @@ def generate_short_summary(excel_path_list):
     generate_beamer_presentation(
         bilan_df, compte_resultat_df, flux_tresorerie_df, beamer_output_path
     )
-    convert_beamer_to_pdf(
+    beamer_to_pdf(
         beamer_output_path, beamer_output_path.with_suffix(".pdf"), engine="pdflatex"
     )
     print(f"\n Présentation Beamer générée : {beamer_output_path}")
