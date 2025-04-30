@@ -10,11 +10,7 @@ from cocoAI.doc_sort import (
     get_encours_path_filepath,
     get_unclassified_path_filepath,
 )
-from cocoAI.folder_tree import (
-    create_complete_folder_tree,
-    get_df_folder_possibles,
-    get_ser_infos,
-)
+from cocoAI.folder_tree import create_complete_folder_tree, get_ser_infos
 from common.identifiers import get_etablissement_name
 from common.logconfig import LOGGER
 from common.path import (
@@ -22,6 +18,7 @@ from common.path import (
     COMMERCIAL_DOCUMENTS_PATH,
     DATALAKE_PATH,
     TMP_PATH,
+    get_df_folder_possibles,
     make_unix_compatible,
 )
 

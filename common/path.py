@@ -6,6 +6,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
 from PIL import Image, UnidentifiedImageError
 
 from common.logconfig import LOGGER
@@ -227,6 +229,26 @@ def is_video(file_path):
         return "Video:" in result.stderr
     except Exception as e:
         return False
+
+
+def get_df_folder_possibles():
+
+    # # definition du df qui fait la correspondance
+    # df = pd.read_excel(COMMON_PATH / "bdd_SIRET.xlsx").set_index("folder")
+    # df2 = (
+    #     pd.read_json(COMMON_PATH / "siret_databank.json", orient="index")
+    #     .iloc[:, 0]
+    #     .apply(str)
+    # )
+    # df["siret"] = df2
+    # df.reset_index(inplace=True)
+
+    df = pd.read_csv(COMMON_PATH / "folder_possibles_completv2.csv", index_col=0)
+    df["siret"] = df["siret"].apply(
+        lambda x: str(int(x)) if not np.isnan(float(x)) else np.nan
+    )
+
+    return df.reset_index()
 
 
 if __name__ == "__main__":

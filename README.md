@@ -39,6 +39,5 @@ TODO : 2025-04-23
 C:\Users\lvolat\Documents\cocoAI\work\masse_salariale\detect_salaire.py
 il y a un pb sur plusieurs pages -->
 
- #TODO pour le 2025-04-30
-repartir de AI_API.py, il y a un TODO
-bug induit dans etablissement.py
+ #TODO pour le 2025-05-05
+ repartir de main_global.py et le remplir

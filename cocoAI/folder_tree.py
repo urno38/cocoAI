@@ -1,14 +1,12 @@
 import re
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
 import yaml
 
 from cocoAI.company import get_infos_from_a_siren, get_infos_from_a_siret
 from common.identifiers import get_entreprise_name, get_etablissement_name
 from common.logconfig import LOGGER
-from common.path import COMMON_PATH, DATALAKE_PATH, make_unix_compatible
+from common.path import DATALAKE_PATH, get_df_folder_possibles, make_unix_compatible
 
 
 def create_folder_structure_from_yaml(yaml_file, dest_folder):
@@ -51,26 +49,6 @@ def create_folder_structure_from_yaml(yaml_file, dest_folder):
 
 def get_entreprise_folder(siren):
     return DATALAKE_PATH / (get_entreprise_name(siren) + "_" + str(siren))
-
-
-def get_df_folder_possibles():
-
-    # # definition du df qui fait la correspondance
-    # df = pd.read_excel(COMMON_PATH / "bdd_SIRET.xlsx").set_index("folder")
-    # df2 = (
-    #     pd.read_json(COMMON_PATH / "siret_databank.json", orient="index")
-    #     .iloc[:, 0]
-    #     .apply(str)
-    # )
-    # df["siret"] = df2
-    # df.reset_index(inplace=True)
-
-    df = pd.read_csv(COMMON_PATH / "folder_possibles_completv2.csv", index_col=0)
-    df["siret"] = df["siret"].apply(
-        lambda x: str(int(x)) if not np.isnan(float(x)) else np.nan
-    )
-
-    return df.reset_index()
 
 
 def get_enseigne_folder(siret):

@@ -52,10 +52,10 @@ def interpret_bail_with_sentences(bail_path, output_mdpath):
     with open(request_file_path, "w", encoding="utf-8") as f:
         f.write(request)
 
-    LOGGER.info(f"request exported to {request_file_path}")
-    LOGGER.info("lets ask Mistral to extract some infos")
-    LOGGER.info("request")
-    LOGGER.info(request)
+    LOGGER.debug(f"request exported to {request_file_path}")
+    LOGGER.debug("lets ask Mistral to extract some infos")
+    LOGGER.debug("request")
+    LOGGER.debug(request)
 
     prompt = text + request
     #  model="mistral-embed"  Our state-of-the-art semantic for extracting representation of text extracts
@@ -69,7 +69,7 @@ def interpret_bail_with_sentences(bail_path, output_mdpath):
     with open(output_mdpath, "w", encoding="utf-8") as f:
         f.write(txt)
 
-    LOGGER.info(f"Mistral did answer in {output_mdpath}")
+    LOGGER.debug(f"Mistral did answer in {output_mdpath}")
     return txt, output_mdpath
 
 
@@ -88,10 +88,10 @@ def interpret_bail_with_output_yaml(bail_path, output_mdpath):
     ) as f:
         f.write(request)
 
-    LOGGER.info(f"request exported to {request_file_path}")
-    LOGGER.info("lets ask Mistral to extract some infos")
-    LOGGER.info("request")
-    LOGGER.info(request)
+    LOGGER.debug(f"request exported to {request_file_path}")
+    LOGGER.debug("lets ask Mistral to extract some infos")
+    LOGGER.debug("request")
+    LOGGER.debug(request)
 
     #  model="mistral-embed"  Our state-of-the-art semantic for extracting representation of text extracts
     response = ask_Mistral(
@@ -104,7 +104,7 @@ def interpret_bail_with_output_yaml(bail_path, output_mdpath):
     with open(output_mdpath, "w", encoding="utf-8") as f:
         f.write(txt)
 
-    LOGGER.info(f"Mistral did answer in {output_mdpath}")
+    LOGGER.debug(f"Mistral did answer in {output_mdpath}")
 
 
 def interpret_bail_with_formatted_yaml(bail_path, output_mistralyamlpath):
@@ -216,10 +216,10 @@ date_signature:
     with open(request_file_path, "w", encoding="utf-8") as f:
         f.write(request)
 
-    LOGGER.info(f"request exported to {request_file_path}")
-    LOGGER.info("lets ask Mistral to extract some infos")
-    LOGGER.info("request")
-    LOGGER.info(request)
+    LOGGER.debug(f"request exported to {request_file_path}")
+    LOGGER.debug("lets ask Mistral to extract some infos")
+    LOGGER.debug("request")
+    LOGGER.debug(request)
 
     prompt = text + request
     #  model="mistral-embed"  Our state-of-the-art semantic for extracting representation of text extracts
@@ -233,7 +233,7 @@ date_signature:
     with open(output_mistralyamlpath, "w", encoding="utf-8") as f:
         f.write(txt)
 
-    LOGGER.info(f"Mistral did answer in {output_mistralyamlpath}")
+    LOGGER.debug(f"Mistral did answer in {output_mistralyamlpath}")
 
     output_yamlpath = clean_and_export_file(output_mistralyamlpath)
 
@@ -249,10 +249,10 @@ def global_request_bail(bail_path, output_mdpath):
     with open(request_file_path, "w", encoding="utf-8") as f:
         f.write(request)
 
-    LOGGER.info(f"request exported to {request_file_path}")
-    LOGGER.info("lets ask Mistral to summary")
-    LOGGER.info("request")
-    LOGGER.info(request)
+    LOGGER.debug(f"request exported to {request_file_path}")
+    LOGGER.debug("lets ask Mistral to summary")
+    LOGGER.debug("request")
+    LOGGER.debug(request)
 
     prompt = text + request
 
@@ -266,21 +266,22 @@ def global_request_bail(bail_path, output_mdpath):
     with open(output_mdpath, "w", encoding="utf-8") as f:
         f.write(txt)
 
-    LOGGER.info(f"Mistral did answer in {output_mdpath}")
+    LOGGER.debug(f"Mistral did answer in {output_mdpath}")
     return txt, output_mdpath
 
 
-def main(bail_path):
+def main(bail_path, output_folder=None):
     bail_path = rapatrie_file(bail_path)
     new_bail_path = rename_file_unix_compatible(bail_path)
-    output_folder = get_out_path(new_bail_path.stem, kind="bail", number="")
+    if output_folder is None:
+        output_folder = get_out_path(new_bail_path.stem, kind="bail", number="")
 
-    LOGGER.info("First let us pick some precise infos")
+    LOGGER.debug("First let us pick some precise infos")
 
-    # output_mdpath = output_folder / "extraction_results.md"
-    # beamer_mdpath = output_folder / "slides_results.md"
-    # beamer_pdfpath = output_folder / "slides_results.pdf"
-    # beamer_texpath = output_folder / "slides_results.tex"
+    output_mdpath = output_folder / "extraction_results.md"
+    beamer_mdpath = output_folder / "slides_results.md"
+    beamer_pdfpath = output_folder / "slides_results.pdf"
+    beamer_texpath = output_folder / "slides_results.tex"
 
     output_yamlpath = output_folder / "output.yaml"
 
@@ -288,16 +289,16 @@ def main(bail_path):
         txt, output_yamlpath = interpret_bail_with_formatted_yaml(
             new_bail_path, output_yamlpath
         )
-        # convert_markdown_to_beamer(
-        #     output_mdpath,
-        #     beamer_pdfpath,
-        #     beamer_texpath,
-        #     title=f"Informations {new_bail_path.name}",
-        # )
+        markdown_to_beamer(
+            output_mdpath,
+            beamer_pdfpath,
+            beamer_texpath,
+            title=f"Informations {new_bail_path.name}",
+        )
 
-    LOGGER.info(f"Picked infos available in {output_yamlpath}")
+    LOGGER.debug(f"Picked infos available in {output_yamlpath}")
 
-    LOGGER.info("Global request")
+    LOGGER.debug("Global request")
 
     output_mdpath = output_folder / "global_extraction_results.md"
     beamer_mdpath = output_folder / "global_slides_results.md"
@@ -313,9 +314,9 @@ def main(bail_path):
             title=f"Summary {new_bail_path.name}",
         )
 
-    LOGGER.info(f"Summary beamer available in {beamer_pdfpath}")
+    LOGGER.debug(f"Summary beamer available in {beamer_pdfpath}")
 
-    return
+    return output_folder
 
 
 if __name__ == "__main__":
@@ -328,7 +329,7 @@ if __name__ == "__main__":
     )
     new_bail_path = rename_file_unix_compatible(bail_path)
     output_folder = get_out_path(new_bail_path.stem, kind="bail", number="")
-    LOGGER.info("First let us pick some precise infos")
+    LOGGER.debug("First let us pick some precise infos")
     output_mdpath = output_folder / "extraction_results.md"
 
     interpret_bail_with_formatted_yaml(new_bail_path, output_mdpath)

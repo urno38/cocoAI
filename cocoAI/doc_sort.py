@@ -4,13 +4,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import List
 
-
 from cocoAI.company import get_infos_from_a_siret
-from cocoAI.folder_tree import (
-    create_complete_folder_tree,
-    get_df_folder_possibles,
-    get_entreprise_folder,
-)
+from cocoAI.folder_tree import create_complete_folder_tree, get_entreprise_folder
 from common.FEC import is_official_FEC
 from common.identifiers import pick_id
 from common.logconfig import LOGGER
@@ -18,6 +13,7 @@ from common.path import (
     COMMERCIAL_DOCUMENTS_PATH,
     TMP_PATH,
     calculer_taille_fichier_mo,
+    get_df_folder_possibles,
     is_photo,
     is_video,
     make_unix_compatible,

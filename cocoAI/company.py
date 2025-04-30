@@ -1,9 +1,11 @@
 import os
 import re
 import shutil
+from random import sample
 from urllib.parse import urlencode
 
 import mermaid as mmd
+import pypandoc
 import requests
 from mermaid.flowchart import FlowChart, Link, Node
 
@@ -12,7 +14,6 @@ from common.convert import (
     beamer_to_pdf,
     markdown_to_beamer,
     markdown_to_docx,
-    markdown_to_latex,
     markdown_to_pdf,
     test_pappers_data_compliance,
     yaml_to_dict,
@@ -20,12 +21,20 @@ from common.convert import (
 from common.identifiers import (
     get_entreprise_name,
     get_etablissement_name,
+    load_databank,
     load_siren_in_databank,
     load_siret_in_databank,
 )
 from common.keys import PAPPERS_API_KEY_A_BERTUOL, PAPPERS_API_KEY_LVOLAT_FREE
 from common.logconfig import LOGGER
-from common.path import OUTPUT_PATH, PAPPERS_API_URL, get_out_path, make_unix_compatible
+from common.path import (
+    DATABANK_PATH,
+    OUTPUT_PATH,
+    PAPPERS_API_URL,
+    get_df_folder_possibles,
+    get_out_path,
+    make_unix_compatible,
+)
 from common.REST_API import make_request_with_api_key
 
 # Remplacez 'votre_cle_api' par votre clé API réelle
@@ -145,8 +154,9 @@ def modify_beamer_slide(file_path, output_path, diagram_path):
     return
 
 
-def get_output_path(entreprise, siren):
-    output_folder_path = get_out_path(entreprise, "siren", siren)
+def get_output_path(entreprise, siren, output_folder_path=None):
+    if output_folder_path is None:
+        output_folder_path = get_out_path(entreprise, "siren", siren)
     json_path = output_folder_path / "output.json"
     yaml_path = json_path.with_suffix(".yaml")
     return json_path, yaml_path
@@ -242,13 +252,11 @@ def get_infos_from_a_siret(siret):
     return get_entreprise_name(siren), get_etablissement_name(siret)
 
 
-def main(siren, entreprise):
+def main(siren, entreprise, output_folder_path=None):
 
     params = {"siren": siren}
-    output_folder_path = get_out_path(entreprise, kind="siren", number=siren)
-
     # definition des path
-    json_path, yaml_path = get_output_path(entreprise, siren=siren)
+    json_path, yaml_path = get_output_path(entreprise, siren, output_folder_path)
     summary_mdpath = yaml_path.with_suffix(".md")
     summary_texpath = yaml_path.with_suffix(".tex")
     summary_docxpath = yaml_path.with_suffix(".docx")
@@ -269,12 +277,22 @@ def main(siren, entreprise):
     di = yaml_to_dict(yaml_path)
 
     if 1:
-        summary_mdpath = get_summary_from_dict(di, output_folder_path)
+        summary_mdpath = get_summary_from_dict(di, yaml_path.parent)
         if not summary_mdpath.exists():
-            markdown_to_latex(summary_mdpath, summary_texpath)
+            pypandoc.convert_file(
+                summary_mdpath,
+                "latex",
+                outputfile=summary_texpath,
+                extra_args=["--standalone"],
+            )
             markdown_to_docx(summary_mdpath, summary_docxpath)
             markdown_to_pdf(summary_mdpath, summary_pdfpath)
-            markdown_to_latex(summary_mdpath, summary_texpath)
+            pypandoc.convert_file(
+                summary_mdpath,
+                "latex",
+                outputfile=summary_texpath,
+                extra_args=["--standalone"],
+            )
 
         if not beamer_mdpath.exists():
             markdown_to_beamer(
@@ -296,31 +314,38 @@ def main(siren, entreprise):
             except:
                 LOGGER.debug("beneficiaires effectifs not done")
 
-        LOGGER.info(f"Everything is available under {output_folder_path}")
-    return output_folder_path
+        LOGGER.info(f"Everything is available under {yaml_path.parent}")
+    return yaml_path.parent
 
 
 if __name__ == "__main__":
+    siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
+    siren = siret[:-5]
+    LOGGER.info(siret)
+    et = get_etablissement_name(siret)
+    LOGGER.info(f"ETABLISSEMENT {et}")
+    entreprise, etablissement = get_infos_from_a_siret(siret)
+    main(siren, entreprise)
 
     # main(pick_id("GALLA", kind="siren"), "GALLA")
 
     # siren, entreprise_name, sirets, etablissements = get_infos_from_a_siren(310130323)
-    for s in [
-        # "30176296900016",
-        # "40413673100019",
-        # "48138353700018",
-        # "47150251800018",
-        # "45229220400024",
-        # "34027633600039",
-        # "56201528900019",
-        # "79903742900047",
-        # "32176212200018",
-        # "80224059800010",
-        # "91795262400026",
-        # "81131629800017",
-        # "45156961000012",
-        # "31677872900012",
-        # "79903742900047",
-        # "44487749200025"
-    ]:
-        get_infos_from_a_siret(s)
+    # for s in [
+    # "30176296900016",
+    # "40413673100019",
+    # "48138353700018",
+    # "47150251800018",
+    # "45229220400024",
+    # "34027633600039",
+    # "56201528900019",
+    # "79903742900047",
+    # "32176212200018",
+    # "80224059800010",
+    # "91795262400026",
+    # "81131629800017",
+    # "45156961000012",
+    # "31677872900012",
+    # "79903742900047",
+    # "44487749200025"
+    # ]:
+    #     get_infos_from_a_siret(s)

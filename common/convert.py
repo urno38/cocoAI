@@ -123,17 +123,6 @@ def markdown_to_pptx(input_file, output_file):
     LOGGER.debug(f"Converti {input_file} en {output_file}")
 
 
-def markdown_to_latex(markdown_file, latex_file):
-    try:
-        # Convertir le fichier Markdown en LaTeX
-        output = pypandoc.convert_file(
-            markdown_file, "latex", outputfile=latex_file, extra_args=["--standalone"]
-        )
-        LOGGER.debug(f"Conversion réussie : {latex_file}")
-    except Exception as e:
-        LOGGER.error(f"Erreur lors de la conversion : {e}")
-
-
 def markdown_to_docx(markdown_file, word_file):
     try:
         # Convertir le fichier Markdown en LaTeX
@@ -302,6 +291,50 @@ def add_header_to_beamer_markdown(
     LOGGER.info(f"Header added to {markdown_file_path}")
     LOGGER.info(f"Exported to {beamer_mdpath}")
 
+    return
+
+
+def add_title_to_markdown(
+    markdown_file_path, title="Résumé de l'entreprise", header=False
+):
+
+    # je supprime les premiers headers
+    remove_unique_level_headers_and_code_blocks(markdown_file_path)
+
+    if header:
+        header = (
+            f'---\ntitle: "'
+            + title
+            + '"'
+            + '\nauthor: "Comptoirs et Commerces"\n'
+            + 'date: "'
+            + datetime.datetime.today().strftime("%Y-%m-%d")
+            + '"\n---'
+        )
+    else:
+        header = f"# {title}"
+
+    with open(markdown_file_path, "r", encoding="utf-8") as file:
+        content = file.read()
+
+    # Use regex to find the first header line
+    pattern = r"^# .*$"
+    match = re.search(pattern, content, re.MULTILINE)
+
+    if match:
+        # Remove the first header line
+        content = re.sub(pattern, "", content, count=1, flags=re.MULTILINE)
+        # Remove any leading newlines that might result from the removal
+        # content = re.sub(r"^\n", "", content, flags=re.MULTILINE)
+
+    # # Prepend the header
+
+    new_content = header + "\n" + content
+
+    with open(markdown_file_path, "w", encoding="utf-8") as file:
+        file.write(new_content)
+
+    LOGGER.info(f"Header added to {markdown_file_path}")
     return
 
 

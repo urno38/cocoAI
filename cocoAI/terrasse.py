@@ -102,7 +102,7 @@ def create_map_with_legend(
 ):
 
     extracted_images = extract_images_from_pdf(pdf_path, dossier_images)
-    LOGGER.info(f"Successfully extracted {len(extracted_images)} images:")
+    LOGGER.debug(f"Successfully extracted {len(extracted_images)} images:")
     for img_path in extracted_images:
         LOGGER.debug(f"- {img_path}")
 
@@ -129,6 +129,7 @@ def get_infos_terrasses_etablissement(siret, etablissement):
         + f"/records?&"
         + urlencode(params)
     )
+
     response = make_request_with_api_key(url, json_path)
     di = yaml_to_dict(json_path.with_suffix(".yaml"))
 
@@ -184,11 +185,50 @@ def draw_map_slide_with_legend(
     return output_path
 
 
-def reorganize_and_display(data: List[Dict]) -> pd.DataFrame:
+def extract_terrace_info_from_siret(siret, etablissement, output_path=None):
+
+    LOGGER.debug(f"Let us extract the infos from the gargote {etablissement}")
+
+    if output_path is None:
+        output_path = get_out_path(etablissement, kind="siret", number=siret)
+
+    output_csvpath = output_path / "terrasses.csv"
+    output_texpath = output_path / "terrasses.tex"
+    output_mdpath = output_path / "terrasses.md"
+
+    # let us catch the infos
+    di = get_infos_terrasses_etablissement(siret, etablissement)
+
+    lien_affichette = set(list([t["lien_affichette"] for t in di["results"]]))
+    if len(lien_affichette) == 0:
+        LOGGER.debug("pas d affichette dispo")
+        return None, None
+    LOGGER.info(f"lien_affichette {lien_affichette}")
+    if len(lien_affichette) > 1:
+        LOGGER.warning(
+            "attention, dans OPEN DATA il y a des fausses valeurs d'affichettes ou des choses bizarres"
+        )
+        if None in lien_affichette:
+            lien_affichette = [l for l in lien_affichette if l is not None]
+            LOGGER.debug("None(s) deleted")
+
+    # PARTIE TERRASSE
+    for url in lien_affichette:
+        affichette_path = output_path / f"affichette_terrasses_{siret}.pdf"
+        LOGGER.debug(f"{url} {affichette_path}")
+        download_pdf(url, affichette_path)
+    try:
+        dossier_images, legende, map_path = create_map_with_legend(
+            affichette_path, output_path / "extracted_images"
+        )
+    except:
+        LOGGER.error("affichette non decortiquee")
+
+    # # PARTIE IMPRESSION DES CARACTERISTIQUES
     # Organiser les données par adresse et typologie
     organized_data = {}
 
-    for entry in data["results"]:
+    for entry in di["results"]:
         adresse = entry["adresse"]
         typologie = entry["typologie"]
         largeur = entry["largeur"]
@@ -211,49 +251,9 @@ def reorganize_and_display(data: List[Dict]) -> pd.DataFrame:
                 rows.append({"adresse": adresse, "typologie": typologie, **dimension})
 
     df = pd.DataFrame(rows)
-    return df
-
-
-def extract_terrace_info_from_siret(siret, etablissement):
-
-    LOGGER.debug(f"Let us extract the infos from the gargote {etablissement}")
-    output_path = get_out_path(etablissement, kind="siret", number=siret)
-    output_csvpath = output_path / "terrasses.csv"
-    output_texpath = output_path / "terrasses.tex"
-
-    # let us catch the infos
-    di = get_infos_terrasses_etablissement(siret, etablissement)
-
-    lien_affichette = set(list([t["lien_affichette"] for t in di["results"]]))
-    LOGGER.info(f"lien_affichette { lien_affichette}")
-    if len(lien_affichette) > 1:
-        LOGGER.warning(
-            "attention, dans OPEN DATA il y a des fausses valeurs d'affichettes ou des choses bizarres"
-        )
-        if None in lien_affichette:
-            lien_affichette = [l for l in lien_affichette if l is not None]
-            LOGGER.debug("None(s) deleted")
-        else:
-            raise ValueError("haha, OPENDATA aime bien les affichettes")
-
-    # PARTIE TERRASSE
-    try:
-        for url in lien_affichette:
-            affichette_path = output_path / "affichette.pdf"
-            LOGGER.debug(f"{url} {affichette_path}")
-            download_pdf(url, affichette_path)
-
-        dossier_images, legende, map_path = create_map_with_legend(
-            affichette_path, output_path / "extracted_images"
-        )
-    except:
-        LOGGER.error("pdf non téléchargé")
-
-    # # PARTIE IMPRESSION DES CARACTERISTIQUES
-    df = reorganize_and_display(di)
-
     df["surface"] = df["largeur"] * df["longueur"]
     df = df.sort_values("surface")
+
     df = df.loc[:, ["adresse", "typologie", "surface"]]
     df = df.set_index("adresse")
 
@@ -270,6 +270,32 @@ def extract_terrace_info_from_siret(siret, etablissement):
         float_format="%.2f",
     )
     LOGGER.info(f"Exported in  {output_texpath}")
+
+    df = pd.DataFrame(di["results"])
+    df["surface"] = df["largeur"] * df["longueur"]
+    df[
+        [
+            c
+            for c in df.columns
+            if not c
+            in [
+                "geo_point_2d",
+                "geo_shape",
+                "nom_societe",
+                "nom_enseigne",
+                "largeur",
+                "longueur",
+                "lien_affichette",
+                "periode_installation",
+                "arrondissement",
+                "siret",
+            ]
+        ]
+    ].sort_values(["adresse", "surface"]).set_index("adresse").to_markdown(
+        output_mdpath
+    )
+
+    LOGGER.info(f"Exported in  {output_mdpath}")
 
     LOGGER.info(f"Extracted all the needed terrace infos in {output_path}")
 
@@ -331,16 +357,16 @@ def generate_beamer_tex(df, output_file=Path("terrasses.tex"), standalone=False)
     return
 
 
-def generate_beamer_terrasses(etablissement, siret):
+def generate_beamer_terrasses(etablissement, siret, output_path=None):
+    if output_path is None:
+        output_path = get_out_path(etablissement, kind="siret", number=siret)
 
-    output_path = get_out_path(etablissement, kind="siret", number=siret)
     output_csvpath = output_path / "terrasses.csv"
     output_totaltexpath = output_path / "slides_terrasses.tex"
     df = pd.read_csv(output_csvpath)
     generate_beamer_tex(df, output_totaltexpath, standalone=True)
     cwd = Path.cwd()
     os.chdir(output_totaltexpath.parent)
-    # subprocess.run(["pdflatex", output_totaltexpath])
     execute.execute_program("pdflatex", [output_totaltexpath])
     os.chdir(cwd)
 
@@ -352,14 +378,14 @@ def generate_beamer_terrasses(etablissement, siret):
 
 
 def main(siret, etablissement=None):
-    # pdf_path = r"c:\Users\lvolat\Downloads\328311052_004.pdf"
-
     if etablissement is None:
         etablissement = get_etablissement_name(siret)
     path, di = extract_terrace_info_from_siret(siret, etablissement)
-    dossier_images, legende, map_path = create_map_with_legend(path / "affichette.pdf")
+    # if (path / "affichette.pdf").exists():
+    #     dossier_images, legende, map_path = create_map_with_legend(
+    #         path / "affichette.pdf"
+    #     )
     output_folder = generate_beamer_terrasses(etablissement, siret)
-
     return output_folder
 
 
