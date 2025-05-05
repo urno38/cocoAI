@@ -288,3 +288,8 @@ if __name__ == "__main__":
         print(f"{file_path} is a video.")
     else:
         print(f"{file_path} is not a video.")
+
+
+def list_files_in_directory(directory):
+    """Liste tous les fichiers dans un répertoire et ses sous-répertoires."""
+    return [str(path) for path in Path(directory).rglob("*") if path.is_file()]

@@ -94,11 +94,11 @@ def main(siret):
             LOGGER.info(f"{TABLEAU.resolve()} existe")
             continue
 
-        try:
-            md_output = parse_pdf(sal, MISTRAL_WORK_PATH)
-        except:
-            LOGGER.warning(f"{sal} n est pas interprete")
-            continue
+        # try:
+        md_output = parse_pdf(sal, MISTRAL_WORK_PATH)
+        # except:
+        # LOGGER.warning(f"{sal} n est pas interprete")
+        # continue
 
         with open(md_output, "r", encoding="utf-8") as f:
             ocr_output = "\n".join(f.readlines())
@@ -171,5 +171,7 @@ if __name__ == "__main__":
     # siret = "33765583100010"
     # siret = "53258418200010"
     # siret = "89918997100018" #bug
-    siret = "48786663400016"  # bug #plusieurs fichiers
+    # siret = "48786663400016"  # bug #plusieurs fichiers
+
+    siret = "79903742900047"
     main(siret)

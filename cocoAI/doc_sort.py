@@ -78,6 +78,7 @@ def write_paths_to_file(paths_list: List[Path], summary_file_path: Path):
                 file.write(f"  - {file_path.name}\n")
 
     LOGGER.info(f"List written in {summary_file_path.resolve()}")
+    return summary_file_path
 
 
 def classify_pdf_document(enseigne_dest_folder, doc_new_path):
@@ -348,18 +349,20 @@ def classify_one_document(doc_path, siret):
     if len(new_path_list) == 0:
         LOGGER.critical(f"not any new path found for the doc {doc_new_path}")
         LOGGER.critical("we do nothing")
+        return None
     elif len(new_path_list) > 1:
         LOGGER.warning(f"several locations foreseen for that document")
         LOGGER.warning(list(set(path_list)))
         LOGGER.critical("we do nothing")
+        return None
     else:
         # let us move the files
         new_path = new_path_list[0]
         new_path.parent.mkdir(exist_ok=True, parents=True)
         shutil.move(doc_new_path, new_path)
-        LOGGER.info(f"final file {path_list[0]}")
+        LOGGER.info(f"final file {new_path}")
 
-    return
+    return new_path
 
 
 def get_source_folder_path(etablissement_name):
@@ -390,11 +393,11 @@ def create_unclassified_statistics(etablissement_name, source_folder_path=None):
     )
     unclassified_paths = classify_paths_by_parent(unclassified_paths_list)
     os.makedirs(TMP_PATH, mode=0o777, exist_ok=True)
-    write_paths_to_file(
+    output_path = write_paths_to_file(
         unclassified_paths,
         get_unclassified_path_filepath(etablissement_name),
     )
-    return
+    return output_path
 
 
 if __name__ == "__main__":
