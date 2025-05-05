@@ -3,11 +3,11 @@ from random import sample
 import pypandoc
 import win32com.client
 
-from cocoAI import bail, masse_salariale
+from cocoAI import bail, company, masse_salariale
 from cocoAI.folder_tree import get_enseigne_folder, get_mistral_work_path
 from cocoAI.terrasse import extract_terrace_info_from_siret, generate_beamer_terrasses
 from common.convert import add_title_to_markdown
-from common.identifiers import get_etablissement_name
+from common.identifiers import get_entreprise_name, get_etablissement_name
 from common.logconfig import LOGGER
 from common.path import get_df_folder_possibles
 
@@ -30,8 +30,6 @@ def bloc(siret, name, output_file_name, function, md_tuples):
     return md_tuples
 
 
-# TODO a etoffer
-
 # a partir d'un seul siret, je produis un memo blanc
 # siret = "31013032300028"  # le chien qui fume
 # siret = "82795341500011"  # le renaissance
@@ -39,10 +37,16 @@ def bloc(siret, name, output_file_name, function, md_tuples):
 # siret = "85073698400012"  # le bistrot
 # siret = "82793163500011"  # les coulisses
 
-siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
+# siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
+
+siret = "45061037300018"
 
 
 # donnees
+siren = siret[:-5]
+ent = get_entreprise_name(siren)
+LOGGER.info(f"ENTREPRISE {ent}")
+
 LOGGER.info(siret)
 et = get_etablissement_name(siret)
 LOGGER.info(f"ETABLISSEMENT {et}")
@@ -57,7 +61,8 @@ LOGGER.info(tmp)
 # TOUS LES BLOCS
 
 # company
-
+output_folder = company.main(siren, get_entreprise_name(siren), tmp)
+md_tuples.append(("summary", tmp / "summary.md"))
 
 # terrasses
 _, di = extract_terrace_info_from_siret(siret, et, tmp)
@@ -73,10 +78,6 @@ if nb_bulletins_salaires > 0:
     add_title_to_markdown(tmp / "tableau_total_salaires.md", title="masse salariale")
     md_tuples.append(("salaires", tmp / "tableau_total_salaires.md"))
 
-# bail
-
-
-########################
 
 # bail
 if 1:
@@ -91,6 +92,11 @@ if 1:
                 md_tuples.append(
                     (bailpath.stem, final_folder / (bailpath.stem + ".md"))
                 )
+
+
+# main_bilan.py
+# main_etablissement.py
+# main_liasse_fiscale.py
 
 
 # print(md_tuples)

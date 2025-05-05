@@ -25,22 +25,28 @@ def main(siret, etablissement=None):
     beamer_pdfpath = json_path.parent / "slides.pdf"
 
     output_path, di = extract_terrace_info_from_siret(siret, etablissement)
-    summary_mdpath = get_summary_from_dict(di, output_folder_path)
+    try:
+        summary_mdpath = get_summary_from_dict(di, output_folder_path)
 
-    pypandoc.convert_file(
-        summary_mdpath, "latex", outputfile=summary_texpath, extra_args=["--standalone"]
-    )
-    markdown_to_docx(summary_mdpath, summary_docxpath)
-    markdown_to_pdf(summary_mdpath, summary_pdfpath)
-
-    if beamer_mdpath.exists():
-        markdown_to_beamer(
-            beamer_mdpath,
-            beamer_pdfpath,
-            beamer_texpath,
-            title=f"Résumé entreprise {etablissement}",
+        pypandoc.convert_file(
+            summary_mdpath,
+            "latex",
+            outputfile=summary_texpath,
+            extra_args=["--standalone"],
         )
-        LOGGER.info(f"Global summary available in {beamer_pdfpath}")
+        markdown_to_docx(summary_mdpath, summary_docxpath)
+        markdown_to_pdf(summary_mdpath, summary_pdfpath)
+
+        if beamer_mdpath.exists():
+            markdown_to_beamer(
+                beamer_mdpath,
+                beamer_pdfpath,
+                beamer_texpath,
+                title=f"Résumé entreprise {etablissement}",
+            )
+            LOGGER.info(f"Global summary available in {beamer_pdfpath}")
+    except:
+        pass
 
     LOGGER.info("Everything is available under " + str(output_folder_path))
     return output_folder_path
@@ -48,7 +54,10 @@ def main(siret, etablissement=None):
 
 if __name__ == "__main__":
     siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
-    LOGGER.info(siret)
-    et = get_etablissement_name(siret)
-    LOGGER.info(f"ETABLISSEMENT {et}")
-    main(siret)
+    for siret in [
+        "98247515400018",  # buggué car dictionnaire vide
+    ]:
+        LOGGER.info(siret)
+        et = get_etablissement_name(siret)
+        LOGGER.info(f"ETABLISSEMENT {et}")
+        main(siret)

@@ -26,8 +26,11 @@ def get_etablissement_name(siret):
 
 def get_entreprise_name(siren):
     siren = str(int(siren))
+    LOGGER.debug(siren)
     di = yaml_to_dict(COMMON_PATH / "databank.yaml")
-    return [(k, v) for k, v in di["siren"].items() if v == siren][0][0]
+    entreprise = [(k, v) for k, v in di["siren"].items() if v == siren][0][0]
+    LOGGER.debug(entreprise)
+    return entreprise
 
 
 def verify_id(id, kind="siren"):

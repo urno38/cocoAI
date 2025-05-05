@@ -9,7 +9,7 @@ import pypandoc
 import requests
 from mermaid.flowchart import FlowChart, Link, Node
 
-from common.AI_API import get_summary_from_dict
+from common.AI_API import get_summary_from_dict, get_summary_from_yaml
 from common.convert import (
     beamer_to_pdf,
     markdown_to_beamer,
@@ -255,15 +255,7 @@ def get_infos_from_a_siret(siret):
 def main(siren, entreprise, output_folder_path=None):
 
     params = {"siren": siren}
-    # definition des path
     json_path, yaml_path = get_output_path(entreprise, siren, output_folder_path)
-    summary_mdpath = yaml_path.with_suffix(".md")
-    summary_texpath = yaml_path.with_suffix(".tex")
-    summary_docxpath = yaml_path.with_suffix(".docx")
-    summary_pdfpath = yaml_path.with_suffix(".pdf")
-    beamer_mdpath = yaml_path.parent / "slides.md"
-    beamer_texpath = yaml_path.parent / "slides.tex"
-    beamer_pdfpath = yaml_path.parent / "slides.pdf"
 
     url = f"{PAPPERS_API_URL}/entreprise?&{urlencode(params)}"
 
@@ -277,31 +269,32 @@ def main(siren, entreprise, output_folder_path=None):
     di = yaml_to_dict(yaml_path)
 
     if 1:
-        summary_mdpath = get_summary_from_dict(di, yaml_path.parent)
-        if not summary_mdpath.exists():
-            pypandoc.convert_file(
-                summary_mdpath,
-                "latex",
-                outputfile=summary_texpath,
-                extra_args=["--standalone"],
-            )
-            markdown_to_docx(summary_mdpath, summary_docxpath)
-            markdown_to_pdf(summary_mdpath, summary_pdfpath)
-            pypandoc.convert_file(
-                summary_mdpath,
-                "latex",
-                outputfile=summary_texpath,
-                extra_args=["--standalone"],
-            )
+        # pas ouf comme maniere de faire
+        # summary_mdpath = get_summary_from_dict(di, yaml_path.parent)
 
-        if not beamer_mdpath.exists():
+        summary_mdpath = get_summary_from_yaml(yaml_path)
+        texpath = yaml_path.with_suffix(".tex")
+
+        if not texpath.exists():
+            pypandoc.convert_file(
+                summary_mdpath,
+                "latex",
+                outputfile=texpath,
+                extra_args=["--standalone"],
+            )
+            markdown_to_docx(summary_mdpath, yaml_path.with_suffix(".docx"))
+            markdown_to_pdf(summary_mdpath, yaml_path.with_suffix(".pdf"))
+
+        if not (yaml_path.parent / "slides.md").exists():
             markdown_to_beamer(
                 summary_mdpath,
-                beamer_pdfpath,
-                beamer_texpath,
+                yaml_path.parent / "slides.pdf",
+                yaml_path.with_suffix(".tex"),
                 title=f"Résumé siren {siren}",
             )
-            LOGGER.info(f"Global summary available in {beamer_pdfpath}")
+            LOGGER.info(
+                f"Global summary available in {yaml_path.parent / "slides.pdf"}"
+            )
 
             # beneficiaires effectifs
             try:
@@ -309,7 +302,9 @@ def main(siren, entreprise, output_folder_path=None):
                 diagram_path = (json_path.parent / "flowchart.png").resolve()
                 output_pdf = json_path.parent / "slidesv2.pdf"
                 output_tex = json_path.parent / "slidesv2.tex"
-                modify_beamer_slide(beamer_texpath, output_tex, diagram_path)
+                modify_beamer_slide(
+                    yaml_path.parent / "slides.tex", output_tex, diagram_path
+                )
                 beamer_to_pdf(output_tex, output_pdf)
             except:
                 LOGGER.debug("beneficiaires effectifs not done")

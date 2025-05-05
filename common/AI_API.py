@@ -3,7 +3,7 @@ import json
 from flatten_json import flatten
 from mistralai import Mistral
 
-from common.keys import MISTRAL_API_KEY
+from common.keys import MISTRAL_API_KEY, MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
 
 
@@ -47,9 +47,10 @@ def ask_Mistral(api_key, prompt, model="mistral-large-latest", json_only=True):
 
 
 def generate_summary_with_mistral(dict_data, api_key=MISTRAL_API_KEY):
-    # Initialiser le prompt
 
+    # Initialiser le prompt
     prompt = ""
+
     # Boucler sur les clés du JSON pour construire le prompt
     for key, value in dict_data.items():
         if isinstance(value, dict):
@@ -73,14 +74,19 @@ def generate_summary_with_mistral(dict_data, api_key=MISTRAL_API_KEY):
     #     ]
     # )
 
+    LOGGER.debug(prompt)
     # LOGGER.debug(prompt)
 
     # LOGGER.debug(prompt)
     # Ajouter une instruction pour générer un résumé
-    prompt += "\nGénère un résumé cohérent basé sur ces informations. Ecris le en format markdown."
-    # Fais en sorte que chacune des parties du résumé contiennent peu de texte."
+    prompt = f"""Génère un résumé cohérent basé sur les informations : 
+    '''
+    {prompt}
+    '''
+    Ecris le en format markdown.
+    Fais en sorte que chacune des parties du résumé contiennent peu de texte."""
 
-    chat_response = ask_Mistral(api_key, prompt, model="mistral-large-latest")
+    chat_response = ask_Mistral(api_key, prompt, model="mistral-small-latest")
 
     return chat_response.choices[0].message.content
 
@@ -95,8 +101,39 @@ def get_summary_from_dict(dictionary, output_path):
 
     summary = generate_summary_with_mistral(dictionary, api_key=MISTRAL_API_KEY)
     if summary:
-        LOGGER.info("Résumé généré avec Mistral AI :")
-        LOGGER.debug(summary)
+        LOGGER.debug(f"Résumé généré avec Mistral AI : {summary}")
+        with open(summary_path, "w", encoding="utf-8") as f:
+            f.write(summary)
+
+    return summary_path
+
+
+def get_summary_from_yaml(yaml_path):
+    summary_path = yaml_path.parent / "summary.md"
+
+    if summary_path.exists():
+        LOGGER.info("Summary has already been produced")
+        LOGGER.info(str(summary_path))
+        return summary_path
+
+    with yaml_path.open() as f:
+        lines = "".join(f.readlines())
+
+    message = f"""
+Dans un langage clair et concis résume les points saillants de cette liste. Ecris la réponse au format Markdown.
+{lines}
+"""
+    LOGGER.info("summary generation")
+    LOGGER.info("un peu long, attendre")
+    client = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
+    messages = [{"role": "user", "content": message}]
+    chat_response = client.chat.complete(
+        model="mistral-large-latest", messages=messages
+    )
+    summary = chat_response.choices[0].message.content
+
+    if summary:
+        LOGGER.debug(f"Résumé généré avec Mistral AI : {summary}")
         with open(summary_path, "w", encoding="utf-8") as f:
             f.write(summary)
 

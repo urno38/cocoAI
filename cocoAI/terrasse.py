@@ -198,6 +198,8 @@ def extract_terrace_info_from_siret(siret, etablissement, output_path=None):
 
     # let us catch the infos
     di = get_infos_terrasses_etablissement(siret, etablissement)
+    if di["total_count"] == 0:
+        return output_path, None
 
     lien_affichette = set(list([t["lien_affichette"] for t in di["results"]]))
     if len(lien_affichette) == 0:
@@ -214,15 +216,16 @@ def extract_terrace_info_from_siret(siret, etablissement, output_path=None):
 
     # PARTIE TERRASSE
     for url in lien_affichette:
-        affichette_path = output_path / f"affichette_terrasses_{siret}.pdf"
-        LOGGER.debug(f"{url} {affichette_path}")
-        download_pdf(url, affichette_path)
-    try:
-        dossier_images, legende, map_path = create_map_with_legend(
-            affichette_path, output_path / "extracted_images"
-        )
-    except:
-        LOGGER.error("affichette non decortiquee")
+        try:
+            affichette_path = output_path / f"affichette_terrasses_{siret}.pdf"
+            LOGGER.debug(f"{url} {affichette_path}")
+            download_pdf(url, affichette_path)
+
+            dossier_images, legende, map_path = create_map_with_legend(
+                affichette_path, output_path / "extracted_images"
+            )
+        except:
+            LOGGER.error("affichette non decortiquee")
 
     # # PARTIE IMPRESSION DES CARACTERISTIQUES
     # Organiser les données par adresse et typologie
