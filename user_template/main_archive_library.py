@@ -1,5 +1,6 @@
 import os
 import shutil
+from pprint import pprint
 
 import pypandoc
 from docx2pdf import convert
@@ -55,9 +56,11 @@ def main():
         + [d for d in list(COMMERCIAL_DOCUMENTS_PATH.glob("100 -*/1 -*/*/"))]
     )
     TO_BE_CLASSIFIED = [d for d in dossiers]
-    # LOGGER.debug(TO_BE_CLASSIFIED)
     TO_BE_CLASSIFIED = [d for d in TO_BE_CLASSIFIED if d.name in folder_possibles]
-    # LOGGER.debug(TO_BE_CLASSIFIED)
+
+    not_class = [d for d in TO_BE_CLASSIFIED if not d.name in folder_possibles]
+    print(f"warning, these folders {not_class} are not classified")
+
     for source_entreprise_folder_path in TO_BE_CLASSIFIED:
 
         LOGGER.info(source_entreprise_folder_path)
@@ -133,7 +136,34 @@ def main():
     return
 
 
+# def mainv2():
+
+#     # household
+#     TMP_PATH.mkdir(exist_ok=True)
+#     if (COCOAI_PATH / "toto").exists():
+#         shutil.rmtree(COCOAI_PATH / "toto")
+
+#     EN_COURS = list(COMMERCIAL_DOCUMENTS_PATH.glob("2*/1*/"))[0]
+#     LOGGER.debug(EN_COURS)
+#     df = get_df_folder_possibles().reset_index()
+#     folder_possibles = df[~df.siret.isna()].folder.values
+#     # LOGGER.debug(folder_possibles)
+#     dossiers = (
+#         [d for d in list(COMMERCIAL_DOCUMENTS_PATH.glob("1 -*/*/"))]
+#         + [d for d in list(COMMERCIAL_DOCUMENTS_PATH.glob("2*/1*/*/"))]
+#         + [d for d in list(COMMERCIAL_DOCUMENTS_PATH.glob("10 -*/*/"))]
+#         + [d for d in list(COMMERCIAL_DOCUMENTS_PATH.glob("100 -*/1 -*/*/"))]
+#     )
+#     TO_BE_CLASSIFIED = [d for d in dossiers]
+#     TO_BE_CLASSIFIED = [d for d in TO_BE_CLASSIFIED if not d.name in folder_possibles]
+
+#     pprint(TO_BE_CLASSIFIED)
+
+#     for n in TO_BE_CLASSIFIED:
+#         print(str(n.name) + "," + "toto,,,,,,,siret")
+
+#     return
+
+
 if __name__ == "__main__":
-    main()
-    main()
     main()

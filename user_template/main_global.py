@@ -86,7 +86,13 @@ def main(siret):
 
     # main_bilan.py
     # main_etablissement.py
-    # main_liasse_fiscale.py
+
+    # liasse
+    for liasse in [
+        l for l in ENSEIGNE_FOLDER.rglob("*.md") if "liasse" in l.name.lower()
+    ]:
+        print(liasse)
+        md_tuples.extend([(liasse.stem, liasse)])
 
     # print(md_tuples)
     # je convertis le markdown glob en docx et en pdf
@@ -94,6 +100,7 @@ def main(siret):
         commercial_folder
         / f"memorandum_{datetime.datetime.now().strftime("%d-%m-%Y_%Hh%M_%S")}.docx"
     )
+    print(md_tuples)
     if len(md_tuples) > 0:
         pypandoc.convert_file(
             [str(md[1]) for md in md_tuples],
@@ -130,4 +137,7 @@ if __name__ == "__main__":
     # ]:
     #     main(siret)
 
-    main("79903742900047")
+    # main("90834751100010")
+
+    for s in get_df_folder_possibles()["siret"].dropna().values.tolist():
+        main(s)

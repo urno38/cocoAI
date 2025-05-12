@@ -1,18 +1,24 @@
 # script pour demander un output structuré à partir d'un document
 # notamment une liasse fiscale
 
-import json
 import os
+import sys
 from pathlib import Path
+from random import sample, shuffle
 
+import pyperclip
 from PyPDF2 import PdfReader, PdfWriter
 
+from cocoAI.etablissement import display_infos_on_siret
 from cocoAI.folder_tree import get_enseigne_folder
-from common.AI_API import ask_Mistral
-from common.keys import MISTRAL_API_KEY_PAYANTE
+from cocoAI.liasse_fiscale import (
+    get_liasse_list_in_folder,
+    get_liasse_md_path,
+    get_prompt_mistral,
+)
+from cocoAI.masse_salariale import parse_pdf
 from common.logconfig import LOGGER
-from common.path import rapatrie_file
-from common.pdf_document import process_file_by_Mistral_OCR, request_file_nature
+from common.path import get_df_folder_possibles, is_file_empty, rapatrie_file
 
 
 def split_pdf(input_pdf_path):
@@ -56,52 +62,147 @@ def split_pdf(input_pdf_path):
         return path_list
 
 
-pdf_path = Path(
-    r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\DATALAKE - Documents\LA_RENAISSANCE_827953415\BISTROT_RENAISSANCE\REFERENCE_DOCUMENTS\DOCUMENTATION_FINANCIERE\BILANS_CA\liasse_23_is_renaissance.pdf"
-)
-siret = "82795341500011"
-dest_enseigne_folder = get_enseigne_folder(siret)
-TMP = dest_enseigne_folder / "WORK_DOCUMENTS"
+def main_old():
+    pdf_path = Path(
+        r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\DATALAKE - Documents\LA_RENAISSANCE_827953415\BISTROT_RENAISSANCE\REFERENCE_DOCUMENTS\DOCUMENTATION_FINANCIERE\BILANS_CA\liasse_23_is_renaissance.pdf"
+    )
+    siret = "82795341500011"
+    dest_enseigne_folder = get_enseigne_folder(siret)
+    TMP = dest_enseigne_folder / "WORK_DOCUMENTS"
+    MISTRAL_TMP = dest_enseigne_folder / "MISTRAL_FILES"
+
+    pdf_file_path = rapatrie_file(pdf_path)
+    del pdf_path  # securite pour eviter de toucher ulterieurement au fichier d'origine
+
+    # Exemple d'utilisation
+    path_list = split_pdf(pdf_file_path)
+
+    for path in path_list:
+
+        md_output = parse_pdf(path, MISTRAL_TMP)
+        # except:
+        # LOGGER.warning(f"{sal} n est pas interprete")
+        # continue
+
+        with open(md_output, "r", encoding="utf-8") as f:
+            ocr_output = "\n".join(f.readlines())
+
+    # ocr_response = process_file_by_Mistral_OCR(path)
+    # response_dict = json.loads(ocr_response.model_dump_json())
+    # print(response_dict)
+    # ocr_markdown = response_dict["pages"][0]["markdown"]
+    # print(ocr_markdown)
+    # request = (
+    #     "Extrais du document joint tous les montants en euros et les codes à deux ou trois caractères situés immédiatement avant. Présente le résultat sous forme d'un json."
+    #     + "\n\n\n"
+    #     + ocr_markdown
+    # )
+
+    # request_file = MISTRAL_TMP / pdf_file_path.with_suffix(".request").name
+    # with open(request_file, "w", encoding="utf-8") as f:
+    #     f.write(request)
+    #     LOGGER.debug(f"request exported to {request_file}")
+
+    # model = "mistral-large-latest"
+    # chat_response = ask_Mistral(
+    #     api_key=MISTRAL_API_KEY_PAYANTE,
+    #     prompt=request,
+    #     model=model,
+    #     json_only=True,
+    # )
+    # response = chat_response.choices[0].message.content
+
+    # if 0:
+    #     txt_path = MISTRAL_TMP / path.with_suffix(".txt").name
+    #     with open(txt_path, "w", encoding="utf-8") as f:
+    #         f.write(response)
+    #         LOGGER.info(txt_path.resolve())
+    # else:
+    #     response_dict2 = json.loads(response)
+    #     json_path = MISTRAL_TMP / path.with_suffix(".json").name
+    #     with open(json_path, "w", encoding="utf-8") as f:
+    #         f.write(json.dumps(response_dict2, ensure_ascii=False))
+    #         LOGGER.debug(json_path.resolve())
+
+    # # LOGGER.info(f"Mistral did answer in {txt_path}")
 
 
-pdf_file_path = rapatrie_file(pdf_path)
-del pdf_path  # securite pour eviter de toucher ulterieurement au fichier d'origine
+def main(siret):
+
+    display_infos_on_siret(siret)
+
+    # ENSEIGNE_FOLDER = get_enseigne_folder(siret)
+    # FOLDER_LIASSE = ENSEIGNE_FOLDER / "DOCUMENTATION_FINANCIERE" / "BILANS_CA"
+    # print(FOLDER_LIASSE)
+
+    liasse_list = get_liasse_list_in_folder(siret)
+    if len(liasse_list) > 0:
+        print("\n\nles liasses actuellement présentes sont")
+        for liasse in liasse_list:
+            print(liasse)
+
+    # docs_list =
+    # if len(docs_list) > 0:
+    #     print("\n\nles documents actuellement présents sont")
+    #     for doc in docs_list:
+    #         print(doc)
+
+    if len(liasse_list) == 0:
+        print("Pas de liasse présente dans le dossier, exit ...")
+        return
+
+    print("Suivre scrupuleusement les étapes suivantes pour traiter la liasse fiscale")
+
+    default_liasse = liasse_list[0] if len(liasse_list) > 0 else ""
+    liasse_path = input(
+        f"\n\nQuel est le chemin de la liasse fiscale a interpreter ? [{default_liasse}]"
+    )
+    if not liasse_path:
+        liasse_path = default_liasse
+
+    if liasse_path == "":
+        print("\n\n=======")
+        print("l'utilisateur n a pas donne de liasse a interpreter, exit ...")
+        return
+
+    liasse_path = Path(liasse_path)
+
+    print("\n\n=======")
+    print("\n\n1. Copier coller le prompt suivant avec le document dans mistral")
+    print("\n\n=======")
+    prompt = get_prompt_mistral(siret)
+    print("=======\n\n")
+    print(prompt)
+
+    pyperclip.copy(prompt)
+
+    print("\n\nle prompt est déjà dans ton clipboard")
+
+    liasse_md = get_liasse_md_path(siret, liasse_path)
+    liasse_md.touch(mode=0o777)
+
+    print("\n\n=======")
+    print(f"\n\n2. Copier coller l'output de mistral dans {liasse_md.resolve()}")
+
+    inp = input("done ? []")
+
+    if is_file_empty(liasse_md):
+        print(f"{liasse_md} est vide")
 
 
-# Exemple d'utilisation
-path_list = split_pdf(pdf_file_path)
+if __name__ == "__main__":
 
-ocr_response = process_file_by_Mistral_OCR(path_list[0])
+    if 0:
+        siret_list = get_df_folder_possibles()["siret"].dropna().values.tolist()
+        shuffle(siret_list)
 
-response_dict = json.loads(ocr_response.model_dump_json())
-ocr_markdown = response_dict["pages"][0]["markdown"]
+        for s in siret_list:
+            print(s)
+            if len(get_liasse_list_in_folder(s)) > 0:
+                siret_ok = s
+                break
 
-request = (
-    "Extrais toutes les informations de ce document au format markdown"
-    + "\n\n\n"
-    + ocr_markdown
-)
+        # siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
+        main(siret_ok)
 
-request_file = TMP / pdf_file_path.with_suffix(".request").name
-with open(request_file, "w", encoding="utf-8") as f:
-    f.write(request)
-    LOGGER.debug(f"request exported to {request_file}")
-
-model = "mistral-large-latest"
-chat_response = ask_Mistral(
-    api_key=MISTRAL_API_KEY_PAYANTE,
-    prompt=request,
-    model=model,
-    # json_only=True,
-)
-
-
-response = chat_response.choices[0].message.content
-
-txt_path = TMP / pdf_file_path.with_suffix(".txt").name
-with open(txt_path, "w", encoding="utf-8") as f:
-    f.write(response)
-    LOGGER.debug(txt_path.resolve())
-
-
-LOGGER.info(f"Mistral did answer in {txt_path}")
+    main(90834751100010)

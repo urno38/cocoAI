@@ -16,28 +16,19 @@
 
 - implémenter la charte graphique de CC dans les beamers
 - les bénéficiaires indirects ont un diagramme à améliorer : pointillés et sans les holdings intermédiaires
-- faire une IHM simple pour chacun des items
 - présenter les avantages de mettre en place une procédure ou pas dans la boite comptoirs et commerces
-- faire une catégorie pour pister qui n'a pas été interprété
-
-Vérifications, tests
 
 - vérifier avec les bilans In Extenso du bilan 2022 disponible en
 file:///C:/Users/lvolat/Documents/cocoAI/data/2_-*DOSSIERS_lETUDE/CHIEN_QUI_FUME_Le*-*75001_PARIS*-_33_Rue_du_PONT-NEUF/3.*DOCUMENTATION_FINANCIRE/2022*-*GALLA*-_BILAN.pdf
 
 TODO : 2025-04-23
 
-- repartir de main_archive pour TERMINER l'archivage total
-- coder le cas où il y a deux affichettes. Exemple siret pick_id("BISTROT_RENAISSANCE", kind="siret")
-- vérifier que l'archivge est complet pour les dossiers dans commercial
 - finir les fignolages pour les fichiers résiduels
-- renvoyer un mail avec les bonnes imputations
-- coder le cas où il y a deux fiches terrasses pour un seul etablissement
 
- <!-- Todo pour le 2025-04-28
- repartir de
-C:\Users\lvolat\Documents\cocoAI\work\masse_salariale\detect_salaire.py
-il y a un pb sur plusieurs pages -->
+- faire un archivage total de tout
+ & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\activate.ps1
+ & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\python.exe c:/Users/lvolat/Documents/cocoAI/user_template/main_global.py
 
- #TODO pour le 2025-05-05
- repartir de main_global.py et le remplir
+& C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\python.exe c:/Users/lvolat/Documents/cocoAI/user_template/main_archivage_library.py
+
+coder, si il existe FEC alors je l'interprête.

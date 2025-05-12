@@ -2,6 +2,7 @@ from random import sample
 
 import pypandoc
 
+from cocoAI.folder_tree import get_enseigne_folder
 from cocoAI.terrasse import extract_terrace_info_from_siret
 from common.AI_API import get_summary_from_dict
 from common.convert import markdown_to_beamer, markdown_to_docx, markdown_to_pdf
@@ -50,6 +51,24 @@ def main(siret, etablissement=None):
 
     LOGGER.info("Everything is available under " + str(output_folder_path))
     return output_folder_path
+
+
+def display_infos_on_siret(siret):
+
+    LOGGER.info(f"siret {siret}")
+    etablissement = get_etablissement_name(siret)
+    LOGGER.info(f"etablissement {etablissement}")
+    ENSEIGNE_FOLDER = get_enseigne_folder(siret)
+
+    LOGGER.info(ENSEIGNE_FOLDER)
+    if ENSEIGNE_FOLDER.exists():
+        LOGGER.info(f"déjà archivé")
+        # LOGGER.info("dossier de travail")
+        # LOGGER.info(get_enseigne_folder(siret))
+    else:
+        LOGGER.info(f"à archiver")
+
+    return
 
 
 if __name__ == "__main__":

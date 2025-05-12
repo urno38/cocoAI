@@ -1,24 +1,41 @@
 import base64
 import json
+from pathlib import Path
 
 import pandas as pd
 from mistralai import Mistral
 
 from cocoAI.folder_tree import get_enseigne_folder, get_mistral_work_path, get_work_path
 from common.AI_API import ask_Mistral
-from common.keys import MISTRAL_API_KEY, MISTRAL_API_KEY_PAYANTE
+from common.keys import MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
 
 
 def data_uri_to_bytes(data_uri):
-    _, encoded = data_uri.split(",", 1)
-    return base64.b64decode(encoded).decode("utf-8")
+    # Assuming the data_uri is in the format: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA..."
+    header, encoded = data_uri.split(",", 1)
+    return base64.b64decode(encoded)
 
 
 def export_image(image):
-    parsed_image = data_uri_to_bytes(image.image_base64)
-    with open(image.id, "wb", encoding="utf-8") as file:
-        file.write(parsed_image)
+    try:
+        parsed_image = data_uri_to_bytes(image.image_base64)
+        with open(outputimage_path, "wb") as file:
+            file.write(parsed_image)
+        print(f"Image successfully exported to {outputimage_path.resolve()}")
+    except Exception as e:
+        print(f"An error occurred while exporting the image: {e}")
+
+
+def export_imagev2(image, doc_path):
+    try:
+        parsed_image = data_uri_to_bytes(image.image_base64)
+        outputimage_path = doc_path.parent / (doc_path.stem + "_" + image.id)
+        with open(outputimage_path, "wb") as file:
+            file.write(parsed_image)
+        print(f"Image successfully exported to {outputimage_path.resolve()}")
+    except Exception as e:
+        print(f"An error occurred while exporting the image: {e}")
 
 
 def parse_pdf(file_path, MISTRAL_PATH):
@@ -39,8 +56,8 @@ def parse_pdf(file_path, MISTRAL_PATH):
         for page in response.pages:
             f.write(page.markdown)
             for image in page.images:
-                export_image(image)
-    # print(md_output_path)
+                export_image(image, md_output_path)
+    print(md_output_path)
     return md_output_path
 
 

@@ -9,7 +9,7 @@ import pypandoc
 import requests
 from mermaid.flowchart import FlowChart, Link, Node
 
-from common.AI_API import get_summary_from_dict, get_summary_from_yaml
+from common.AI_API import get_summary_from_yaml
 from common.convert import (
     beamer_to_pdf,
     markdown_to_beamer,
@@ -21,14 +21,12 @@ from common.convert import (
 from common.identifiers import (
     get_entreprise_name,
     get_etablissement_name,
-    load_databank,
     load_siren_in_databank,
     load_siret_in_databank,
 )
 from common.keys import PAPPERS_API_KEY_A_BERTUOL, PAPPERS_API_KEY_LVOLAT_FREE
 from common.logconfig import LOGGER
 from common.path import (
-    DATABANK_PATH,
     OUTPUT_PATH,
     PAPPERS_API_URL,
     get_df_folder_possibles,

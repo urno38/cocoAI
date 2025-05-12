@@ -1,15 +1,16 @@
-from pprint import pprint
 import sys
+from pprint import pprint
 
-sys.path.append(r"C:\Users\lvolat\Documents\cocoAI")
+import fitz
+import pytesseract
+
+from common.logconfig import LOGGER
 from common.path import (
     DATA_PATH,
     TESSERACT_EXE_PATH,
     WORK_PATH,
     create_parent_directory,
 )
-import fitz
-import pytesseract
 
 pytesseract.pytesseract.tesseract_cmd = TESSERACT_EXE_PATH
 from PIL import Image
@@ -26,7 +27,7 @@ def extract_pdf(pdf_path, output_path, password=None):
         img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
         text = pytesseract.image_to_string(img)  # 'fra' pour le français
         # text = pytesseract.image_to_string(img, lang="fra")  # 'fra' pour le français
-        logging.info(f"Page {page_num + 1}:\n{text}\n")
+        LOGGER.info(f"Page {page_num + 1}:\n{text}\n")
         page_path = output_path / f"page_{page_num + 1}.txt"
         with open(page_path, "w", encoding="utf-8") as f:
             f.write(f"Page {page_num + 1}:\n{text}\n\n")
@@ -44,6 +45,6 @@ if __name__ == "__main__":
     )
     pdf_path = list(PDF_FOLDER_PATH.glob("*.pdf"))[0]
     # logging.info(DATA_PATH)
-    plogging.info(pdf_path)
-    logging.info(f"Extraction du texte du fichier PDF: {pdf_path}")
+    LOGGER.info(pdf_path)
+    LOGGER.info(f"Extraction du texte du fichier PDF: {pdf_path}")
     extract_pdf(pdf_path, WORK_PATH / "output")
