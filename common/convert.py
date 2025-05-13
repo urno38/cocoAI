@@ -80,6 +80,13 @@ def dict_to_yaml(data, filename):
     return
 
 
+def dict_to_json(data, filename):
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(json.dumps(data, ensure_ascii=False))
+    LOGGER.debug(f"Dictionnaire exported in {filename}")
+    return
+
+
 def clean_and_export_file(input_file_path, en_tete="```yaml", fin="```"):
 
     output_file_path = input_file_path.with_suffix(".yaml")

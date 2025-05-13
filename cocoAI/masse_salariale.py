@@ -60,7 +60,7 @@ def parse_pdf(file_path, MISTRAL_PATH):
         for page in response.pages:
             f.write(page.markdown)
             for image in page.images:
-                export_image(image, md_output_path)
+                export_imagev2(image, md_output_path)
     print(md_output_path)
     return md_output_path
 

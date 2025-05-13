@@ -217,8 +217,7 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif "IM" in doc_new_path.name:
-        # Cas du memorandum d'information fait par comptoirs et commerces
+    elif "IM_" in doc_new_path.name or "_IM" in doc_new_path.name:
         path_list = [
             (
                 enseigne_dest_folder
@@ -311,11 +310,7 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif (
-        is_video(doc_new_path)
-        or doc_new_path.suffix == ".mov"  # videos IPHONE
-        or doc_new_path.suffix == ".MOV"  # videos IPHONE
-    ):
+    elif is_video(doc_new_path) or doc_new_path.suffix.lower == ".mov":  # videos IPHONE
         path_list = [
             (
                 enseigne_dest_folder

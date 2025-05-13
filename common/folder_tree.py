@@ -1,14 +1,8 @@
-import re
 from pathlib import Path
 
 import yaml
 
-from cocoAI.company import get_infos_from_a_siret
-from common.identifiers import (
-    get_entreprise_name,
-    get_etablissement_name,
-    get_infos_from_a_siren,
-)
+from common.identifiers import get_entreprise_name, get_etablissement_name
 from common.logconfig import LOGGER
 from common.path import (
     DATALAKE_PATH,
@@ -93,25 +87,6 @@ def main(siren):
     dest_folder = create_complete_folder_tree(siren)
 
 
-if __name__ == "__main__":
-
-    # recherche par siren
-    for siren in [
-        818114456,  # SIAM-POMPE
-        310130323,  # GALLA
-        481383537,  # BISTROT VALOIS
-    ]:
-        main(siren)
-
-    # recherche par siret
-    for siret in [
-        65201475400012,  # LE ROI DE SIAM
-    ]:
-        entreprise_name, etablissement = get_infos_from_a_siret(siret)
-        print(int(str(siret)[:-5]))
-        main(int(str(siret)[:-5]))
-
-
 def get_ser_infos(source_folder_path):
 
     df = get_df_folder_possibles()
@@ -153,7 +128,22 @@ def get_out_path(label, kind, number, create=True):
         path.mkdir(exist_ok=True, parents=True)
     LOGGER.debug(f"output folder is {path}")
     return path
-    if create:
-        path.mkdir(exist_ok=True, parents=True)
-    LOGGER.debug(f"output folder is {path}")
-    return path
+
+
+if __name__ == "__main__":
+
+    # recherche par siren
+    for siren in [
+        818114456,  # SIAM-POMPE
+        310130323,  # GALLA
+        481383537,  # BISTROT VALOIS
+    ]:
+        main(siren)
+
+    # recherche par siret
+    for siret in [
+        65201475400012,  # LE ROI DE SIAM
+    ]:
+        # entreprise_name, etablissement = get_infos_from_a_siret(siret)
+        print(int(str(siret)[:-5]))
+        main(int(str(siret)[:-5]))

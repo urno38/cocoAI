@@ -17,7 +17,7 @@ from common.convert import (
     test_pappers_data_compliance,
     yaml_to_dict,
 )
-from common.folder_tree import get_out_path
+from common.folder_tree import get_entreprise_folder_path, get_out_path
 from common.identifiers import (
     get_entreprise_name,
     get_etablissement_name,
@@ -199,8 +199,7 @@ def extract_name_from_etablissement(et):
 
 def get_infos_from_a_siren(siren: int):
 
-    # je nettoie
-    yaml_list = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))
+    yaml_list = [get_entreprise_folder_path(siren) / "output.yaml"]
     LOGGER.debug(yaml_list)
     if len(yaml_list) != 1 or "siren_fake" in str(yaml_list[0]):
         clean_all_siren_outputs(siren)

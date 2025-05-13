@@ -285,7 +285,7 @@ def save_to_excel(file_paths, output_file):
     """Enregistre la liste des fichiers dans un fichier Excel avec chaque composant du chemin dans une colonne."""
     # Trouver le nombre maximum de colonnes nécessaires
     max_depth = max(len(split_path_into_components(path)) for path in file_paths)
-    print(max_depth)
+    # print(max_depth)
 
     # Créer une liste de dictionnaires pour chaque fichier
     data = []

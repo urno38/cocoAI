@@ -1,16 +1,19 @@
 import datetime
-from random import sample
+import shutil
 
 import pypandoc
 import win32com.client
 
 from cocoAI import bail, company, masse_salariale
-from cocoAI.terrasse import extract_terrace_info_from_siret, generate_beamer_terrasses
+from cocoAI.terrasse import (
+    create_markdown_with_images,
+    extract_terrace_info_from_siret,
+    generate_beamer_terrasses,
+)
 from common.convert import add_title_to_markdown
 from common.folder_tree import get_enseigne_folder_path, get_mistral_work_path
-from common.identifiers import get_entreprise_name, get_etablissement_name
+from common.identifiers import get_entreprise_name, get_etablissement_name, verify_id
 from common.logconfig import LOGGER
-from common.path import get_df_folder_possibles
 
 
 def deplace_all_file_in_workpath(folder_path, dst_folder_path):
@@ -33,11 +36,12 @@ def bloc(siret, name, output_file_name, function, md_tuples):
 
 def main(siret):
     # donnees
+    siret = str(siret)
     siren = siret[:-5]
     ent = get_entreprise_name(siren)
     LOGGER.info(f"ENTREPRISE {ent}")
 
-    LOGGER.info(siret)
+    LOGGER.info(f"siret {siret}")
     et = get_etablissement_name(siret)
     LOGGER.info(f"ETABLISSEMENT {et}")
     ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
@@ -60,7 +64,10 @@ def main(siret):
     if di is not None:
         _ = generate_beamer_terrasses(et, siret, tmp)
         add_title_to_markdown(tmp / "terrasses.md", title="terrasses")
-        md_tuples.append(("terrasses", tmp / "terrasses.md"))
+        md_tuples.append(("Terrasses", tmp / "terrasses.md"))
+
+    create_markdown_with_images(tmp / "extracted_images", tmp / "images_terrasses.md")
+    md_tuples.append(("Plan terrasses", tmp / "images_terrasses.md"))
 
     # masse salariale
     nb_bulletins_salaires = masse_salariale.main(siret)
@@ -100,7 +107,8 @@ def main(siret):
 
     # je convertis le markdown glob en docx et en pdf
     memorandum_path = (
-        commercial_folder
+        tmp
+        / "extracted_images"
         / f"memorandum_{datetime.datetime.now().strftime("%d-%m-%Y_%Hh%M_%S")}.docx"
     )
     print(md_tuples)
@@ -112,11 +120,23 @@ def main(siret):
         )
         LOGGER.info(memorandum_path)
         # open the word document
-        word_app = win32com.client.Dispatch("Word.Application")
-        word_app.Visible = True
-        document = word_app.Documents.Open(str(memorandum_path))
+        # word_app = win32com.client.Dispatch("Word.Application")
+        # word_app.Visible = True
+        # document = word_app.Documents.Open(str(memorandum_path))
     else:
         LOGGER.info("pas de memorandum produit car pas d'infos disponibles")
+
+    shutil.move(memorandum_path, commercial_folder)
+    LOGGER.info(commercial_folder / memorandum_path.name)
+
+
+def main_user():
+    print("\n-----------")
+    print("Production de memorandum")
+    print("-----------")
+    siret = input("\nEntrer un siret\n")
+    verify_id(siret, "siret")
+    main(siret)
 
 
 if __name__ == "__main__":
@@ -142,5 +162,8 @@ if __name__ == "__main__":
 
     # main("90834751100010")
 
-    for s in get_df_folder_possibles()["siret"].dropna().values.tolist():
-        main(s)
+    # for s in get_df_folder_possibles()["siret"].dropna().values.tolist():
+    #     main(s)
+
+    # main(48138353700018)
+    main_user()

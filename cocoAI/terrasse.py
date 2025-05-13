@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 
 from common import execute
-from common.convert import pt_to_cm, yaml_to_dict
+from common.convert import dict_to_json, pt_to_cm, yaml_to_dict
 from common.folder_tree import get_enseigne_folder_path
 from common.image import (
     detect_colors_in_image,
@@ -17,7 +17,12 @@ from common.image import (
 )
 from common.legendes import TERRASSE_LEGEND_MONOCHROME, TERRASSE_LEGEND_RAYURES
 from common.logconfig import LOGGER
-from common.path import OPENDATA_PARIS_URL, WORK_PATH, create_parent_directory
+from common.path import (
+    OPENDATA_PARIS_URL,
+    WORK_PATH,
+    create_parent_directory,
+    load_json_file,
+)
 from common.pdf_document import download_pdf, extract_images_from_pdf
 from common.REST_API import export_request, make_request_with_api_key
 
@@ -113,10 +118,7 @@ def get_infos_terrasses_etablissement(siret, etablissement):
     params = {"where": f"siret={siret}"}
 
     json_path = (
-        get_enseigne_folder_path(siret)
-        / "WORK_DOCUMENTS"
-        / "tmp_terrasses"
-        / "request.json"
+        get_enseigne_folder_path(siret) / "WORK_DOCUMENTS" / "tmp" / "request.json"
     )
 
     url = (
@@ -187,9 +189,7 @@ def extract_terrace_info_from_siret(siret, etablissement, output_path=None):
     LOGGER.debug(f"Let us extract the infos from the gargote {etablissement}")
 
     if output_path is None:
-        output_path = (
-            get_enseigne_folder_path(siret) / "WORK_DOCUMENTS" / "tmp_terrasses"
-        )
+        output_path = get_enseigne_folder_path(siret) / "WORK_DOCUMENTS" / "tmp"
 
     output_csvpath = output_path / "terrasses.csv"
     output_texpath = output_path / "terrasses.tex"
@@ -223,6 +223,8 @@ def extract_terrace_info_from_siret(siret, etablissement, output_path=None):
             dossier_images, legende, map_path = create_map_with_legend(
                 affichette_path, output_path / "extracted_images"
             )
+            dict_to_json(legende, output_path / "extracted_images" / "legend.json")
+
         except:
             LOGGER.error("affichette non decortiquee")
 
@@ -362,9 +364,7 @@ def generate_beamer_tex(df, output_file=Path("terrasses.tex"), standalone=False)
 def generate_beamer_terrasses(etablissement, siret, output_path=None):
 
     if output_path is None:
-        output_path = (
-            get_enseigne_folder_path(siret) / "WORK_DOCUMENTS" / "beamer_terrasses"
-        )
+        output_path = get_enseigne_folder_path(siret) / "WORK_DOCUMENTS" / "tmp"
 
     output_csvpath = output_path / "terrasses.csv"
     output_totaltexpath = output_path / "slides_terrasses.tex"
@@ -390,15 +390,22 @@ def create_markdown_with_images(folder_path, markdown_file):
     if not folder_path.exists():
         print(f"Le dossier {folder_path} n'existe pas.")
         return
-
+    legend = load_json_file(folder_path / "legend.json")
     # Ouvrir le fichier Markdown en mode écriture
     with open(markdown_file, "w", encoding="utf-8") as md_file:
-        # Parcourir tous les fichiers dans le dossier
         for image_path in folder_path.iterdir():
-            # Vérifier si le fichier est une image (extension .png, .jpg, etc.)
             if image_path.suffix.lower() in [".png", ".jpg", ".jpeg", ".gif", ".bmp"]:
-                # Écrire la syntaxe Markdown pour l'image
-                md_file.write(f"![{image_path.name}]({image_path})\n\n")
+                relative_path = image_path.relative_to(markdown_file.parent)
+                leg = (
+                    legend[image_path.name]
+                    if image_path.name in legend.keys()
+                    else "Vue globale"
+                )
+                rpath = ("./" + str(relative_path).replace("\\", "/")).replace(
+                    "./extracted_images/", ""
+                )
+                print(rpath)
+                md_file.write(f"![{leg}]({rpath})\n\n")
 
     print(f"Fichier Markdown créé: {markdown_file}")
 
@@ -407,26 +414,13 @@ def main(siret, etablissement):
 
     output_folder, di = extract_terrace_info_from_siret(siret, etablissement)
     output_folder = generate_beamer_terrasses(etablissement, siret)
-
+    create_markdown_with_images(
+        output_folder / "extracted_images", output_folder / "images_terrasses.md"
+    )
     return output_folder
 
 
 if __name__ == "__main__":
-    # BLOC ENTREPRISE
-    # etablissement = "BISTROT_VALOIS"
 
-    output_folder = (
-        get_enseigne_folder_path(48138353700018) / "WORK_DOCUMENTS" / "tmp_terrasses"
-    )
-
-    # Chemin du dossier contenant les images
-    folder_path = "temp"
-    # Nom du fichier Markdown de sortie
-    markdown_file = output_folder / "images.md"
-
-    # Appeler la fonction pour créer le fichier Markdown
-    create_markdown_with_images(output_folder / "extracted_images", markdown_file)
-    markdown_file = output_folder / "images.md"
-
-    # Appeler la fonction pour créer le fichier Markdown
-    create_markdown_with_images(output_folder / "extracted_images", markdown_file)
+    etablissement = "BISTROT_VALOIS"
+    output_folder = main(48138353700018, etablissement)
