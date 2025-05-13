@@ -3,7 +3,7 @@ import pprint
 
 import pyperclip
 
-from cocoAI.company import get_infos_from_a_siren
+from common.identifiers import get_infos_from_a_siren
 from common.path import WORK_PATH
 
 

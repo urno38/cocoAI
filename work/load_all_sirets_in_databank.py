@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 import pyperclip
 
-from cocoAI.company import get_infos_from_a_siren
+from common.identifiers import get_infos_from_a_siren
 from common.logconfig import LOGGER
 from common.path import WORK_PATH, load_json_file, write_json_file
 

@@ -1,5 +1,3 @@
-from pprint import pprint
-
 import pandas as pd
 
 from common.convert import dict_to_yaml, yaml_to_dict

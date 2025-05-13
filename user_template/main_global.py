@@ -5,9 +5,9 @@ import pypandoc
 import win32com.client
 
 from cocoAI import bail, company, masse_salariale
-from cocoAI.folder_tree import get_enseigne_folder, get_mistral_work_path
 from cocoAI.terrasse import extract_terrace_info_from_siret, generate_beamer_terrasses
 from common.convert import add_title_to_markdown
+from common.folder_tree import get_enseigne_folder_path, get_mistral_work_path
 from common.identifiers import get_entreprise_name, get_etablissement_name
 from common.logconfig import LOGGER
 from common.path import get_df_folder_possibles
@@ -21,7 +21,7 @@ def deplace_all_file_in_workpath(folder_path, dst_folder_path):
 
 
 def bloc(siret, name, output_file_name, function, md_tuples):
-    enseigne_folder = get_enseigne_folder(siret)
+    enseigne_folder = get_enseigne_folder_path(siret)
     work_folder = enseigne_folder / "WORK_DOCUMENTS"
     final_folder = work_folder / name
     if not (final_folder / output_file_name).exists():
@@ -40,7 +40,7 @@ def main(siret):
     LOGGER.info(siret)
     et = get_etablissement_name(siret)
     LOGGER.info(f"ETABLISSEMENT {et}")
-    ENSEIGNE_FOLDER = get_enseigne_folder(siret)
+    ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
     MISTRAL_WORK_PATH = get_mistral_work_path(siret)
     work_folder = ENSEIGNE_FOLDER / "WORK_DOCUMENTS"
     commercial_folder = ENSEIGNE_FOLDER / "COMMERCIAL_DOCUMENTS"
@@ -95,6 +95,9 @@ def main(siret):
         md_tuples.extend([(liasse.stem, liasse)])
 
     # print(md_tuples)
+
+    # MEMORANDUM GLOBAL !!!
+
     # je convertis le markdown glob en docx et en pdf
     memorandum_path = (
         commercial_folder

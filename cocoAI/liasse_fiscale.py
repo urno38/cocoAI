@@ -1,4 +1,4 @@
-from cocoAI.folder_tree import get_enseigne_folder, get_mistral_work_path
+from common.folder_tree import get_enseigne_folder_path, get_mistral_work_path
 
 
 def get_prompt_mistral(siret):
@@ -23,13 +23,15 @@ def get_liasse_md_path(siret, liasse_path):
 def get_liasse_list_in_folder(siret):
     return [
         l
-        for l in list(get_enseigne_folder(siret).rglob("*.pdf"))
+        for l in list(get_enseigne_folder_path(siret).rglob("*.pdf"))
         if "liasse" in l.name.lower()
     ] + [
         l
         for l in list(
             (
-                get_enseigne_folder(siret) / "DOCUMENTATION_FINANCIERE" / "BILANS_CA"
+                get_enseigne_folder_path(siret)
+                / "DOCUMENTATION_FINANCIERE"
+                / "BILANS_CA"
             ).glob("*")
         )
         if "liasse" not in l.name.lower()

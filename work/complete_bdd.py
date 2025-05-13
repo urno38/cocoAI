@@ -3,12 +3,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from cocoAI.company import (
-    clean_all_siren_outputs,
+from cocoAI.company import clean_all_siren_outputs, get_infos_from_a_siret
+from common.identifiers import (
+    get_etablissement_name,
     get_infos_from_a_siren,
-    get_infos_from_a_siret,
 )
-from common.identifiers import get_etablissement_name
 from common.path import COMMON_PATH, WORK_PATH
 
 WORK = WORK_PATH / "remplissage_csv"
@@ -75,6 +74,10 @@ dforigin[filterser][pd.isna(dforigin.siret)].set_index("folder").to_csv(
     WORK / "incomplete_siretv2.csv"
 )
 dforigin[filterser][~pd.isna(dforigin.siret)].set_index("folder").to_csv(
+    WORK / "complete_siretv2.csv"
+)
+
+dforigin.set_index("folder").to_csv(WORK / "folder_possibles_completv2.csv")
     WORK / "complete_siretv2.csv"
 )
 

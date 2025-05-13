@@ -14,9 +14,9 @@ from mistralai import DocumentURLChunk, ImageURLChunk, Mistral, TextChunk
 from PIL import Image
 from PyPDF2 import PdfReader, PdfWriter
 
-from cocoAI.folder_tree import get_enseigne_folder
 from cocoAI.masse_salariale import data_uri_to_bytes, parse_pdf
 from common.AI_API import ask_Mistral
+from common.folder_tree import get_enseigne_folder_path
 from common.keys import MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
 from common.path import load_json_file, rapatrie_file
@@ -163,7 +163,7 @@ pdf_path = Path(
     r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\DATALAKE - Documents\LA_RENAISSANCE_827953415\BISTROT_RENAISSANCE\REFERENCE_DOCUMENTS\DOCUMENTATION_FINANCIERE\BILANS_CA\liasse_23_is_renaissance.pdf"
 )
 siret = "82795341500011"
-dest_enseigne_folder = get_enseigne_folder(siret)
+dest_enseigne_folder = get_enseigne_folder_path(siret)
 TMP = dest_enseigne_folder / "WORK_DOCUMENTS"
 MISTRAL_TMP = dest_enseigne_folder / "MISTRAL_FILES" / pdf_path.stem
 MISTRAL_TMP.mkdir(exist_ok=True)

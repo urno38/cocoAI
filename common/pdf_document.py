@@ -9,8 +9,8 @@ import requests
 from mistralai import Mistral
 from PIL import Image
 
-from cocoAI.folder_tree import create_complete_folder_tree
 from common.AI_API import ask_Mistral
+from common.folder_tree import get_enseigne_folder_path
 from common.identifiers import get_etablissement_name
 from common.keys import MISTRAL_API_KEY, MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
@@ -371,8 +371,7 @@ def process_file_by_Mistral_OCR(file_path, api_key=MISTRAL_API_KEY_PAYANTE):
 
 
 def analyse_pdf_document(pdf_path, siret):
-
-    enseigne_dest_folder = create_complete_folder_tree(siret)
+    enseigne_dest_folder = get_enseigne_folder_path(siret)
     etablissement_name = get_etablissement_name(siret)
 
     pdf_file_path = rapatrie_file(pdf_path)

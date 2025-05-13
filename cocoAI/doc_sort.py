@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import List
 
 from cocoAI.company import get_infos_from_a_siret
-from cocoAI.folder_tree import create_complete_folder_tree, get_entreprise_folder
 from common.FEC import is_official_FEC
+from common.folder_tree import create_complete_folder_tree, get_entreprise_folder_path
 from common.identifiers import pick_id
 from common.logconfig import LOGGER
 from common.path import (
@@ -31,7 +31,7 @@ def check_all_documents_sorted(etablissement_name, source_folder_path=None):
     )
     siret = pick_id(make_unix_compatible(etablissement_name), kind="siret")
     entreprise_name, etablissement = get_infos_from_a_siret(siret)
-    dest_folder_path = get_entreprise_folder(siret[:-5])
+    dest_folder_path = get_entreprise_folder_path(siret[:-5])
 
     if source_folder_path is None:
         source_folder_path = get_source_folder_path(etablissement_name)
@@ -145,6 +145,18 @@ def classify_one_document(doc_path, siret):
             (
                 enseigne_dest_folder
                 / "COMMERCIAL_DOCUMENTS"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif "licence" in doc_new_path.name.lower() and (
+        "4" in doc_new_path.name.lower() or "iv" in doc_new_path.name.lower()
+    ):
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "REFERENCE_DOCUMENTS"
+                / "JURIDIQUE_EXPLOITATION_ET_CONTRATS"
+                / "LICENCE_IV"
                 / make_unix_compatible(doc_new_path.name)
             )
         ]

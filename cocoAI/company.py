@@ -1,7 +1,6 @@
 import os
 import re
 import shutil
-from random import sample
 from urllib.parse import urlencode
 
 import mermaid as mmd
@@ -18,6 +17,7 @@ from common.convert import (
     test_pappers_data_compliance,
     yaml_to_dict,
 )
+from common.folder_tree import get_out_path
 from common.identifiers import (
     get_entreprise_name,
     get_etablissement_name,
@@ -26,19 +26,10 @@ from common.identifiers import (
 )
 from common.keys import PAPPERS_API_KEY_A_BERTUOL, PAPPERS_API_KEY_LVOLAT_FREE
 from common.logconfig import LOGGER
-from common.path import (
-    OUTPUT_PATH,
-    PAPPERS_API_URL,
-    get_df_folder_possibles,
-    get_out_path,
-    make_unix_compatible,
-)
+from common.path import OUTPUT_PATH, PAPPERS_API_URL, make_unix_compatible
 from common.REST_API import make_request_with_api_key
 
-# Remplacez 'votre_cle_api' par votre clé API réelle
 api_key = PAPPERS_API_KEY_LVOLAT_FREE
-
-# URL de base de l'API Pappers
 base_url = PAPPERS_API_URL
 
 
@@ -312,13 +303,13 @@ def main(siren, entreprise, output_folder_path=None):
 
 
 if __name__ == "__main__":
-    siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
-    siren = siret[:-5]
-    LOGGER.info(siret)
-    et = get_etablissement_name(siret)
-    LOGGER.info(f"ETABLISSEMENT {et}")
-    entreprise, etablissement = get_infos_from_a_siret(siret)
-    main(siren, entreprise)
+    # siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
+    # siren = siret[:-5]
+    # LOGGER.info(siret)
+    # et = get_etablissement_name(siret)
+    # LOGGER.info(f"ETABLISSEMENT {et}")
+    # entreprise, etablissement = get_infos_from_a_siret(siret)
+    # main(siren, entreprise)
 
     # main(pick_id("GALLA", kind="siren"), "GALLA")
 
@@ -339,6 +330,9 @@ if __name__ == "__main__":
     # "45156961000012",
     # "31677872900012",
     # "79903742900047",
-    # "44487749200025"
+    # "44487749200025",
+    # 53258418200010
     # ]:
     #     get_infos_from_a_siret(s)
+
+    get_infos_from_a_siren(532584182)

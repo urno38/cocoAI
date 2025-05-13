@@ -11,7 +11,7 @@ from cocoAI.doc_sort import (
     get_encours_path_filepath,
     get_unclassified_path_filepath,
 )
-from cocoAI.folder_tree import create_complete_folder_tree, get_ser_infos
+from common.folder_tree import create_complete_folder_tree, get_ser_infos
 from common.identifiers import get_etablissement_name
 from common.logconfig import LOGGER
 from common.path import (
@@ -58,8 +58,9 @@ def main():
     TO_BE_CLASSIFIED = [d for d in dossiers]
     TO_BE_CLASSIFIED = [d for d in TO_BE_CLASSIFIED if d.name in folder_possibles]
 
-    not_class = [d for d in TO_BE_CLASSIFIED if not d.name in folder_possibles]
-    print(f"warning, these folders {not_class} are not classified")
+    not_class = [str(d) for d in dossiers if not d.name in folder_possibles]
+    print(f"warning, these folders are not classified")
+    print(not_class)
 
     for source_entreprise_folder_path in TO_BE_CLASSIFIED:
 

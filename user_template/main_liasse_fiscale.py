@@ -10,15 +10,19 @@ import pyperclip
 from PyPDF2 import PdfReader, PdfWriter
 
 from cocoAI.etablissement import display_infos_on_siret
-from cocoAI.folder_tree import get_enseigne_folder
 from cocoAI.liasse_fiscale import (
     get_liasse_list_in_folder,
     get_liasse_md_path,
     get_prompt_mistral,
 )
 from cocoAI.masse_salariale import parse_pdf
+from common.folder_tree import get_enseigne_folder_path
 from common.logconfig import LOGGER
-from common.path import get_df_folder_possibles, is_file_empty, rapatrie_file
+from common.path import (
+    get_df_folder_possibles,
+    is_file_empty,
+    rapatrie_file,
+)
 
 
 def split_pdf(input_pdf_path):
@@ -67,7 +71,7 @@ def main_old():
         r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\DATALAKE - Documents\LA_RENAISSANCE_827953415\BISTROT_RENAISSANCE\REFERENCE_DOCUMENTS\DOCUMENTATION_FINANCIERE\BILANS_CA\liasse_23_is_renaissance.pdf"
     )
     siret = "82795341500011"
-    dest_enseigne_folder = get_enseigne_folder(siret)
+    dest_enseigne_folder = get_enseigne_folder_path(siret)
     TMP = dest_enseigne_folder / "WORK_DOCUMENTS"
     MISTRAL_TMP = dest_enseigne_folder / "MISTRAL_FILES"
 
@@ -202,6 +206,10 @@ if __name__ == "__main__":
                 siret_ok = s
                 break
 
+        # siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
+        main(siret_ok)
+
+    main(90834751100010)
         # siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
         main(siret_ok)
 

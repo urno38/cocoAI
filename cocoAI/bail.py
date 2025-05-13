@@ -2,9 +2,10 @@ from pathlib import Path
 
 from common.AI_API import ask_Mistral
 from common.convert import clean_and_export_file, markdown_to_beamer
+from common.folder_tree import get_out_path
 from common.keys import MISTRAL_API_KEY, MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
-from common.path import get_out_path, rapatrie_file, rename_file_unix_compatible
+from common.path import rapatrie_file, rename_file_unix_compatible
 from common.pdf_document import convert_pdf_to_ascii
 
 

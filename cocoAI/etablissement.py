@@ -2,13 +2,14 @@ from random import sample
 
 import pypandoc
 
-from cocoAI.folder_tree import get_enseigne_folder
+from cocoAI.company import get_infos_from_a_siret
 from cocoAI.terrasse import extract_terrace_info_from_siret
 from common.AI_API import get_summary_from_dict
 from common.convert import markdown_to_beamer, markdown_to_docx, markdown_to_pdf
+from common.folder_tree import get_enseigne_folder_path, get_out_path
 from common.identifiers import get_etablissement_name
 from common.logconfig import LOGGER
-from common.path import get_df_folder_possibles, get_out_path
+from common.path import get_df_folder_possibles
 
 
 def main(siret, etablissement=None):
@@ -58,7 +59,7 @@ def display_infos_on_siret(siret):
     LOGGER.info(f"siret {siret}")
     etablissement = get_etablissement_name(siret)
     LOGGER.info(f"etablissement {etablissement}")
-    ENSEIGNE_FOLDER = get_enseigne_folder(siret)
+    ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
 
     LOGGER.info(ENSEIGNE_FOLDER)
     if ENSEIGNE_FOLDER.exists():

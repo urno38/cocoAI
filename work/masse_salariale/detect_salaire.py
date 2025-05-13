@@ -1,8 +1,8 @@
 import json
 import shutil
 
-from cocoAI.folder_tree import get_enseigne_folder
 from common.AI_API import ask_Mistral
+from common.folder_tree import get_enseigne_folder_path
 from common.identifiers import convert_to_siren
 from common.keys import MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
@@ -40,7 +40,7 @@ def output_employes_json(file_path, ocr_response, request, output_path):
 
 siret = "53446191800037"
 siren = convert_to_siren(siret)
-ENSEIGNE_FOLDER = get_enseigne_folder(siret)
+ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
 
 
 # for bull in list(DATALAKE_PATH.rglob("plans*")):

@@ -4,8 +4,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from cocoAI.company import get_infos_from_a_siren
 from common.AI_API import ask_Mistral
+from common.identifiers import get_infos_from_a_siren
 from common.keys import MISTRAL_API_KEY
 from common.logconfig import LOGGER
 from common.path import rapatrie_file

@@ -26,9 +26,11 @@ TODO : 2025-04-23
 - finir les fignolages pour les fichiers résiduels
 
 - faire un archivage total de tout
- & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\activate.ps1
- & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\python.exe c:/Users/lvolat/Documents/cocoAI/user_template/main_global.py
 
-& C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\python.exe c:/Users/lvolat/Documents/cocoAI/user_template/main_archivage_library.py
+ & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\activate.ps1
+ & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\python.exe C:/Users/lvolat/Documents/cocoAI/user_template/main_global.py
+
+& C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\activate.ps1
+& C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\python.exe c:/Users/lvolat/Documents/cocoAI/user_template/main_archive_library.py
 
 coder, si il existe FEC alors je l'interprête.

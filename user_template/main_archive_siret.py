@@ -2,69 +2,21 @@ import os
 import shutil
 from pathlib import Path
 
-import pandas as pd
 from docx2pdf import convert
 
 from cocoAI.company import get_infos_from_a_siret
-from cocoAI.doc_sort import (
-    classify_one_document,
-    create_unclassified_statistics,
-    get_encours_path_filepath,
-    get_unclassified_path_filepath,
-)
-from cocoAI.folder_tree import create_complete_folder_tree, get_ser_infos
+from cocoAI.doc_sort import classify_one_document, create_unclassified_statistics
+from cocoAI.etablissement import display_infos_on_siret
+from common.folder_tree import create_complete_folder_tree
 from common.identifiers import get_etablissement_name
 from common.logconfig import LOGGER
-from common.path import (
-    COCOAI_PATH,
-    COMMERCIAL_DOCUMENTS_PATH,
-    DATALAKE_PATH,
-    TMP_PATH,
-    get_df_folder_possibles,
-    list_files_in_directory,
-    make_unix_compatible,
-)
-
-
-def split_path_into_components(file_path):
-    """Décompose un chemin de fichier en ses composants."""
-    path = Path(file_path)
-    return [*path.parent.parts, "", path.name]
-
-
-def save_to_excel(file_paths, output_file):
-    """Enregistre la liste des fichiers dans un fichier Excel avec chaque composant du chemin dans une colonne."""
-    # Trouver le nombre maximum de colonnes nécessaires
-    max_depth = max(len(split_path_into_components(path)) for path in file_paths)
-    print(max_depth)
-
-    # Créer une liste de dictionnaires pour chaque fichier
-    data = []
-    for path in file_paths:
-        components = split_path_into_components(path)
-        # Remplir avec des valeurs vides si nécessaire
-        components += [""] * (max_depth - len(components))
-        data.append(components)
-
-    # Créer un DataFrame avec des colonnes numérotées
-    columns = [f"Niveau {i}" for i in range(1, max_depth)] + ["Fichier"]
-    df = pd.DataFrame(data, columns=columns)
-
-    # Enregistrer dans un fichier Excel
-    df.to_excel(output_file, index=False)
-
-
-def main_liste(directory, output_file):
-    """Fonction principale pour lister les fichiers et les enregistrer dans un fichier Excel."""
-    file_paths = list_files_in_directory(directory)
-    save_to_excel(file_paths, output_file)
-    print(f"Liste des fichiers enregistrée dans {output_file}")
+from common.path import DATALAKE_PATH, TMP_PATH, main_liste, make_unix_compatible
 
 
 def main(siret, source_folder_path):
 
     get_infos_from_a_siret(siret)
-
+    display_infos_on_siret(siret)
     # household
     TMP_PATH.mkdir(exist_ok=True)
 
@@ -93,11 +45,6 @@ def main(siret, source_folder_path):
 
     output_path = create_unclassified_statistics(etablissement_name, source_folder_path)
     os.replace(output_path, dest_etablissement_folder_path / output_path.name)
-    # if (dest_etablissement_folder_path/output_path.name).exists():
-
-    # os.shutil.move(output_path, dest_etablissement_folder_path)
-    # os.rename()
-
     main_liste(
         dest_etablissement_folder_path,
         dest_etablissement_folder_path / "folder_tree.xlsx",

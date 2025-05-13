@@ -1,13 +1,11 @@
-import io
 import os
 from pathlib import Path
-from pprint import pprint
 
-from common.path import WORK_PATH
-from common.pdf_document import extract_images_from_pdf
-import fitz
 import numpy as np
 from PIL import Image
+
+from common.logconfig import LOGGER
+from common.pdf_document import extract_images_from_pdf
 
 
 def detect_monochrome_images(folder_path, threshold=2):
@@ -52,7 +50,7 @@ def detect_monochrome_images(folder_path, threshold=2):
                     color_mapping[filename] = color_hex
 
         except Exception as e:
-            logging.error(f"Erreur avec le fichier '{filename}': {e}")
+            LOGGER.error(f"Erreur avec le fichier '{filename}': {e}")
 
     return color_mapping
 
@@ -101,7 +99,7 @@ def detect_same_size_images(folder_path, reference_image_path):
                 if img.size == ref_size:
                     same_size_images.append(filename)
         except Exception as e:
-            logging.error(f"Erreur avec le fichier '{filename}': {e}")
+            LOGGER.error(f"Erreur avec le fichier '{filename}': {e}")
 
     return same_size_images
 
@@ -143,12 +141,13 @@ def get_the_biggest_image_in_folder(folder_path):
 def main():
 
     pdf_path = r"c:\Users\lvolat\Downloads\328311052_004.pdf"
-    dossier_images = WORK_PATH / "extracted_images"
+    # dossier_images = WORK_PATH / "extracted_images"
+    dossier_images = Path.cwd()
 
     extracted_images = extract_images_from_pdf(pdf_path, dossier_images)
-    logging.debug(f"Successfully extracted {len(extracted_images)} images:")
+    LOGGER.debug(f"Successfully extracted {len(extracted_images)} images:")
     for img_path in extracted_images:
-        logging.debug(f"- {img_path}")
+        LOGGER.debug(f"- {img_path}")
 
     monochrome_images = detect_monochrome_images(dossier_images)
 
@@ -160,11 +159,12 @@ def main():
     for im in same_size_images:
         if im not in list(monochrome_images.keys()):
             num_colors, colors_hex = detect_colors_in_image(dossier_images / im)
-            logging.debug(f"Nombre de couleurs : {num_colors}")
-            logging.debug(f"Couleurs : {colors_hex}")
+            LOGGER.debug(f"Nombre de couleurs : {num_colors}")
+            LOGGER.debug(f"Couleurs : {colors_hex}")
 
-    logging.debug(same_size_images)
+    LOGGER.debug(same_size_images)
 
 
 if __name__ == "__main__":
+    main()
     main()

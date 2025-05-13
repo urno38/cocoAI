@@ -80,17 +80,6 @@ def calculer_taille_fichier_mo(chemin_fichier):
         return f"Erreur : {e}"
 
 
-def get_out_path(label, kind, number, create=True):
-    if number is None or number == "":
-        path = OUTPUT_PATH / f"{kind}_{label}"
-    else:
-        path = OUTPUT_PATH / f"{kind}_{label}_{number}"
-    if create:
-        path.mkdir(exist_ok=True, parents=True)
-    LOGGER.debug(f"output folder is {path}")
-    return path
-
-
 def make_unix_compatible(name):
     """
     Transforms a file or directory name to be Unix-compatible.
@@ -234,16 +223,6 @@ def is_video(file_path):
 
 def get_df_folder_possibles():
 
-    # # definition du df qui fait la correspondance
-    # df = pd.read_excel(COMMON_PATH / "bdd_SIRET.xlsx").set_index("folder")
-    # df2 = (
-    #     pd.read_json(COMMON_PATH / "siret_databank.json", orient="index")
-    #     .iloc[:, 0]
-    #     .apply(str)
-    # )
-    # df["siret"] = df2
-    # df.reset_index(inplace=True)
-
     df = pd.read_csv(COMMON_PATH / "folder_possibles_completv2.csv", index_col=0)
     df["siret"] = df["siret"].apply(
         lambda x: str(int(x)) if not np.isnan(float(x)) else np.nan
@@ -253,33 +232,6 @@ def get_df_folder_possibles():
 
 
 if __name__ == "__main__":
-
-    """
-    path = obtain_output_folder("BISTROT_VALOIS", "siret",siret)
-    logging.debug(path)
-    logging.debug(USER, DOCUMENTS_PATH)
-    """
-
-    # # Exemple d'utilisation
-    # chemin_compatible = get_unix_compatible_path(
-    #     Path(
-    #         r"C:\Users\lvolat\Documents\cocoAI\work\output\bail_Annexe 6 a) - Bail du 1er septembre 1995\slides_results.pdf"
-    #     )
-    # )
-    # print(chemin_compatible)
-    # filepath = Path(
-    #     r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\COMMERCIAL - Documents\2 - DOSSIERS à l'ETUDE\CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF\3. DOCUMENTATION FINANCIÈRE\2022 - GALLA - GL.xlsx"
-    # ).resolve()
-    # print(filepath)
-    # print(COMMERCIAL_DOCUMENTS_PATH)
-    # new_file_path = rapatrie_file(filepath)
-
-    # # check if a file is a photo
-    # # Example usage
-    # if is_photo(filepath):
-    #     print(f"{filepath} is a photo.")
-    # else:
-    #     print(f"{filepath} is not a photo.")
 
     # Example usage
     file_path = Path(
@@ -294,104 +246,6 @@ if __name__ == "__main__":
 def list_files_in_directory(directory):
     """Liste tous les fichiers dans un répertoire et ses sous-répertoires."""
     return [str(path) for path in Path(directory).rglob("*") if path.is_file()]
-
-
-# df2 = pd.read_excel(Path(r"C:\Users\lvolat\Documents\cocoAI\common\bdd_SIRET.xlsx"))
-
-
-# for e, s in df2.reset_index()[["ENSEIGNE", "SIRET"]].dropna().iterrows():
-#     print(s["ENSEIGNE"], s["SIRET"])
-#     if s["SIRET"] != "Non trouvé":
-#         get_infos_from_a_siren(str(s["SIRET"])[:-5])
-
-
-# di = {
-#     "CASA DI MARIO - 75007 PARIS - 132 Rue du BAC": "53119288800018",
-#     "BROOKLYN CAFE - 75017 PARIS - 32 Place Saint FERDINAND": "Informations non disponibles",
-#     "CAFE DU MEXIQUE - 75016 PARIS - 3 Place de MEXICO": "Informations non disponibles",
-#     "CHEZ BEBER  - 75006 PARIS - 71 Bld du MONTPARNASSE": "42507282400011",
-#     "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF": "31013032300015",
-#     "CIAL - 75001 PARIS - rue Mondétour - 16": "Informations non disponibles",
-#     "DEI FRATELLI - 75001 PARIS - 10 Rue des PYRAMIDES": "83995102700011",
-#     "GENTLEMEN - JARDINS DE L'ARCHE - 92000 NANTERRE": "80449572900035",
-#     "GRAND CARNOT (Le) - 75017 PARIS - 32 Avenue CARNOT angle 40 Rue des ACACIAS": "79895243800017",
-#     "MANHATTAN TERRAZZA - 108 Av de VILLIERS - 75017 PARIS": "88096301200014",
-#     "RALLYE PASSY (BOUILLON PASSY) - 75016 PARIS - 34 Rue de l'ANNONCIATION": "48747486800022",
-#     "AFFRANCHIS (Les) - 75012 PARIS - 14 Avenue DAUMESNIL": "84492436500027",
-#     "ANDORINHA - 75016 PARIS - 199 Avenue de VERSAILLES - ex VERSAILLES AVENUE - MONTCASTEL": "79903742900014",
-#     "AQUABIKE - 75015 PARIS - 45 Avenue de la MOTTE-PICQUET": "43776601700010",
-#     "ASCENSION - 75018 - 62 RUE CUSTINE": "79854416900016",
-#     "ASIAN KITCHEN - 75007 PARIS - 49 Quai d'ORSAY - 20240925": "42507282400011",
-#     "ASSOCIES (Les) - 75012 PARIS - 50 Bld de la BASTILLE": "43472611300013",
-#     "AVELLINO - 4 Bld Richard WALLACE - 92800 PUTEAUX": "53862111100013",
-#     "AZZURO - 92100 BOULOGNE-BILLANCOURT - 59 Place René CLAIR": "38027351600019",
-#     "BAIGNEUSES (Les) - 64200 BIARRITZ - 14 Rue du PORT VIEUX": "40101719900014",
-#     "BAR DES SPORT - 75012 - 73 AVENUE DU GENERAL MICHEL BIZOT": "82268394200012",
-#     "BARIOLÉ (Le) - 75020 PARIS - 103 Rue de BELLEVILLE": "53792611300013",
-#     "BEBER - 75006 PARIS - 71 Bld du MONTPARNASSE": "42507282400011",
-#     "BILLY BILLI - 92000 NANTERRE": "89324339400010",
-#     "BISTROT BALNÉAIRE (Le) - 40150 SOORTS-HOSSEGOR - 1830 Avenue du TOURING CLUB": "48903161700014",
-#     "BISTROT CHARBON (Le) - 75004 PARIS- 131 rue Saint MARTIN": "53739192200013",
-#     "BISTROT DE RUNGIS - DEFICIT REPORTABLE": "43792187700043",
-#     "BISTROT DU FAUBOURG - 12 Allée de l'ARCHE - 92400 COURBEVOIE": "81531506400023",
-#     "BOIS LE VENT (Le) - 75016 PARIS - 59 Rue de BOULAINVILLIERS": "38098071400014",
-#     "BON JACQUES (Le) - 75017 - 34 Rue Jouffroy d'ABBANS": "90834751100013",
-#     "BOUDOIR (Le) - 75006 PARIS - 202 Bld Saint GERMAIN": "84072367000013",
-#     "BOULANGERIE DE L'OLYMPIA": "34027633600014",
-#     "BOULEDOGUE (Le) - 75003 PARIS - 20 Rue RAMBUTEAU": "40327792400011",
-#     "BRASSERIE LOLA - MURS ET FONDS - 75015 PARIS - 99 rue du THÉÂTRE": "83488996600015",
-#     "BRIOCHE DORÉE - 78 Av des CHAMPS ELYSÉES - 75008 PARIS": "31890659100014",
-#     "CAFÉ DE L'ÉGLISE - 92110 CLICHY - 100 Bld Jean JAURÈS": "83226626600015",
-#     "CANTINA - 75016 - CLAUDE TERRASSE - 16": "48057007600020",
-#     "COMPAGNIE (La) - 75017 PARIS - 123 Av de WAGRAM": "Informations non disponibles",
-#     "DA ROSA - 75001 PARIS - 7 Rue ROUGET de l'ISLE": "Informations non disponibles",
-#     "DIPLOMATE (Le)- 75016 - CLAUDE TERRASSE - 16": "Informations non disponibles",
-#     "DODDY'S - 75017 PARIS - 80 Rue Mstislav ROSTROPOVITCH": "Informations non disponibles",
-#     "EL SOL - 75008 - 22 RUE DE PONTHIEU": "Informations non disponibles",
-#     "FAJITAS - 75006 PARIS - 15 Rue DAUPHINE": "Informations non disponibles",
-#     "GERMAIN - 94340 - JOINVILLE LE PONT - quai de la Marne": "Informations non disponibles",
-#     "GRILLON - SARL LE SUQUET": "Informations non disponibles",
-#     "GROUPE DORR": "Informations non disponibles",
-#     "CLAUDIA - 75015 PARIS - 51 Avenue de La MOTTE-PICQUET": "43776601700010",
-#     "BRIOCHE DORÉE - 78 Av des CHAMPS ELYSÉES - 75008 PARIS": "Informations non disponibles",
-#     "CAFÉ DE L'ÉGLISE - 92110 CLICHY - 100 Bld Jean JAURÈS": "Informations non disponibles",
-#     "BRIOCHE DORÉE - 78 Av des CHAMPS ELYSÉES - 75008 PARIS": "31890659100014",
-#     "BROOKLYN CAFE - 75017 PARIS - 32 Place Saint FERDINAND": "Informations non disponibles",
-#     "CAFE DU MEXIQUE - 75016 PARIS - 3 Place de MEXICO": "Informations non disponibles",
-#     "CAFÉ DE L'ÉGLISE - 92110 CLICHY - 100 Bld Jean JAURÈS": "83226626600015",
-#     "CHEZ BEBER  - 75006 PARIS - 71 Bld du MONTPARNASSE": "42507282400011",
-#     "BROOKLYN CAFE - 75017 PARIS - 32 Place Saint FERDINAND": "Informations non disponibles",
-#     "CAFE DU MEXIQUE - 75016 PARIS - 3 Place de MEXICO": "Informations non disponibles",
-#     "CHEZ BEBER  - 75006 PARIS - 71 Bld du MONTPARNASSE": "42507282400011",
-#     "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF": "31013032300015",
-#     "CIAL - 75001 PARIS - rue Mondétour - 16": "Informations non disponibles",
-#     "CLOS BOURGUIGNON (Le) - 75009 PARIS - 39 Rue CAUMARTIN": "39260504400017",
-#     "COMPAGNIE (La) - 75017 PARIS - 123 Av de WAGRAM": "84275832800012",
-#     "DA ROSA - 75001 PARIS - 7 Rue ROUGET de l'ISLE": "75239417100017",
-#     "DIPLOMATE (Le)- 75016 PARIS - 15 Rue SINGER": "83389469400011",
-#     "DODDY'S - 75017 PARIS - 80 Rue Mstislav ROSTROPOVITCH": "84275832800012",
-#     "EL SOL - 75008 - 22 RUE DE PONTHIEU": "50186386400028",
-#     "BROOKLYN CAFE - 75017 PARIS - 32 Place Saint FERDINAND": "Informations non disponibles",
-#     "CAFE DU MEXIQUE - 75016 PARIS - 3 Place de MEXICO": "Informations non disponibles",
-#     "CHEZ BEBER  - 75006 PARIS - 71 Bld du MONTPARNASSE": "42507282400011",
-#     "CHIEN QUI FUME (Le) - 75001 PARIS - 33 Rue du PONT-NEUF": "31013032300015",
-#     "CIAL - 75001 PARIS - rue Mondétour - 16": "Informations non disponibles",
-#     "CLOS BOURGUIGNON (Le) - 75009 PARIS - 39 Rue CAUMARTIN": "39260504400017",
-#     "COMPAGNIE (La) - 75017 PARIS - 123 Av de WAGRAM": "84275832800012",
-#     "DA ROSA - 75001 PARIS - 7 Rue ROUGET de l'ISLE": "75239417100017",
-#     "DIPLOMATE (Le)- 75016 PARIS - 15 Rue SINGER": "83389469400011",
-#     "DODDY'S - 75017 PARIS - 80 Rue Mstislav ROSTROPOVITCH": "84275832800012",
-#     "EL SOL - 75008 - 22 RUE DE PONTHIEU": "50186386400028",
-#     "FAJITAS - 75006 PARIS - 15 Rue DAUPHINE": "43426634200014",
-#     "GERMAIN - 94340 - JOINVILLE LE PONT - quai de la Marne": "85255555600012",
-#     "GRILLON - SARL LE SUQUET": "45361623700013",
-#     "GROUPE DORR": "32918652200010",
-#     "HIPPOPOTAMUS BASTILLE - 75004 PARIS - 1 Bld BEAUMARCHAIS": "Informations non disponibles",
-#     "IL PARADISIO - 75017 PARIS - 30 RUE LEGENDRE": "Informations non disponibles",
-# }
-
-# for v in di.values():
-#     get_infos_from_a_siren(str(v)[:-5])
 
 
 def load_json_file(path):
@@ -419,3 +273,38 @@ def is_file_empty(file_path):
     except Exception as e:
         print(f"An error occurred: {e}")
         return True
+
+
+def split_path_into_components(file_path):
+    """Décompose un chemin de fichier en ses composants."""
+    path = Path(file_path)
+    return [*path.parent.parts, "", path.name]
+
+
+def save_to_excel(file_paths, output_file):
+    """Enregistre la liste des fichiers dans un fichier Excel avec chaque composant du chemin dans une colonne."""
+    # Trouver le nombre maximum de colonnes nécessaires
+    max_depth = max(len(split_path_into_components(path)) for path in file_paths)
+    print(max_depth)
+
+    # Créer une liste de dictionnaires pour chaque fichier
+    data = []
+    for path in file_paths:
+        components = split_path_into_components(path)
+        # Remplir avec des valeurs vides si nécessaire
+        components += [""] * (max_depth - len(components))
+        data.append(components)
+
+    # Créer un DataFrame avec des colonnes numérotées
+    columns = [f"Niveau {i}" for i in range(1, max_depth)] + ["Fichier"]
+    df = pd.DataFrame(data, columns=columns)
+
+    # Enregistrer dans un fichier Excel
+    df.to_excel(output_file, index=False)
+
+
+def main_liste(directory, output_file):
+    """Fonction principale pour lister les fichiers et les enregistrer dans un fichier Excel."""
+    file_paths = list_files_in_directory(directory)
+    save_to_excel(file_paths, output_file)
+    print(f"Liste des fichiers enregistrée dans {output_file}")

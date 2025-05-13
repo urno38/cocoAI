@@ -4,8 +4,12 @@ import json
 import pandas as pd
 from mistralai import Mistral
 
-from cocoAI.folder_tree import get_enseigne_folder, get_mistral_work_path, get_work_path
 from common.AI_API import ask_Mistral
+from common.folder_tree import (
+    get_enseigne_folder_path,
+    get_mistral_work_path,
+    get_work_path,
+)
 from common.keys import MISTRAL_API_KEY, MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
 
@@ -76,7 +80,7 @@ def main(siret):
 
     # siren = convert_to_siren(siret)
     LOGGER.info(siret)
-    ENSEIGNE_FOLDER = get_enseigne_folder(siret)
+    ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
     LOGGER.info(ENSEIGNE_FOLDER)
     MISTRAL_WORK_PATH = get_mistral_work_path(siret)
     TMP_WORK_PATH = get_work_path(siret)
@@ -154,6 +158,9 @@ if __name__ == "__main__":
     siret = "53446191800037"
     # siret = "33765583100010"
     # siret = "53258418200010"
+    # siret = "89918997100018" #bug
+    # siret = "48786663400016"  # bug #plusieurs fichiers
+    main(siret)
     # siret = "89918997100018" #bug
     # siret = "48786663400016"  # bug #plusieurs fichiers
     main(siret)

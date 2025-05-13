@@ -3,10 +3,19 @@ from pathlib import Path
 
 import yaml
 
-from cocoAI.company import get_infos_from_a_siren, get_infos_from_a_siret
-from common.identifiers import get_entreprise_name, get_etablissement_name
+from cocoAI.company import get_infos_from_a_siret
+from common.identifiers import (
+    get_entreprise_name,
+    get_etablissement_name,
+    get_infos_from_a_siren,
+)
 from common.logconfig import LOGGER
-from common.path import DATALAKE_PATH, get_df_folder_possibles, make_unix_compatible
+from common.path import (
+    DATALAKE_PATH,
+    OUTPUT_PATH,
+    get_df_folder_possibles,
+    make_unix_compatible,
+)
 
 
 def create_folder_structure_from_yaml(yaml_file, dest_folder):
@@ -47,14 +56,13 @@ def create_folder_structure_from_yaml(yaml_file, dest_folder):
         LOGGER.info(f"An error occurred: {e}")
 
 
-def get_entreprise_folder(siren):
+def get_entreprise_folder_path(siren):
     return DATALAKE_PATH / (get_entreprise_name(siren) + "_" + str(siren))
 
 
-def get_enseigne_folder(siret):
+def get_enseigne_folder_path(siret):
     siren = str(int(siret)).strip()[:9]
-    dest_entreprise_folder_path = get_entreprise_folder(siren)
-    get_infos_from_a_siret(siret)
+    dest_entreprise_folder_path = get_entreprise_folder_path(siren)
     enseigne = get_etablissement_name(siret)
     return dest_entreprise_folder_path / enseigne
 
@@ -65,7 +73,7 @@ def create_complete_folder_tree(siret):
     LOGGER.debug(siren)
     LOGGER.debug(siret)
 
-    enseigne_folder = get_enseigne_folder(siret)
+    enseigne_folder = get_enseigne_folder_path(siret)
 
     for path in [
         enseigne_folder,
@@ -119,12 +127,33 @@ def get_ser_infos(source_folder_path):
 
 
 def get_mistral_work_path(siret):
-    ENSEIGNE_FOLDER = get_enseigne_folder(siret)
+    ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
     MISTRAL_PATH = list(ENSEIGNE_FOLDER.rglob("**/MISTRAL_FILES/"))[0]
     return MISTRAL_PATH
 
 
 def get_work_path(siret):
-    ENSEIGNE_FOLDER = get_enseigne_folder(siret)
+    ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
     WORK_PATH = list(ENSEIGNE_FOLDER.rglob("**/WORK_DOCUMENTS/"))[0]
     return WORK_PATH
+
+
+def get_out_path(label, kind, number, create=True):
+    # deprecated, utiliser plutôt get_enseigne_folder_path pour travailler directement sur DATAPATH
+    if kind == "siren" or kind == "bail":
+        if number is None or number == "":
+            path = OUTPUT_PATH / f"{kind}_{label}"
+        else:
+            path = OUTPUT_PATH / f"{kind}_{label}_{number}"
+    elif kind == "siret":
+        path = get_enseigne_folder_path(number) / "WORK_DOCUMENTS" / "tmp"
+    else:
+        raise ValueError("not implemented")
+    if create:
+        path.mkdir(exist_ok=True, parents=True)
+    LOGGER.debug(f"output folder is {path}")
+    return path
+    if create:
+        path.mkdir(exist_ok=True, parents=True)
+    LOGGER.debug(f"output folder is {path}")
+    return path
