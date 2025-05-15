@@ -196,8 +196,8 @@ if __name__ == "__main__":
     # for s in get_df_folder_possibles()["siret"].dropna().values.tolist():
     #     main(s)
 
-    main(48138353700018)
-    # main_user()
+    # main(48138353700018)
+    main_user()
 
     # li = get_df_folder_possibles()["siret"].dropna().values.tolist()
     # shuffled_list = random.sample(li, len(li))
