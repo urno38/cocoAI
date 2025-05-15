@@ -199,7 +199,7 @@ def extract_name_from_etablissement(et):
 
 def get_infos_from_a_siren(siren: int):
 
-    yaml_list = [get_entreprise_folder_path(siren) / "output.yaml"]
+    yaml_list = list(OUTPUT_PATH.glob(f"siren_*_{siren}/output.yaml"))
     LOGGER.debug(yaml_list)
     if len(yaml_list) != 1 or "siren_fake" in str(yaml_list[0]):
         clean_all_siren_outputs(siren)
