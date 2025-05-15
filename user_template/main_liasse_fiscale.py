@@ -184,17 +184,17 @@ def main(siret):
     liasse_md_resume = get_liasse_md_path(siret, liasse_path)
     liasse_md_resume.parent.mkdir(exist_ok=True)
 
-    # print("\n=======")
-    # print(f"\nCopier l'output de mistral dans le clipboard")
-    # inp = input("done ? []")
-    # with liasse_md_resume.open(mode="w") as f:
-    #     f.write(pyperclip.paste())
-    # print(f"clipboard written in {liasse_md_resume.resolve()}")
-    # print("\n\n=======")
+    print("\n=======")
+    print(f"\nCopier l'output de mistral dans le clipboard")
+    inp = input("done ? []")
+    with liasse_md_resume.open(mode="w") as f:
+        f.write(pyperclip.paste())
+    print(f"clipboard written in {liasse_md_resume.resolve()}")
+    print("\n\n=======")
 
-    # print("\n\n=======")
-    # print(f"Tentons l'écriture d un bilan detaille dans le memorandum")
-    # print("\n\n=======")
+    print("\n\n=======")
+    print(f"Tentons l'écriture d un bilan detaille dans le memorandum")
+    print("\n\n=======")
 
     print("\n=======")
     print("\nCopier coller le prompt suivant avec le document dans mistral")
