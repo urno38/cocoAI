@@ -68,7 +68,7 @@ def main(siret):
     # masse salariale
     nb_bulletins_salaires = masse_salariale.main(siret)
     if nb_bulletins_salaires > 0:
-        add_title_to_markdown(
+        add_title_to_ma rkdown(
             tmp / "tableau_total_salaires.md", title="masse salariale"
         )
         md_tuples.append(("salaires", tmp / "tableau_total_salaires.md"))
