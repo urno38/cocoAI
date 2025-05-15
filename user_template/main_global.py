@@ -2,14 +2,9 @@ import datetime
 import shutil
 
 import pypandoc
-import win32com.client
 
 from cocoAI import bail, company, masse_salariale
-from cocoAI.terrasse import (
-    create_markdown_with_images,
-    extract_terrace_info_from_siret,
-    generate_beamer_terrasses,
-)
+from cocoAI.terrasse import extract_terrace_info_from_siret, generate_beamer_terrasses
 from common.convert import add_title_to_markdown
 from common.folder_tree import get_enseigne_folder_path, get_mistral_work_path
 from common.identifiers import get_entreprise_name, get_etablissement_name, verify_id
