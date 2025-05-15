@@ -18,6 +18,7 @@ from cocoAI.liasse_fiscale import (
 )
 from cocoAI.masse_salariale import parse_pdf
 from common.folder_tree import get_enseigne_folder_path
+from common.identifiers import verify_id
 from common.logconfig import LOGGER
 from common.path import get_df_folder_possibles, is_file_empty, rapatrie_file
 
@@ -217,6 +218,18 @@ def main(siret):
         f.write(pyperclip.paste())
     print(f"clipboard written in {liasse_md_detaille.resolve()}")
     print("\n\n=======")
+
+
+def main_user():
+
+    print("\n-----------")
+    print("Interpretation infos type liasse fiscale")
+    print("-----------")
+    siret = input("\nEntrer un siret\n")
+    verify_id(siret, "siret")
+
+    main(siret)
+    print("done")
 
 
 if __name__ == "__main__":
