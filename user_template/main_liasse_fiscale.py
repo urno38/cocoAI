@@ -248,4 +248,5 @@ if __name__ == "__main__":
         main(siret_ok)
 
     # main(90834751100010)
-    main(48138353700018)  # BISTROT VALOIS
+    # main(48138353700018)  # BISTROT VALOIS
+    main_user()
