@@ -1,6 +1,6 @@
 from cocoAI.bilan import main
 from common.FEC import extract_df_FEC
-from common.path import COMMERCIAL_DOCUMENTS_PATH, rapatrie_file
+from common.path import COMMERCIAL_DOCUMENTS_PATH, DATALAKE_PATH, rapatrie_file
 
 ###########################################
 # cas CHIEN QUI FUME
@@ -35,10 +35,8 @@ from common.path import COMMERCIAL_DOCUMENTS_PATH, rapatrie_file
 # cas DEI FRATELLI
 
 DEI_FRATELLI_PATH = (
-    COMMERCIAL_DOCUMENTS_PATH
-    / "1 - DOSSIERS EN COURS DE SIGNATURE"
-    / "DEI FRATELLI - 75001 PARIS - 10 Rue des PYRAMIDES"
-    / "3. DOCUMENTATION FINANCIÈRE"
+    DATALAKE_PATH
+    / r"JRI_PYRAMIDES_839951027\CAFFE_DEI_FRATELLI\REFERENCE_DOCUMENTS\DOCUMENTATION_FINANCIERE\FEC"
 )
 
 
@@ -48,4 +46,4 @@ path_list = [
 ]
 
 
-main(path_list, test=True, refyear=2023, curyear=2024)
+main(path_list, refyear=2023, curyear=2024)

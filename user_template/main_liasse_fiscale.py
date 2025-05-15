@@ -18,11 +18,7 @@ from cocoAI.liasse_fiscale import (
 from cocoAI.masse_salariale import parse_pdf
 from common.folder_tree import get_enseigne_folder_path
 from common.logconfig import LOGGER
-from common.path import (
-    get_df_folder_possibles,
-    is_file_empty,
-    rapatrie_file,
-)
+from common.path import get_df_folder_possibles, is_file_empty, rapatrie_file
 
 
 def split_pdf(input_pdf_path):
@@ -206,10 +202,6 @@ if __name__ == "__main__":
                 siret_ok = s
                 break
 
-        # siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
-        main(siret_ok)
-
-    main(90834751100010)
         # siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
         main(siret_ok)
 

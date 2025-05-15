@@ -6,12 +6,14 @@ import sys
 import pypandoc
 import win32com
 
-from cocoAI import bail, company, masse_salariale
+from cocoAI import bail, bilan, company, masse_salariale
 from cocoAI.terrasse import extract_terrace_info_from_siret, generate_beamer_terrasses
+from common import FEC
 from common.convert import add_title_to_markdown
 from common.folder_tree import get_enseigne_folder_path, get_mistral_work_path
 from common.identifiers import get_entreprise_name, get_etablissement_name, verify_id
 from common.logconfig import LOGGER
+from common.path import get_df_folder_possibles
 
 
 def deplace_all_file_in_workpath(folder_path, dst_folder_path):
@@ -44,14 +46,17 @@ def main(siret, open_word=False):
     LOGGER.info(f"ETABLISSEMENT {et}")
     ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
     MISTRAL_WORK_PATH = get_mistral_work_path(siret)
-    work_folder = ENSEIGNE_FOLDER / "WORK_DOCUMENTS"
-    commercial_folder = ENSEIGNE_FOLDER / "COMMERCIAL_DOCUMENTS"
-    tmp = work_folder / "tmp"
+    WORK_FOLDER = ENSEIGNE_FOLDER / "WORK_DOCUMENTS"
+    COMMERCIAL_FOLDER = ENSEIGNE_FOLDER / "COMMERCIAL_DOCUMENTS"
+    tmp = WORK_FOLDER / "tmp"
     tmp.mkdir(exist_ok=True)
     md_tuples = []
     LOGGER.info(tmp)
 
     # TOUS LES BLOCS
+    print("\n\n-----------")
+    print("Production de memorandum")
+    print("-----------")
 
     # company
     output_folder = company.main(siren, get_entreprise_name(siren), tmp)
@@ -79,11 +84,11 @@ def main(siret, open_word=False):
     if 1:
         for bailpath in ENSEIGNE_FOLDER.rglob("*BAIL*"):
             if bailpath.is_file():
-                final_folder = work_folder / bailpath.stem
+                final_folder = WORK_FOLDER / bailpath.stem
                 if (final_folder / (bailpath.stem + ".md")).exists():
                     output_folder = bail.main(bailpath)
                     final_folder = deplace_all_file_in_workpath(
-                        output_folder, work_folder, bailpath.stem
+                        output_folder, WORK_FOLDER, bailpath.stem
                     )
                     md_tuples.append(
                         (bailpath.stem, final_folder / (bailpath.stem + ".md"))
@@ -124,17 +129,47 @@ def main(siret, open_word=False):
     else:
         LOGGER.info("pas de memorandum produit car pas d'infos disponibles")
 
-    shutil.move(memorandum_path, commercial_folder)
-    LOGGER.info(commercial_folder / memorandum_path.name)
+    shutil.move(memorandum_path, COMMERCIAL_FOLDER)
+    LOGGER.info("\n\n-----------\n")
+    LOGGER.info("OUTPUT")
+    LOGGER.info(COMMERCIAL_FOLDER / memorandum_path.name)
+    LOGGER.info("\n\n-----------")
 
 
 def main_user():
+
     print("\n-----------")
-    print("Production de memorandum")
+    print("Script global production memorandum")
     print("-----------")
     siret = input("\nEntrer un siret\n")
     verify_id(siret, "siret")
+
     main(siret)
+    print("done")
+
+    ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
+    FEC_DIR = (
+        ENSEIGNE_FOLDER / "REFERENCE_DOCUMENTS" / "DOCUMENTATION_FINANCIERE" / "FEC"
+    )
+    COMMERCIAL_FOLDER = ENSEIGNE_FOLDER / "COMMERCIAL_DOCUMENTS"
+    if FEC_DIR.is_dir():
+        print("Production des bilans comptables à partir des FEC")
+        FEClist = list(FEC_DIR.glob("*"))
+        for p in FEClist:
+            print(p)
+        refyear = input("\nAnnee de reference format [2023]\n")
+        curyear = input("\nAnnee courante format [2024]\n")
+
+        print("\n\n")
+
+        bilan.main(
+            FEClist,
+            refyear=refyear,
+            curyear=curyear,
+            xlsx_path=COMMERCIAL_FOLDER / "FEC_Bilan_detaille.xlsx",
+        )
+
+        print("done")
 
 
 if __name__ == "__main__":
@@ -163,5 +198,5 @@ if __name__ == "__main__":
     # for s in get_df_folder_possibles()["siret"].dropna().values.tolist():
     #     main(s)
 
-    main(31013032300028, True)
-    # main_user()
+    # main(31013032300028, True)
+    main_user()

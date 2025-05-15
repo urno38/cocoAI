@@ -88,12 +88,13 @@ def load_txt_data(path_list):
 
     df_list = []
     for p in path_list:
+        LOGGER.debug(p)
         df = pd.read_csv(p, dtype={"PieceDate": str}, sep="\t")
         df["Compte"] = df["CompteNum"].apply(str)
         df["Débit"] = df["Debit"].apply(lambda x: float(x.replace(",", ".")))
         df["Crédit"] = df["Credit"].apply(lambda x: float(x.replace(",", ".")))
         df["Date"] = df["PieceDate"].apply(
-            lambda x: datetime.strptime(str(x).strip(), "%Y%m%d")
+            lambda x: datetime.strptime(x.strip(), "%Y%m%d")
         )
         df["Journal"] = df["JournalCode"]
         df["Intitulé"] = df["CompteLib"]
@@ -667,11 +668,12 @@ def get_unique_label_in_df(df, identifiant, type="compte"):
         raise ValueError("not implemented")
 
 
-def main(excel_path_list, patch=True):
+def main(path_list, patch=True, summary_path=(WORK_PATH / "FEC_Summary.xlsx")):
     dfnom = load_nomenclature()
-    generate_short_summary(excel_path_list)
-    df = extract_df_FEC(excel_path_list, patch=True)
-    export_FEC_summary(df, WORK_PATH / "FEC_Summary.xlsx")
+    df = extract_df_FEC(path_list, patch=patch)
+    export_FEC_summary(df, summary_path)
+    if all([p.suffix == ".xlsx" for p in path_list]):
+        generate_short_summary(path_list)
     return
 
 
@@ -713,10 +715,8 @@ if __name__ == "__main__":
     # main(excel_path_list)
 
     is_official_FEC(
-        COMMERCIAL_DOCUMENTS_PATH
-        / "1 - DOSSIERS EN COURS DE SIGNATURE"
-        / "DEI FRATELLI - 75001 PARIS - 10 Rue des PYRAMIDES"
-        / "3. DOCUMENTATION FINANCIÈRE"
-        / "839951027FEC20231231.txt"
+        Path(
+            r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\DATALAKE - Documents\JRI_PYRAMIDES_839951027\CAFFE_DEI_FRATELLI\REFERENCE_DOCUMENTS\DOCUMENTATION_FINANCIERE\FEC\839951027FEC20231231.txt"
+        )
     )
     is_official_FEC(excel_path_list[0])

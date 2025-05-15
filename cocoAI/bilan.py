@@ -1024,13 +1024,17 @@ def imprime_bilan_total(
     return row, col, worksheet, dftmp.T.sum()
 
 
-def main(path_list, test=False, refyear=2022, curyear=2023):
+def main(
+    path_list,
+    test=False,
+    refyear=2022,
+    curyear=2023,
+    xlsx_path=Path(WORK_PATH / "Bilan_detaille.xlsx"),
+):
 
     df = extract_df_FEC(path_list)
     global dfdrop
     dfdrop = copy.copy(df)
-
-    xlsx_path = Path(WORK_PATH / "Bilan_detaille.xlsx")
 
     LOGGER.debug(f"On ouvre le fichier {xlsx_path.resolve()} ! ")
 
