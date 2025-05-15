@@ -20,19 +20,13 @@ attention bien utiliser pip (et pas uv à la première install) car certains pac
 - les bénéficiaires indirects ont un diagramme à améliorer : pointillés et sans les holdings intermédiaires
 - présenter les avantages de mettre en place une procédure ou pas dans la boite comptoirs et commerces
 
-- vérifier avec les bilans In Extenso du bilan 2022 disponible en
-file:///C:/Users/lvolat/Documents/cocoAI/data/2_-*DOSSIERS_lETUDE/CHIEN_QUI_FUME_Le*-*75001_PARIS*-_33_Rue_du_PONT-NEUF/3.*DOCUMENTATION_FINANCIRE/2022*-*GALLA*-_BILAN.pdf
+TODO 2025-05-19 :
 
-TODO : 2025-04-23
-
-- finir les fignolages pour les fichiers résiduels
-
-- faire un archivage total de tout
+- rendre main_liasse_fiscale.py plus user-friendly
+- produire un json et un excel pour les résultats de mistral
 
  & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\activate.ps1
  & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\python.exe C:/Users/lvolat/Documents/cocoAI/user_template/main_global.py
 
 & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\activate.ps1
 & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\python.exe c:/Users/lvolat/Documents/cocoAI/user_template/main_archive_library.py
-
-coder, si il existe FEC alors je l'interprête.
