@@ -1,5 +1,6 @@
 import datetime
 import os
+import random
 import shutil
 import sys
 
@@ -46,6 +47,7 @@ def main(siret, open_word=False):
     LOGGER.info(f"ETABLISSEMENT {et}")
     ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
     MISTRAL_WORK_PATH = get_mistral_work_path(siret)
+    LIASSES_OUTPUT_PATH = get_mistral_work_path(siret) / "OUTPUT_LIASSES"
     WORK_FOLDER = ENSEIGNE_FOLDER / "WORK_DOCUMENTS"
     COMMERCIAL_FOLDER = ENSEIGNE_FOLDER / "COMMERCIAL_DOCUMENTS"
     tmp = WORK_FOLDER / "tmp"
@@ -95,12 +97,10 @@ def main(siret, open_word=False):
                     )
 
     # main_bilan.py
-    # main_etablissement.py
+    # produits avec le bilan detaille dans COMMERCIAL_DOCUMENTS
 
     # liasse
-    for liasse in [
-        l for l in ENSEIGNE_FOLDER.rglob("*.md") if "liasse" in l.name.lower()
-    ]:
+    for liasse in [l for l in LIASSES_OUTPUT_PATH.glob("*.md")]:
         print(liasse)
         md_tuples.extend([(liasse.stem, liasse)])
 
@@ -198,5 +198,10 @@ if __name__ == "__main__":
     # for s in get_df_folder_possibles()["siret"].dropna().values.tolist():
     #     main(s)
 
-    # main(31013032300028, True)
-    main_user()
+    main(48138353700018)
+    # main_user()
+
+    # li = get_df_folder_possibles()["siret"].dropna().values.tolist()
+    # shuffled_list = random.sample(li, len(li))
+    # for s in shuffled_list:
+    #     main(s)

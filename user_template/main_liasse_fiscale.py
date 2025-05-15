@@ -13,7 +13,8 @@ from cocoAI.etablissement import display_infos_on_siret
 from cocoAI.liasse_fiscale import (
     get_liasse_list_in_folder,
     get_liasse_md_path,
-    get_prompt_mistral,
+    get_prompt_mistral_detaille,
+    get_prompt_mistral_resume,
 )
 from cocoAI.masse_salariale import parse_pdf
 from common.folder_tree import get_enseigne_folder_path
@@ -147,11 +148,13 @@ def main(siret):
     #     for doc in docs_list:
     #         print(doc)
 
-    if len(liasse_list) == 0:
-        print("Pas de liasse présente dans le dossier, exit ...")
-        return
+    # if len(liasse_list) == 0:
+    #     print("Pas de liasse présente dans le dossier, exit ...")
+    #     return
 
-    print("Suivre scrupuleusement les étapes suivantes pour traiter la liasse fiscale")
+    print(
+        "Suivre scrupuleusement les étapes suivantes pour traiter un document contenant des infos type liasse fiscale"
+    )
 
     default_liasse = liasse_list[0] if len(liasse_list) > 0 else ""
     liasse_path = input(
@@ -168,26 +171,52 @@ def main(siret):
     liasse_path = Path(liasse_path)
 
     print("\n\n=======")
-    print("\n\n1. Copier coller le prompt suivant avec le document dans mistral")
+    print("\n\nCopier coller le prompt suivant avec le document dans mistral")
     print("\n\n=======")
-    prompt = get_prompt_mistral(siret)
-    print("=======\n\n")
+    print("document")
+    print(liasse_path)
+    prompt = get_prompt_mistral_resume(siret)
     print(prompt)
-
     pyperclip.copy(prompt)
-
     print("\n\nle prompt est déjà dans ton clipboard")
 
-    liasse_md = get_liasse_md_path(siret, liasse_path)
-    liasse_md.touch(mode=0o777)
+    liasse_md_resume = get_liasse_md_path(siret, liasse_path)
+    liasse_md_resume.parent.mkdir(exist_ok=True)
 
+    # print("\n=======")
+    # print(f"\nCopier l'output de mistral dans le clipboard")
+    # inp = input("done ? []")
+    # with liasse_md_resume.open(mode="w") as f:
+    #     f.write(pyperclip.paste())
+    # print(f"clipboard written in {liasse_md_resume.resolve()}")
+    # print("\n\n=======")
+
+    # print("\n\n=======")
+    # print(f"Tentons l'écriture d un bilan detaille dans le memorandum")
+    # print("\n\n=======")
+
+    print("\n=======")
+    print("\nCopier coller le prompt suivant avec le document dans mistral")
     print("\n\n=======")
-    print(f"\n\n2. Copier coller l'output de mistral dans {liasse_md.resolve()}")
+    print("document")
+    print(liasse_path)
+    prompt = get_prompt_mistral_detaille(siret)
+    print(prompt)
+    print("le prompt est déjà dans ton clipboard")
 
+    liasse_md_detaille = liasse_md_resume.parent / (
+        liasse_md_resume.stem + "_detaille.md"
+    )
+
+    liasse_md_detaille.parent.mkdir(exist_ok=True)
+
+    print("\n=======")
+    print(f"\nCopier l'output de mistral dans le clipboard")
     inp = input("done ? []")
-
-    if is_file_empty(liasse_md):
-        print(f"{liasse_md} est vide")
+    with liasse_md_detaille.open(mode="w") as f:
+        f.write(pyperclip.paste())
+    print(f"clipboard written in {liasse_md_detaille.resolve()}")
+    print("\n\n=======")
 
 
 if __name__ == "__main__":
@@ -205,4 +234,5 @@ if __name__ == "__main__":
         # siret = sample(get_df_folder_possibles()["siret"].dropna().values.tolist(), 1)[0]
         main(siret_ok)
 
-    main(90834751100010)
+    # main(90834751100010)
+    main(48138353700018)  # BISTROT VALOIS
