@@ -236,9 +236,9 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif ("registre" in doc_new_path.name.lower()) and (
-        "personnel" in doc_new_path.name.lower()
-    ):
+    elif (
+        "registre" in doc_new_path.name.lower() or "liste" in doc_new_path.name.lower()
+    ) and ("personnel" in doc_new_path.name.lower()):
         path_list = [
             (
                 enseigne_dest_folder
@@ -405,13 +405,3 @@ def create_unclassified_statistics(etablissement_name, source_folder_path=None):
         get_unclassified_path_filepath(etablissement_name),
     )
     return output_path
-
-
-if __name__ == "__main__":
-
-    # # etablissement_name = "LE_CHIEN_QUI_FUME"
-    # # etablissement_name = "CIRO"
-    # etablissement_name = "AFFRANCHIS"
-    # main(etablissement_name)
-
-    pass

@@ -9,6 +9,8 @@
  | ------------------ | ----------- | ------------ |
  | fichier à exécuter | install.ps1 | install.bash |
 
+attention bien utiliser pip (et pas uv à la première install) car certains packages (comme win32com ou docx2pdf) ne sont pas accessbles via uv
+
 2. récupérer les clés et les enregistrer dans common/keys.py
 3. Générer une clé ssh et l'envoyer sur le github  
 

@@ -15,6 +15,7 @@ from common.path import DATALAKE_PATH, TMP_PATH, main_liste, make_unix_compatibl
 
 def main(siret, source_folder_path):
 
+    source_folder_path = Path(source_folder_path)
     get_infos_from_a_siret(siret)
     display_infos_on_siret(siret)
     # household
@@ -99,4 +100,9 @@ if __name__ == "__main__":
     # )
 
     # 49435285900016
-    main_user()
+    # main_user()
+
+    main(
+        48138353700018,
+        r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\COMMERCIAL - Documents\2 - DOSSIERS à l'ETUDE\1 - FONDS DE COMMERCES\BISTROT VALOIS (Le) - 75001 PARIS - 1 Bis Place de VALOIS\5. SOCIAL",
+    )

@@ -123,8 +123,7 @@ def get_summary_from_yaml(yaml_path):
 Dans un langage clair et concis résume les points saillants de cette liste. Ecris la réponse au format Markdown.
 {lines}
 """
-    LOGGER.info("summary generation")
-    LOGGER.info("un peu long, attendre")
+    LOGGER.info("summary generation...wait plz...")
     client = Mistral(api_key=MISTRAL_API_KEY_PAYANTE)
     messages = [{"role": "user", "content": message}]
     chat_response = client.chat.complete(

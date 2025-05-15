@@ -1,7 +1,10 @@
 import datetime
+import os
 import shutil
+import sys
 
 import pypandoc
+import win32com
 
 from cocoAI import bail, company, masse_salariale
 from cocoAI.terrasse import extract_terrace_info_from_siret, generate_beamer_terrasses
@@ -29,7 +32,7 @@ def bloc(siret, name, output_file_name, function, md_tuples):
     return md_tuples
 
 
-def main(siret):
+def main(siret, open_word=False):
     # donnees
     siret = str(siret)
     siren = siret[:-5]
@@ -67,11 +70,10 @@ def main(siret):
 
     # masse salariale
     nb_bulletins_salaires = masse_salariale.main(siret)
-    if nb_bulletins_salaires > 0:
-        add_title_to_markdown(
-            tmp / "tableau_total_salaires.md", title="masse salariale"
-        )
-        md_tuples.append(("salaires", tmp / "tableau_total_salaires.md"))
+    tableau_salaires_path = tmp / "tableau_total_salaires.md"
+    if tableau_salaires_path.is_file():
+        add_title_to_markdown(tableau_salaires_path, title="masse salariale")
+        md_tuples.append(("salaires", tableau_salaires_path))
 
     # bail
     if 1:
@@ -103,9 +105,7 @@ def main(siret):
 
     # je convertis le markdown glob en docx et en pdf
     memorandum_path = (
-        tmp
-        / "extracted_images"
-        / f'memorandum_{datetime.datetime.now().strftime("%d-%m-%Y_%Hh%M_%S")}.docx'
+        tmp / f'memorandum_{datetime.datetime.now().strftime("%d-%m-%Y_%Hh%M_%S")}.docx'
     )
     print(md_tuples)
     if len(md_tuples) > 0:
@@ -115,10 +115,12 @@ def main(siret):
             outputfile=memorandum_path,
         )
         # LOGGER.info(memorandum_path)
-        # open the word document
-        # word_app = win32com.client.Dispatch("Word.Application")
-        # word_app.Visible = True
-        # document = word_app.Documents.Open(str(memorandum_path))
+
+        if open_word and os.name == "nt" and "3.10" in sys.version:
+            # open the word document
+            word_app = win32com.client.Dispatch("Word.Application")
+            word_app.Visible = True
+            document = word_app.Documents.Open(str(memorandum_path))
     else:
         LOGGER.info("pas de memorandum produit car pas d'infos disponibles")
 
@@ -161,5 +163,5 @@ if __name__ == "__main__":
     # for s in get_df_folder_possibles()["siret"].dropna().values.tolist():
     #     main(s)
 
-    # main(48138353700018)  # les salaries sont fumeux
-    main_user()
+    main(31013032300028, True)
+    # main_user()

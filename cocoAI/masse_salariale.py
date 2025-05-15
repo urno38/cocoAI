@@ -1,6 +1,5 @@
 import base64
 import json
-from pathlib import Path
 
 import pandas as pd
 from mistralai import Mistral
@@ -13,22 +12,22 @@ from common.folder_tree import (
 )
 from common.keys import MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
+from common.path import load_json_file
 
 
 def data_uri_to_bytes(data_uri):
-    # Assuming the data_uri is in the format: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA..."
     header, encoded = data_uri.split(",", 1)
     return base64.b64decode(encoded)
 
 
-def export_image(image):
-    try:
-        parsed_image = data_uri_to_bytes(image.image_base64)
-        with open(outputimage_path, "wb") as file:
-            file.write(parsed_image)
-        print(f"Image successfully exported to {outputimage_path.resolve()}")
-    except Exception as e:
-        print(f"An error occurred while exporting the image: {e}")
+# def export_image(image):
+#     try:
+#         parsed_image = data_uri_to_bytes(image.image_base64)
+#         with open(outputimage_path, "wb") as file:
+#             file.write(parsed_image)
+#         print(f"Image successfully exported to {outputimage_path.resolve()}")
+#     except Exception as e:
+#         print(f"An error occurred while exporting the image: {e}")
 
 
 def export_imagev2(image, doc_path):
@@ -61,34 +60,34 @@ def parse_pdf(file_path, MISTRAL_PATH):
             f.write(page.markdown)
             for image in page.images:
                 export_imagev2(image, md_output_path)
-    # print(md_output_path)
     return md_output_path
 
 
 def output_employes_json(request, output_path):
 
-    # response_dict = json.loads(ocr_response.model_dump_json())
-    # ocr_markdown = response_dict["pages"][0]["markdown"]
-    request_file = output_path.with_suffix(".request")
-    with open(request_file, "w", encoding="utf-8") as f:
-        f.write(request)
-        LOGGER.debug(f"request exported to {request_file}")
-
-    model = "mistral-large-latest"
-    chat_response = ask_Mistral(
-        api_key=MISTRAL_API_KEY_PAYANTE,
-        prompt=request,
-        model=model,
-        json_only=True,
-    )
-    json_dict = chat_response.choices[0].message.content
-
-    response_dict2 = json.loads(json_dict)
     json_path = output_path.with_suffix(".json")
-    with open(json_path, "w", encoding="utf-8") as f:
-        f.write(json.dumps(response_dict2, ensure_ascii=False))
-        LOGGER.debug(json_path.resolve())
-    # print(json_path)
+
+    if json_path.exists():
+        LOGGER.info(f"{json_path} has already been produced")
+        response_dict2 = load_json_file(json_path)
+    else:
+        request_file = output_path.with_suffix(".request")
+        with open(request_file, "w", encoding="utf-8") as f:
+            f.write(request)
+            LOGGER.debug(f"request exported to {request_file}")
+
+        model = "mistral-large-latest"
+        chat_response = ask_Mistral(
+            api_key=MISTRAL_API_KEY_PAYANTE,
+            prompt=request,
+            model=model,
+            json_only=True,
+        )
+        json_dict = chat_response.choices[0].message.content
+        response_dict2 = json.loads(json_dict)
+        with open(json_path, "w", encoding="utf-8") as f:
+            f.write(json.dumps(response_dict2, ensure_ascii=False))
+            LOGGER.debug(json_path.resolve())
 
     return response_dict2
 
@@ -108,6 +107,7 @@ def main(siret):
         return 0.0
 
     analysed_files_path_list = []
+
     for sal in FILES_TO_ANALYSE:
 
         TABLEAU = MISTRAL_WORK_PATH / (sal.stem + "_tableau_salaires.csv")
@@ -116,11 +116,11 @@ def main(siret):
             LOGGER.info(f"{TABLEAU.resolve()} existe")
             continue
 
-        # try:
-        md_output = parse_pdf(sal, MISTRAL_WORK_PATH)
-        # except:
-        # LOGGER.warning(f"{sal} n est pas interprete")
-        # continue
+        try:
+            md_output = parse_pdf(sal, MISTRAL_WORK_PATH)
+        except:
+            LOGGER.warning(f"{sal} n est pas interprete")
+            continue
 
         with open(md_output, "r", encoding="utf-8") as f:
             ocr_output = "\n".join(f.readlines())
@@ -147,19 +147,26 @@ def main(siret):
             + ocr_output
         )
 
-        di = output_employes_json(request, MISTRAL_WORK_PATH / (sal.name + "salaires"))
+        try:
+            di = output_employes_json(
+                request, MISTRAL_WORK_PATH / (sal.name + "salaires")
+            )
+            df = pd.DataFrame(di["Employés"])
 
-        df = pd.DataFrame(di["Employés"])
+            # formatage du df
+            df = df.rename(
+                columns={
+                    "Salaire net à payer avant impôt sur le revenu": "Salaire brut"
+                }
+            )
+            df["Nom"] = df["Nom"].apply(lambda x: x.title())
+            df["Poste"] = df["Poste"].apply(lambda x: x.upper())
 
-        # formatage du df
-        df = df.rename(
-            columns={"Salaire net à payer avant impôt sur le revenu": "Salaire brut"}
-        )
-        df["Nom"] = df["Nom"].apply(lambda x: x.title())
-        df["Poste"] = df["Poste"].apply(lambda x: x.upper())
-
-        df.to_csv(TABLEAU)
-        analysed_files_path_list.append(sal)
+            df.to_csv(TABLEAU)
+            analysed_files_path_list.append(sal)
+        except:
+            LOGGER.warning(f"{sal} n est pas interprete")
+            continue
 
     if len(analysed_files_path_list) == 0.0:
         return 0.0
@@ -169,7 +176,7 @@ def main(siret):
         for sal in analysed_files_path_list
     ]
     df = pd.concat([pd.read_csv(t, index_col=0) for t in TABLEAU_LIST]).sort_values(
-        "Nom"
+        ["Mois concernés", "Poste", "Salaire brut"]
     )
 
     csv_total = TMP_WORK_PATH / "tableau_total_salaires.csv"
