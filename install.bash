@@ -113,10 +113,10 @@ cp -rv ~/COMPTOIRS\ ET\ COMMERCES/COMMERCIAL\ -\ Documents/2\ -\ DOSSIERS\ à\ 
 
 
 
-echo install tesseract
+# echo install tesseract
 
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-echo >> /Users/antoninbertuol/.zprofile
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/antoninbertuol/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
-brew install tesseract
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# echo >> /Users/antoninbertuol/.zprofile
+# echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/antoninbertuol/.zprofile
+# eval "$(/opt/homebrew/bin/brew shellenv)"
+# brew install tesseract
