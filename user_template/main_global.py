@@ -1,20 +1,16 @@
 import datetime
 import os
-import random
 import shutil
 import sys
 
 import pypandoc
-import win32com
 
 from cocoAI import bail, bilan, company, masse_salariale
 from cocoAI.terrasse import extract_terrace_info_from_siret, generate_beamer_terrasses
-from common import FEC
 from common.convert import add_title_to_markdown
 from common.folder_tree import get_enseigne_folder_path, get_mistral_work_path
 from common.identifiers import get_entreprise_name, get_etablissement_name, verify_id
 from common.logconfig import LOGGER
-from common.path import get_df_folder_possibles
 
 
 def deplace_all_file_in_workpath(folder_path, dst_folder_path):
@@ -122,6 +118,8 @@ def main(siret, open_word=False):
         # LOGGER.info(memorandum_path)
 
         if open_word and os.name == "nt" and "3.10" in sys.version:
+            import win32com
+
             # open the word document
             word_app = win32com.client.Dispatch("Word.Application")
             word_app.Visible = True
