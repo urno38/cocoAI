@@ -16,13 +16,14 @@ from common.keys import MISTRAL_API_KEY, MISTRAL_API_KEY_PAYANTE
 from common.logconfig import LOGGER
 from common.path import (
     COMMERCIAL_DOCUMENTS_PATH,
-    TESSERACT_EXE_PATH,
     create_parent_directory,
     make_unix_compatible,
     rapatrie_file,
 )
 
 if os.name == "nt":
+    from common.path import TESSERACT_EXE_PATH
+
     pytesseract.pytesseract.tesseract_cmd = str(TESSERACT_EXE_PATH)
 
 
