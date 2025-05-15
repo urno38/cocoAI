@@ -66,8 +66,9 @@ def main(siret):
         add_title_to_markdown(tmp / "terrasses.md", title="terrasses")
         md_tuples.append(("Terrasses", tmp / "terrasses.md"))
 
-    create_markdown_with_images(tmp / "extracted_images", tmp / "images_terrasses.md")
-    md_tuples.append(("Plan terrasses", tmp / "images_terrasses.md"))
+    # A DEBUGGUER
+    # create_markdown_with_images(tmp / "extracted_images", tmp / "images_terrasses.md")
+    # md_tuples.append(("Plan terrasses", tmp / "images_terrasses.md"))
 
     # masse salariale
     nb_bulletins_salaires = masse_salariale.main(siret)
@@ -118,7 +119,7 @@ def main(siret):
             "docx",
             outputfile=memorandum_path,
         )
-        LOGGER.info(memorandum_path)
+        # LOGGER.info(memorandum_path)
         # open the word document
         # word_app = win32com.client.Dispatch("Word.Application")
         # word_app.Visible = True
@@ -165,5 +166,5 @@ if __name__ == "__main__":
     # for s in get_df_folder_possibles()["siret"].dropna().values.tolist():
     #     main(s)
 
-    # main(48138353700018)
+    # main(48138353700018)  # les salaries sont fumeux
     main_user()

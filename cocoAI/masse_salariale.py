@@ -61,7 +61,7 @@ def parse_pdf(file_path, MISTRAL_PATH):
             f.write(page.markdown)
             for image in page.images:
                 export_imagev2(image, md_output_path)
-    print(md_output_path)
+    # print(md_output_path)
     return md_output_path
 
 
@@ -109,6 +109,7 @@ def main(siret):
 
     analysed_files_path_list = []
     for sal in FILES_TO_ANALYSE:
+
         TABLEAU = MISTRAL_WORK_PATH / (sal.stem + "_tableau_salaires.csv")
         LOGGER.debug(sal)
         if TABLEAU.exists():
@@ -173,7 +174,7 @@ def main(siret):
 
     csv_total = TMP_WORK_PATH / "tableau_total_salaires.csv"
     df.to_csv(csv_total)
-    LOGGER.info(csv_total.resolve())
+    LOGGER.debug(csv_total.resolve())
     df[[c for c in df.columns if c not in ["Date d'entrée"]]].sort_values(
         ["Mois concernés", "Nom"]
     ).to_markdown(csv_total.with_suffix(".md"), index=False)
@@ -194,8 +195,5 @@ if __name__ == "__main__":
     # siret = "89918997100018" #bug
     # siret = "48786663400016"  # bug #plusieurs fichiers
 
-    siret = "79903742900047"
-    main(siret)
-
-    siret = "79903742900047"
+    siret = "79903742900047"  # ok
     main(siret)

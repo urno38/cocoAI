@@ -39,7 +39,7 @@ def ask_Mistral(api_key, prompt, model="mistral-large-latest", json_only=True):
                     }
                 ],
             )
-        LOGGER.debug(f"the answer is {chat_response}")
+        # LOGGER.debug(f"the answer is {chat_response}")
     except:
         LOGGER.warning(chat_response)
 
