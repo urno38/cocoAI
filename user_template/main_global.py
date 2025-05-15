@@ -110,7 +110,7 @@ def main(siret):
     memorandum_path = (
         tmp
         / "extracted_images"
-        / f"memorandum_{datetime.datetime.now().strftime("%d-%m-%Y_%Hh%M_%S")}.docx"
+        / f'memorandum_{datetime.datetime.now().strftime("%d-%m-%Y_%Hh%M_%S")}.docx'
     )
     print(md_tuples)
     if len(md_tuples) > 0:
