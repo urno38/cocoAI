@@ -100,9 +100,9 @@ if __name__ == "__main__":
     # )
 
     # 49435285900016
-    # main_user()
+    main_user()
 
-    main(
-        48138353700018,
-        r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\COMMERCIAL - Documents\2 - DOSSIERS à l'ETUDE\1 - FONDS DE COMMERCES\BISTROT VALOIS (Le) - 75001 PARIS - 1 Bis Place de VALOIS",
-    )
+    # main(
+    #     48138353700018,
+    #     r"C:\Users\lvolat\COMPTOIRS ET COMMERCES\COMMERCIAL - Documents\2 - DOSSIERS à l'ETUDE\1 - FONDS DE COMMERCES\BISTROT VALOIS (Le) - 75001 PARIS - 1 Bis Place de VALOIS",
+    # )
