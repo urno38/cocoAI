@@ -55,7 +55,7 @@ def main(siret, source_folder_path):
 
 def main_user():
     print("\n-----------")
-    print("Classement de document sous un siret")
+    print("Classement de document dans le DATALAKE à partir d un siret")
     print("-----------")
     siret = input("\nEntrer un siret\n")
     verify_id(siret, "siret")
