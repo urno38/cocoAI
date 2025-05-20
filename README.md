@@ -30,3 +30,6 @@ TODO 2025-05-19 :
 
 & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\activate.ps1
 & C:\Users\lvolat\Documents\cocoAI\.venv\Scripts\python.exe c:/Users/lvolat/Documents/cocoAI/user_template/main_archive_library.py
+
+- annuaire partagé, google workspace
+- applications sur les téléphones portables

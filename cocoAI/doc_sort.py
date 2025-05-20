@@ -290,8 +290,14 @@ def classify_one_document(doc_path, siret):
                 )
             ]
         else:
-            # traitement classique
-            path_list = classify_pdf_document(enseigne_dest_folder, doc_new_path)
+            try:
+                # traitement classique
+                path_list = classify_pdf_document(enseigne_dest_folder, doc_new_path)
+            except:
+                LOGGER.critical(
+                    "the OCR does not read that document, please sort it by hand"
+                )
+                return None
 
     elif doc_new_path.suffix == ".xlsx" or doc_new_path.suffix == ".xls":
         path_list = [
