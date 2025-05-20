@@ -10,6 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from PIL import Image, UnidentifiedImageError
+from zmq import SHARED
 
 from common.logconfig import LOGGER
 
@@ -18,14 +19,21 @@ if getpass.getuser() == "lvolat":
     USER_PATH = Path(r"C:\Users") / getpass.getuser()
     PROGRAMFILES_PATH = Path(r"C:\Program Files")
     TESSERACT_EXE_PATH = PROGRAMFILES_PATH / "Tesseract-OCR" / "tesseract.exe"
+    SHARED_DRIVES_PATH = Path(r"G:\Drive partagés")
+    DATALAKE_PATH = SHARED_DRIVES_PATH / "DATALAKE"
 elif getpass.getuser() == "antoninbertuol":
     USER_PATH = Path("/Users/") / getpass.getuser()
+    SHARED_DRIVES_PATH = (
+        USER_PATH
+        / "antonin.bertuol@comptoirsetcommerces.com - Google Drive/Drive partagés"
+    )
+    DATALAKE_PATH = SHARED_DRIVES_PATH / "DATALAKE"
 else:
     raise ValueError("not implemented, please write the paths concerning the user")
 
-
 DOCUMENTS_PATH = USER_PATH / "Documents"
 DESKTOP_PATH = USER_PATH / "Desktop"
+
 
 # One Drive
 COMPTOIRS_ET_COMMERCES_PATH = USER_PATH / "COMPTOIRS ET COMMERCES"
