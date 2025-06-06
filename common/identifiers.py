@@ -39,6 +39,7 @@ def verify_id(id, kind="siren"):
     elif kind == "siret":
         if len(id) != 14:
             raise ValueError("le siret doit etre long de 14 caracteres")
+    return id
 
 
 def load_databank(databank_path=DATABANK_PATH):

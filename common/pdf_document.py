@@ -275,7 +275,8 @@ def request_file_nature():
         (
             "un avis de taxe concernant des charges d'urbanisme",
             "JURIDIQUE_EXPLOITATION_ET_CONTRATS/TERRASSE - VOIRIE",
-        )(
+        ),
+        (
             "un document concernant la terrasse ou la voirie",
             "JURIDIQUE_EXPLOITATION_ET_CONTRATS/TERRASSE - VOIRIE",
         ),

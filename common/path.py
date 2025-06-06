@@ -10,7 +10,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from PIL import Image, UnidentifiedImageError
-from zmq import SHARED
 
 from common.logconfig import LOGGER
 

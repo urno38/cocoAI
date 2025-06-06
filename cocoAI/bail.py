@@ -77,7 +77,7 @@ def interpret_bail_with_sentences(bail_path, output_mdpath):
 def interpret_bail_with_output_yaml(bail_path, output_mdpath):
 
     output_path, text = convert_pdf_to_ascii(bail_path)
-    request = "Extrait de ce bail les informations importantes au format yaml y compris la date de signature du bail"
+    request = "Extrais de ce bail les informations importantes au format yaml y compris la date de signature du bail"
     prompt = text + request
     request_file_path = output_mdpath.parent / "Mistral_request.txt"
 
@@ -114,7 +114,7 @@ def interpret_bail_with_formatted_yaml(bail_path, output_mistralyamlpath):
     """
     output_path, text = convert_pdf_to_ascii(bail_path)
     request = (
-        "Extrait de ce bail les informations importantes au format yaml en respectant le formatage suivant:"
+        "Extrais de ce bail les informations importantes au format yaml en respectant le formatage suivant:"
         + """
 baileur:
   - nom:
@@ -144,6 +144,7 @@ preneur:
 
 designation:
   adresse: 
+  activité exercée:
   description:
     rez-de-chaussée:
       usage: commercial/non mentionné
@@ -156,6 +157,7 @@ designation:
     cour:
       usage:
       autorisation: 
+  surface:
 
 durée:
   début: 

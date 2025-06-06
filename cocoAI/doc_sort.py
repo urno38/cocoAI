@@ -77,7 +77,7 @@ def write_paths_to_file(paths_list: List[Path], summary_file_path: Path):
             for file_path in files:
                 file.write(f"  - {file_path.name}\n")
 
-    LOGGER.info(f"List written in {summary_file_path.resolve()}")
+    # LOGGER.info(f"List written in {summary_file_path.resolve()}")
     return summary_file_path
 
 
@@ -207,7 +207,12 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif "bilan" in doc_new_path.name.lower():
+    elif (
+        "_bilan" in doc_new_path.name.lower()
+        or "_sig" in doc_new_path.name.lower()
+        or "bilan_" in doc_new_path.name.lower()
+        or "sig_" in doc_new_path.name.lower()
+    ):
         path_list = [
             (
                 enseigne_dest_folder
@@ -225,9 +230,25 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif ("lettre" in doc_new_path.name.lower()) and (
-        "offre" in doc_new_path.name.lower()
-    ):
+    elif "bail" in doc_new_path.name.lower():
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "REFERENCE_DOCUMENTS"
+                / "BAUX_QUITTANCE"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif "rib" in doc_new_path.name.lower():
+        path_list = [
+            (
+                enseigne_dest_folder
+                / "DOCUMENTATION_FINANCIERE"
+                / "COMPTES_COURANTS"
+                / make_unix_compatible(doc_new_path.name)
+            )
+        ]
+    elif "lettre" in doc_new_path.name.lower() and "offre" in doc_new_path.name.lower():
         # Cas de la lettre d offre deja faite fait par comptoirs et commerces
         path_list = [
             (
@@ -307,7 +328,7 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif is_photo(doc_new_path) or doc_new_path.suffix == ".heic":
+    elif doc_new_path.suffix == ".heic" or is_photo(doc_new_path):
         path_list = [
             (
                 enseigne_dest_folder
@@ -316,7 +337,7 @@ def classify_one_document(doc_path, siret):
                 / make_unix_compatible(doc_new_path.name)
             )
         ]
-    elif is_video(doc_new_path) or doc_new_path.suffix.lower == ".mov":  # videos IPHONE
+    elif doc_new_path.suffix.lower == ".mov" or is_video(doc_new_path):  # videos IPHONE
         path_list = [
             (
                 enseigne_dest_folder

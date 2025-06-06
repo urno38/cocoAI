@@ -101,6 +101,12 @@ def get_ser_infos(source_folder_path):
     return None
 
 
+def get_attio_work_path(siret):
+    ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
+    ATTIO_PATH = list(ENSEIGNE_FOLDER.rglob("**/ATTIO_FILES/"))[0]
+    return ATTIO_PATH
+
+
 def get_mistral_work_path(siret):
     ENSEIGNE_FOLDER = get_enseigne_folder_path(siret)
     MISTRAL_PATH = list(ENSEIGNE_FOLDER.rglob("**/MISTRAL_FILES/"))[0]
@@ -116,6 +122,7 @@ def get_work_path(siret):
 def get_out_path(label, kind, number, create=True):
     # deprecated, utiliser plutôt get_enseigne_folder_path pour travailler directement sur DATAPATH
     if kind == "siren" or kind == "bail":
+        # path = get_enseigne_folder_path(number) / "WORK_DOCUMENTS" / (kind + "_" + label)
         if number is None or number == "":
             path = OUTPUT_PATH / f"{kind}_{label}"
         else:

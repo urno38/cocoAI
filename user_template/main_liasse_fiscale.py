@@ -187,8 +187,8 @@ def main(siret):
     print("\n=======")
     print(f"\nCopier l'output de mistral dans le clipboard")
     inp = input("done ? []")
-    with liasse_md_resume.open(mode="w") as f:
-        f.write(pyperclip.paste())
+    with liasse_md_resume.open(mode="w", encoding="utf-8") as f:
+        f.write(f"# output mistral \n## SIRET {siret}\n" + pyperclip.paste())
     print(f"clipboard written in {liasse_md_resume.resolve()}")
     print("\n\n=======")
 
@@ -203,6 +203,8 @@ def main(siret):
     print(liasse_path)
     prompt = get_prompt_mistral_detaille(siret)
     print(prompt)
+    pyperclip.copy(prompt)
+    print("\n\n=======")
     print("le prompt est déjà dans ton clipboard")
 
     liasse_md_detaille = liasse_md_resume.parent / (
@@ -214,8 +216,12 @@ def main(siret):
     print("\n=======")
     print(f"\nCopier l'output de mistral dans le clipboard")
     inp = input("done ? []")
-    with liasse_md_detaille.open(mode="w") as f:
-        f.write(pyperclip.paste())
+
+    content = pyperclip.paste()
+    content = content.replace("|\n\n|", "|\n|")
+
+    with liasse_md_detaille.open(mode="w", encoding="utf-8") as f:
+        f.write(f"# output mistral \n## SIRET {siret}\n" + content)
     print(f"clipboard written in {liasse_md_detaille.resolve()}")
     print("\n\n=======")
 
@@ -249,4 +255,5 @@ if __name__ == "__main__":
 
     # main(90834751100010)
     # main(48138353700018)  # BISTROT VALOIS
-    main_user()
+    # main_user()
+    main(85364205600024)
