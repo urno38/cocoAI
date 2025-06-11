@@ -27,7 +27,7 @@ elif getpass.getuser() == "antoninbertuol":
         / "Library"
         / "CloudStorage"
         / "GoogleDrive-antonin.bertuol@comptoirsetcommerces.com"
-        / "Drives partagés"
+        / "Drive partagés"
     )
     DATALAKE_PATH = SHARED_DRIVES_PATH / "DATALAKE"
 else:
