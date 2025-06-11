@@ -134,13 +134,15 @@ def main(siret, open_word=False):
     LOGGER.info("\n\n-----------")
 
 
-def main_user():
+def main_user(siret=None):
 
     print("\n-----------")
     print("Script global production memorandum")
     print("-----------")
-    siret = input("\nEntrer un siret\n")
-    verify_id(siret, "siret")
+
+    if siret is None:
+        siret = input("\nEntrer un siret\n")
+        verify_id(siret, "siret")
 
     main(siret)
     print("done")

@@ -110,9 +110,10 @@ def load_excel_data(path_list) -> pd.DataFrame:
 
     df_list = []
     for p in path_list:
+        print(p)
         df = pd.read_excel(p, dtype={"Compte": str})
         df["Date"] = df["Date"].apply(lambda x: datetime.strptime(x, "%d/%m/%Y"))
-        df["Bilanyear"] = int(p.name.strip().split()[0])
+        df["Bilanyear"] = int(p.name.strip().split("_")[0])
         df_list.append(df)
 
     dft = pd.concat(df)

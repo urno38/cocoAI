@@ -315,3 +315,7 @@ def main_liste(directory, output_file):
     file_paths = list_files_in_directory(directory)
     save_to_excel(file_paths, output_file)
     print(f"Liste des fichiers enregistrée dans {output_file}")
+
+
+def is_directory_empty(path):
+    return not any(Path(path).iterdir()) if Path(path).is_dir() else True

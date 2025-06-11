@@ -17,19 +17,19 @@ from common.convert import (
     test_pappers_data_compliance,
     yaml_to_dict,
 )
-from common.folder_tree import get_entreprise_folder_path, get_out_path
+from common.folder_tree import get_out_path
 from common.identifiers import (
     get_entreprise_name,
     get_etablissement_name,
     load_siren_in_databank,
     load_siret_in_databank,
 )
-from common.keys import PAPPERS_API_KEY_A_BERTUOL, PAPPERS_API_KEY_LVOLAT_FREE
+from common.keys import PAPPERS_API_KEY_LVOLAT
 from common.logconfig import LOGGER
 from common.path import OUTPUT_PATH, PAPPERS_API_URL, make_unix_compatible
 from common.REST_API import make_request_with_api_key
 
-api_key = PAPPERS_API_KEY_LVOLAT_FREE
+api_key = PAPPERS_API_KEY_LVOLAT
 base_url = PAPPERS_API_URL
 
 
@@ -161,7 +161,7 @@ def produce_yaml(siren, entreprise):
         url=url,
         outputfile_path=json_path,
         API="PAPPERS",
-        api_key=PAPPERS_API_KEY_A_BERTUOL,
+        api_key=PAPPERS_API_KEY_LVOLAT,
     )
     output_folder_path = get_out_path(entreprise, kind="siren", number=siren)
     return output_folder_path
@@ -251,7 +251,7 @@ def main(siren, entreprise, output_folder_path=None):
         url=url,
         outputfile_path=json_path,
         API="PAPPERS",
-        api_key=PAPPERS_API_KEY_A_BERTUOL,
+        api_key=PAPPERS_API_KEY_LVOLAT,
     )
 
     di = yaml_to_dict(yaml_path)

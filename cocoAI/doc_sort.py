@@ -132,7 +132,7 @@ def classify_pdf_document(enseigne_dest_folder, doc_new_path):
 
 def classify_one_document(doc_path, siret):
 
-    # LOGGER.debug(f"lets classify {doc_path}")
+    # LOGGER.info(f"lets classify {doc_path}")
 
     enseigne_dest_folder = create_complete_folder_tree(siret)
 
@@ -316,7 +316,9 @@ def classify_one_document(doc_path, siret):
                 path_list = classify_pdf_document(enseigne_dest_folder, doc_new_path)
             except:
                 LOGGER.critical(
-                    "the OCR does not read that document, please sort it by hand"
+                    "\n"
+                    + "the OCR does not read that document, please sort it by hand or retry, sometimes it works afterwards".upper()
+                    + "\n"
                 )
                 return None
 
@@ -382,12 +384,12 @@ def classify_one_document(doc_path, siret):
 
     if len(new_path_list) == 0:
         LOGGER.critical(f"not any new path found for the doc {doc_new_path}")
-        LOGGER.critical("we do nothing")
+        LOGGER.critical("we do nothing".upper() + "\n")
         return None
     elif len(new_path_list) > 1:
         LOGGER.warning(f"several locations foreseen for that document")
         LOGGER.warning(list(set(path_list)))
-        LOGGER.critical("we do nothing")
+        LOGGER.critical("we do nothing".upper() + "\n")
         return None
     else:
         # let us move the files

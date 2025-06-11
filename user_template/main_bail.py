@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from cocoAI.bail import main
-from common.path import COMMERCIAL_DOCUMENTS_PATH
 
 # Mettre les paths sous la forme
 # bail_path = Path(r"<chemin a copier ici>")

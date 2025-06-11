@@ -63,7 +63,8 @@ def display_infos_on_siret(siret):
 
     LOGGER.info(ENSEIGNE_FOLDER)
     if ENSEIGNE_FOLDER.exists():
-        LOGGER.info(f"déjà archivé")
+        LOGGER.info(f"le dossier d'archivage existe")
+        LOGGER.info(ENSEIGNE_FOLDER)
         # LOGGER.info("dossier de travail")
         # LOGGER.info(get_enseigne_folder(siret))
     else:

@@ -29,7 +29,7 @@ def configure_logger():
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
 
-    print(f"logfile available {logfile.resolve()}")
+    # print(f"logfile available {logfile.resolve()}")
     return logger
 
 
