@@ -75,4 +75,4 @@ common/keys.py
 .venv/
 tmp/*
 presentation_beamer*
-*/*.csv
+work/*.csv
