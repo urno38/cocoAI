@@ -1088,5 +1088,5 @@ def main(
     else:
         writer.close()
 
-    LOGGER.info(f"Fichier des écritures comptables {xlsx_path.resolve()}")
+    LOGGER.info(f"Fichier des écritures comptables\n{xlsx_path.resolve()}")
     return

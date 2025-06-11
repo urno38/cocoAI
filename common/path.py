@@ -24,7 +24,10 @@ elif getpass.getuser() == "antoninbertuol":
     USER_PATH = Path("/Users/") / getpass.getuser()
     SHARED_DRIVES_PATH = (
         USER_PATH
-        / "antonin.bertuol@comptoirsetcommerces.com - Google Drive/Drive partagés"
+        / "Library"
+        / "CloudStorage"
+        / "GoogleDrive-antonin.bertuol@comptoirsetcommerces.com"
+        / "Drives partagés"
     )
     DATALAKE_PATH = SHARED_DRIVES_PATH / "DATALAKE"
 else:
@@ -35,9 +38,10 @@ DESKTOP_PATH = USER_PATH / "Desktop"
 
 
 # One Drive
-COMPTOIRS_ET_COMMERCES_PATH = USER_PATH / "COMPTOIRS ET COMMERCES"
-COMMERCIAL_DOCUMENTS_PATH = COMPTOIRS_ET_COMMERCES_PATH / "COMMERCIAL - Documents"
-DATALAKE_PATH = COMPTOIRS_ET_COMMERCES_PATH / "DATALAKE - Documents"
+# COMPTOIRS_ET_COMMERCES_PATH = USER_PATH / "COMPTOIRS ET COMMERCES"
+# COMMERCIAL_DOCUMENTS_PATH = COMPTOIRS_ET_COMMERCES_PATH / "COMMERCIAL - Documents"
+# DATALAKE_PATH = COMPTOIRS_ET_COMMERCES_PATH / "DATALAKE - Documents"
+
 
 # CocoAI
 COCOAI_PATH = DOCUMENTS_PATH / "cocoAI"
