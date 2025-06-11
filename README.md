@@ -36,4 +36,6 @@ TODO 2025-05-19 :
 - annuaire partagé, google workspace
 - applications sur les téléphones portables
 
+TODO coder la masse salariale dans main_attio.py
+
 penser à faire imprimer un dessin mistral
