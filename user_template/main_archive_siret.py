@@ -78,7 +78,7 @@ def main_user(siret=None):
     DEFAULT_PATH.mkdir(exist_ok=True)
     path = Path(
         input(
-            f"\nEntrer le dossier qui contient tous les documents\nPar défaut : {DEFAULT_PATH}\nTaper entrée quand le dossier est plein\n"
+            f"\nEntrer le dossier qui contient tous les documents\nPar défaut :\n {DEFAULT_PATH}\nTaper entrée quand le dossier est plein\n"
         )
     )
     if path.resolve() == Path.cwd().resolve():
