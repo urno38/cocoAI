@@ -58,7 +58,6 @@ def get_enseigne_folder_path(siret):
     siren = str(int(siret)).strip()[:9]
     dest_entreprise_folder_path = get_entreprise_folder_path(siren)
     enseigne = get_etablissement_name(siret)
-    print(dest_entreprise_folder_path / enseigne)
     return dest_entreprise_folder_path / enseigne
 
 

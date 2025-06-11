@@ -157,8 +157,8 @@ def main_user(siret=None):
         FEClist = list(FEC_DIR.glob("*"))
         for p in FEClist:
             print(p)
-        refyear = input("\nAnnee de reference format [2023]\n")
-        curyear = input("\nAnnee courante format [2024]\n")
+        refyear = input("\nAnnee de reference [format : 2023]\n")
+        curyear = input("\nAnnee courante [format : 2024]\n")
 
         print("\n\n")
 
@@ -199,8 +199,8 @@ if __name__ == "__main__":
     #     main(s)
 
     # main(48138353700018)
-    main_user()
-    # main(85364205600024)
+    # main_user()
+    main(85364205600024)
 
     # li = get_df_folder_possibles()["siret"].dropna().values.tolist()
     # shuffled_list = random.sample(li, len(li))
