@@ -15,6 +15,12 @@ attention bien utiliser pip (et pas uv à la première install) car certains pac
 1. Récupérer les clés et les enregistrer dans common/keys.py
 2. Générer une clé ssh et l'envoyer sur le github  
 
+### améliorations
+
+- une fois que le pdf des terrasses est téléchargé, le classer là où il faut dans le dossier documents
+- refacto la procédure pour la simplifier
+- penser à faire imprimer un dessin mistral pour ma sortie
+
 ## to do list
 
 - implémenter la charte graphique de CC dans les beamers
@@ -22,8 +28,6 @@ attention bien utiliser pip (et pas uv à la première install) car certains pac
 - présenter les avantages de mettre en place une procédure ou pas dans la boite comptoirs et commerces
 - annuaire partagé, google workspace
 - applications sur les téléphones portables
-
-penser à faire imprimer un dessin mistral
 
 ## Mode d'emploi sur mac
 
@@ -33,6 +37,11 @@ penser à faire imprimer un dessin mistral
 
 ```bash
 bash
+```
+
+attendre que la commande soit terminée puis
+
+```bash
 cd Documents/cocoAI
 git pull
 uv sync
